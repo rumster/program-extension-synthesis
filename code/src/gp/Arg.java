@@ -1,7 +1,7 @@
 package gp;
 
 /**
- * An operator argument.
+ * An argument for an operator or a condition.
  * 
  * @author romanm
  */

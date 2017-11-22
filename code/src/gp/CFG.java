@@ -20,6 +20,8 @@ import bgu.cs.util.graph.HashMultiGraph;
 public class CFG<StateType, ActionType, ConditionType>
 		extends HashMultiGraph<CFG.Node, CFG.Edge<ActionType, ConditionType>>
 		implements DTR<CFG.Node, CFG.Edge<ActionType, ConditionType>> {
+	public static final Node ENTRY = new Node();
+	public static final Node EXIT = new Node();
 
 	public static class Node {
 	}
@@ -31,6 +33,11 @@ public class CFG<StateType, ActionType, ConditionType>
 		public Edge(ActionType action) {
 			this.action = action;
 		}
+	}
+
+	public CFG() {
+		addNode(ENTRY);
+		addNode(EXIT);
 	}
 
 	@Override

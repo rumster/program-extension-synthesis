@@ -1,0 +1,17 @@
+Operator(name, args, associative) ::= <<
+$if(args)$($name$ $args; separator=" "$$if(associative)$+$endif$)$else$$name$$endif$
+>>
+
+Nonterminal(name, productions) ::= <<
+($name$ $if(productions)$
+    $productions; separator="\n"$$endif$)
+>>
+
+Grammar(start, nonterminals) ::= <<
+((Start ($start.name$))
+ $nonterminals; separator="\n"$)
+>>
+
+OperatorTree(name, args) ::= <<
+$if(args)$($name$ $args; separator=" "$)$else$$name$$endif$
+>>

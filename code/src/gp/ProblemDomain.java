@@ -1,7 +1,6 @@
 package gp;
 
 import java.util.Collection;
-import java.util.Iterator;
 
 import bgu.cs.util.rel.HashRel2;
 import bgu.cs.util.rel.Rel2;
@@ -20,12 +19,17 @@ import bgu.cs.util.rel.Rel2;
  */
 public abstract class ProblemDomain<StateType, ActionType, ConditionType> {
 	/**
+	 * The name of this domain.
+	 */
+	public abstract String name();
+
+	/**
 	 * The basic operators available in this domain.
 	 */
 	public final Collection<Operator<StateType>> operators;
 
 	/**
-	 * The arguments available for operators in this domain.
+	 * The arguments available for operators and conditions in this domain.
 	 */
 	public final Collection<Arg> args;
 
@@ -60,28 +64,7 @@ public abstract class ProblemDomain<StateType, ActionType, ConditionType> {
 	}
 
 	/**
-	 * Enumerates the available basic conditions in this domain, preferably by order
-	 * of increasing complexity.
-	 */
-	public abstract Iterator<ConditionType> basicConditionIterator();
-
-	/**
 	 * Tests whether the given condition holds for the given state.
 	 */
 	public abstract boolean test(ConditionType c, StateType state);
-
-	/**
-	 * Returns the conjunction of two conditions.
-	 */
-	public abstract ConditionType and(ConditionType first, ConditionType second);
-
-	/**
-	 * Returns the disjunction of two conditions.
-	 */
-	public abstract ConditionType or(ConditionType first, ConditionType second);
-
-	/**
-	 * Returns the negation of two conditions.
-	 */
-	public abstract ConditionType not(ConditionType c);
 }
