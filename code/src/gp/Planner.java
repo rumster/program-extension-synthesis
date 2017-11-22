@@ -16,6 +16,15 @@ import java.util.function.Predicate;
  */
 public interface Planner<StateType, ActionType> {
 	/**
+	 * The result of a search for a plan.
+	 * 
+	 * @author romanm
+	 */
+	public static enum Result {
+		OK, NO_PLAN_EXISTS, TIMEOUT
+	}
+
+	/**
 	 * Attempts to finds a sequence of actions from the given input state to a state
 	 * satisfying the goal.
 	 * 
@@ -24,9 +33,9 @@ public interface Planner<StateType, ActionType> {
 	 * @param goalTest
 	 *            A predicate that tests whether a state satisfies the goal
 	 *            condition.
-	 * @param addToPath
-	 *            If a path is found, it is appended to this one.
-	 * @return true if a path exists.
+	 * @param addToPlan
+	 *            If a plan is found, it is appended to this one.
+	 * @return The result of the search.
 	 */
-	public boolean findPlan(StateType input, Predicate<StateType> goalTest, Plan<StateType, ActionType> addToPath);
+	public Result findPlan(StateType input, Predicate<StateType> goalTest, Plan<StateType, ActionType> addToPlan);
 }

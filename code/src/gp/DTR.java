@@ -17,6 +17,9 @@ public interface DTR<StateType, ActionType> extends TR<StateType, ActionType> {
 	/**
 	 * Returns the only enabled action on the given state, if one exists, and empty
 	 * otherwise.
+	 * 
+	 * @param state
+	 *            A state.
 	 */
 	public Optional<ActionType> enabledAction(StateType state);
 
@@ -25,19 +28,31 @@ public interface DTR<StateType, ActionType> extends TR<StateType, ActionType> {
 	 * 
 	 * @param state
 	 *            A state.
-	 * @param plan
-	 *            empty plan.
-	 * @param timeoutTester
-	 *            A predicate for testing whether the execution is taking too many
-	 *            steps and should therefore be stopped.
 	 * @return The result of applying the currently enabled actions, if it exists,
 	 *         to the given state, and empty otherwise.
 	 */
 	public Optional<StateType> next(StateType state);
 
+	/**
+	 * Executes this transition relation on the given initial state
+	 * 
+	 * @param initial
+	 *            The state from which execution starts.
+	 * @param plan
+	 *            The plan to which the trace is added.
+	 * @param stopper
+	 *            A condition for stopping the execution, typically, when the trace
+	 *            becomes too long.
+	 * @return true if the execution reached a final state and false otherwise.
+	 */
 	public default boolean trace(StateType initial, Plan<StateType, ActionType> plan,
-			BiPredicate<StateType, ActionType> timeoutTester) {
-		plan.setFirst(initial);
+			BiPredicate<StateType, ActionType> stopper) {
+		if (plan.isEmpty()) {
+			plan.setFirst(initial);
+		} else {
+			assert plan.last().equals(initial);
+		}
+
 		StateType current = initial;
 		while (true) {
 			Optional<ActionType> actionOrEmpty = enabledAction(current);
@@ -45,7 +60,7 @@ public interface DTR<StateType, ActionType> extends TR<StateType, ActionType> {
 				ActionType action = actionOrEmpty.get();
 				current = next(current).get();
 				plan.append(action, current);
-				if (!timeoutTester.test(current, action)) {
+				if (stopper.test(current, action)) {
 					return false;
 				}
 

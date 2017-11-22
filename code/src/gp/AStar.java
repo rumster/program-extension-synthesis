@@ -32,13 +32,13 @@ public class AStar<StateType, ActionType> implements Planner<StateType, ActionTy
 	}
 
 	@Override
-	public boolean findPlan(StateType input, Predicate<StateType> goalTest, Plan<StateType, ActionType> addToPlan) {
+	public Result findPlan(StateType input, Predicate<StateType> goalTest, Plan<StateType, ActionType> addToPlan) {
 		Node<StateType, ActionType> resultNode = search(input, goalTest);
 		if (resultNode != null) {
 			createPath(resultNode, addToPlan);
-			return true;
+			return Result.OK;
 		} else {
-			return false;
+			return Result.NO_PLAN_EXISTS;
 		}
 	}
 

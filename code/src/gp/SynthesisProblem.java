@@ -1,28 +1,33 @@
 package gp;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
-import bgu.cs.util.Pair;
-import bgu.cs.util.rel.HashRel2;
-import bgu.cs.util.rel.Rel2;
-
-public class SynthesisProblem<StateType> {
+/**
+ * A synthesis specification.
+ * 
+ * @author romanm
+ *
+ * @param <StateType>
+ *            The type of states over which the specification is given.
+ */
+public class SynthesisProblem<StateType, ActionType, ConditionType> {
 	public String name;
-	public List<Pair<StateType, StateType>> examples = new ArrayList<>();
-	public Collection<Arg> tempArgs = new ArrayList<>();
-	protected Rel2<ArgType, Arg> argTypeToArg = new HashRel2<>();
+	public List<InputOutputExample<StateType>> examples = new ArrayList<>();
 
-	public SynthesisProblem(String name, List<Pair<StateType, StateType>> examples, Collection<Arg> args,
-			Collection<Arg> tempArgs) {
+	/**
+	 * Constructs a named synthesis problem from a problem domain and a list of
+	 * examples.
+	 * 
+	 * @param name
+	 *            The name of the problem, typically used for the generated program.
+	 * @param domain
+	 *            A problem domain.
+	 * @param examples
+	 *            A set of examples.
+	 */
+	public SynthesisProblem(String name, ProblemDomain<StateType, ActionType, ConditionType> domain,
+			List<InputOutputExample<StateType>> examples) {
 		this.name = name;
-		for (Arg arg : args) {
-			argTypeToArg.add(arg.type, arg);
-		}
-		for (Arg arg : tempArgs) {
-			argTypeToArg.add(arg.type, arg);
-			tempArgs.add(arg);
-		}
 	}
 }

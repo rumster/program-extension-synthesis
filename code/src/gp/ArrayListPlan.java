@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 /**
- * An implementation of a plan by a pair of {@link ArrayList>s.
+ * An implementation of a plan by a pair of {@link ArrayList}s.
  * 
  * @author romanm
  *

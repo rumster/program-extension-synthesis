@@ -17,6 +17,9 @@ public interface Plan<StateType, ActionType> {
 	 */
 	public int size();
 
+	/**
+	 * Holds if there are no states in this plan.
+	 */
 	public default boolean isEmpty() {
 		return size() == 0;
 	}

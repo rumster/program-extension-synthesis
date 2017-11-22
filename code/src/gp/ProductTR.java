@@ -20,12 +20,18 @@ import bgu.cs.util.Pair;
  *            The type of actions over which both transition relations are
  *            defined.
  */
-public class ProductTR<StateType1, StateType2, ActionType>
-		implements TR<Pair<StateType1, StateType2>, ActionType> {
+public class ProductTR<StateType1, StateType2, ActionType> implements TR<Pair<StateType1, StateType2>, ActionType> {
 	private final TR<StateType1, ActionType> tr1;
 	private final TR<StateType2, ActionType> tr2;
 	private final CostCombiner costCombiner;
 
+	/**
+	 * Combines the costs of two transitions, each from one of the given transition
+	 * relations.
+	 * 
+	 * @author romanm
+	 *
+	 */
 	public static abstract class CostCombiner {
 		public abstract float combine(float cost1, float cost2);
 	}
