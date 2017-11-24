@@ -14,7 +14,7 @@ import java.util.List;
  * 
  * @author romanm
  */
-public abstract class Operator extends Node {
+public abstract class InternalNode extends Node {
 	public abstract List<Node> getArgs();
 
 	public static int countNonterminals(List<? extends Node> nodes) {
@@ -40,7 +40,7 @@ public abstract class Operator extends Node {
 	 *            The arguments of the returned operator.
 	 * @return An operator.
 	 */
-	public abstract Operator clone(List<Node> args);
+	public abstract InternalNode clone(List<Node> args);
 
 	/**
 	 * Accepts a visitor.
@@ -57,7 +57,7 @@ public abstract class Operator extends Node {
 	 *            An operator associated with the given nonterminal.
 	 * @return The transformed operator, or null if no nonterminals exist.
 	 */
-	public Operator substituteLeftmost(Operator op) {
+	public InternalNode substituteLeftmost(InternalNode op) {
 		if (numOfNonterminals == 0)
 			return this;
 
@@ -76,13 +76,13 @@ public abstract class Operator extends Node {
 			if (arg instanceof Nonterminal) {
 				newArgs.add(op);
 			} else {
-				Operator argOp = (Operator) arg;
-				Operator result = argOp.substituteLeftmost(op);
+				InternalNode argOp = (InternalNode) arg;
+				InternalNode result = argOp.substituteLeftmost(op);
 				newArgs.add(result);
 			}
 			handledLeftmost = true;
 		}
-		Operator result = this.clone(newArgs);
+		InternalNode result = this.clone(newArgs);
 		return result;
 	}
 
@@ -121,9 +121,9 @@ public abstract class Operator extends Node {
 			return true;
 		if (!super.equals(obj))
 			return false;
-		if (!(obj instanceof Operator))
+		if (!(obj instanceof InternalNode))
 			return false;
-		Operator other = (Operator) obj;
+		InternalNode other = (InternalNode) obj;
 		return getArgs().equals(other.getArgs());
 	}
 
@@ -138,7 +138,7 @@ public abstract class Operator extends Node {
 		return result;
 	}
 
-	protected Operator(int numOfNonterminals) {
+	protected InternalNode(int numOfNonterminals) {
 		super(numOfNonterminals);
 	}
 }

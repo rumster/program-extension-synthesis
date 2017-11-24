@@ -23,16 +23,16 @@ public class NaiveSynthesizer<StateType, ActionType, ConditionType> {
 	private final Planner<StateType, ActionType> planner;
 
 	@SuppressWarnings("unused")
-	private final GlobalCFGGeneralizer<StateType, ActionType, ConditionType> cfgGeneralizer;
+	private final CFGGeneralizer<StateType, ActionType, ConditionType> cfgGeneralizer;
 
 	public NaiveSynthesizer(Planner<StateType, ActionType> planner,
-			GlobalCFGGeneralizer<StateType, ActionType, ConditionType> cfgGeneralizer) {
+			CFGGeneralizer<StateType, ActionType, ConditionType> cfgGeneralizer) {
 		this.planner = planner;
 		this.cfgGeneralizer = cfgGeneralizer;
 	}
 
 	public boolean synthesize(SynthesisProblem<StateType, ActionType, ConditionType> problem,
-			CFG<StateType, ActionType, ConditionType> result) {
+			CFG<ActionType, ConditionType> result) {
 		this.problem = problem;
 		throw new UnsupportedOperationException("unimplemented!");
 	}

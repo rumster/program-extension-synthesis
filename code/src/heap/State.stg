@@ -1,0 +1,7 @@
+State(vars, refObjs, heap) ::= <<
+($vars, refObjs:{var, obj|$var$=$obj$}; separator=" "$$if(heap)$ $heap; separator=" "$$endif$)
+>>
+
+Fields(obj, fields, succs) ::= <<
+$fields, succs:{field, succ|$obj$.$field$=$succ$}; separator=" "$
+>>

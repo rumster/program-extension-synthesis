@@ -17,8 +17,8 @@ public class CostSize implements CostFun {
 	protected int size(Node n) {
 		if (n == null) {
 			return 0;
-		} else if (n instanceof Operator) {
-			Operator op = (Operator) n;
+		} else if (n instanceof InternalNode) {
+			InternalNode op = (InternalNode) n;
 			int result = 1;
 			for (Node arg : op.getArgs()) {
 				result += size(arg);

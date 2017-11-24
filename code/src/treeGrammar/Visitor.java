@@ -10,7 +10,7 @@ public interface Visitor {
 
 	public void visit(Terminal n);
 
-	public void visit(Operator n);
+	public void visit(InternalNode n);
 	
 	public void visit(OpNonterminal n);
 	

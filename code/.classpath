@@ -8,5 +8,6 @@
 	</classpathentry>
 	<classpathentry combineaccessrules="false" kind="src" path="/Util"/>
 	<classpathentry kind="lib" path="lib/antlr-4.4-complete.jar"/>
+	<classpathentry kind="lib" path="lib/trove-3.0.3.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

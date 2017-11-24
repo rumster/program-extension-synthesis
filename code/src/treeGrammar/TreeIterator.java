@@ -13,14 +13,14 @@ import bgu.cs.util.BucketHeap;
  * 
  * @author romanm
  */
-public class TreeIterator implements Iterator<Operator> {
+public class TreeIterator implements Iterator<InternalNode> {
 	public final Nonterminal start;
 	public final CostFun costFun;
 	public final float costUpperBound;
 
-	private Operator nextElem = null;
+	private InternalNode nextElem = null;
 
-	private BucketHeap<Float, Operator> frontier;
+	private BucketHeap<Float, InternalNode> frontier;
 
 	/**
 	 * Constructs a condition iterator.
@@ -54,17 +54,17 @@ public class TreeIterator implements Iterator<Operator> {
 		frontier = new BucketHeap<>();
 
 		// Add the initial production right-hand sides to the frontier.
-		List<Operator> seed = new ArrayList<>();
+		List<InternalNode> seed = new ArrayList<>();
 		seed.addAll(start.getProductions());
-		for (Operator op : seed) {
+		for (InternalNode op : seed) {
 			float cost = costFun.apply(op);
 			frontier.put(cost, op);
 		}
 	}
 
 	@Override
-	public Operator next() {
-		Operator result = nextElem;
+	public InternalNode next() {
+		InternalNode result = nextElem;
 		nextElem = null;
 		advance();
 		if (result == null) {
@@ -91,15 +91,15 @@ public class TreeIterator implements Iterator<Operator> {
 			return;
 
 		while (!frontier.isEmpty()) {
-			Operator minNode = frontier.pop();
+			InternalNode minNode = frontier.pop();
 			Nonterminal leftmostNonterminalNode = minNode.leftmostNonterminal();
 			if (leftmostNonterminalNode == null) {
 				nextElem = minNode;
 				return;
 			}
 
-			for (Operator prod : leftmostNonterminalNode.getProductions()) {
-				Operator succ = minNode.substituteLeftmost(prod);
+			for (InternalNode prod : leftmostNonterminalNode.getProductions()) {
+				InternalNode succ = minNode.substituteLeftmost(prod);
 				float succCost = costFun.apply(succ);
 				if (costUpperBound < 0 || succCost > costUpperBound) {
 					continue;

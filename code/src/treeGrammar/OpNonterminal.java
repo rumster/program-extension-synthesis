@@ -8,7 +8,7 @@ import java.util.List;
  * 
  * @author romanm
  */
-public class OpNonterminal extends Operator {
+public class OpNonterminal extends InternalNode {
 
 	public final Nonterminal n;
 
@@ -48,12 +48,12 @@ public class OpNonterminal extends Operator {
 	}
 
 	@Override
-	public Operator substituteLeftmost(Operator op) {
+	public InternalNode substituteLeftmost(InternalNode op) {
 		return op;
 	}
 
 	@Override
-	public Operator clone(List<Node> args) {
+	public InternalNode clone(List<Node> args) {
 		assert args.size() == 1;
 		return new OpNonterminal(args);
 	}

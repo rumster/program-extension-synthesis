@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.Iterator;
 
 /**
- * An inferencer based on enumerating all Boolean conditions.
+ * An inferencer based on finding a Boolean Craig interpolant.
  * 
  * @author romanm
  *
@@ -14,7 +14,7 @@ import java.util.Iterator;
  *            A Boolean condition with an iterator over the basic conditions,
  *            preferably in increasing complexity order.
  */
-public class EnumerativeBooleanConditionInferencer<StateType, ConditionType extends BooleanCondition & Iterator<ConditionType>>
+public class InterpolatingConditionInferencer<StateType, ConditionType extends BooleanCondition & Iterator<ConditionType>>
 		extends ConditionInferencer<StateType, ConditionType> {
 
 	@Override

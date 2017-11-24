@@ -3,7 +3,7 @@ package gp;
 import java.util.Collection;
 
 /**
- * An algorithm for inferring a (deterministic) CFG from a set of plans.
+ * An algorithm for inferring a CFG from a set of plans.
  * 
  * @author romanm
  *
@@ -14,9 +14,14 @@ import java.util.Collection;
  * @param <ConditionType>
  *            The type of conditions on CFG branches.
  */
-public abstract class GlobalCFGGeneralizer<StateType, ActionType, ConditionType> {
+public abstract class CFGGeneralizer<StateType, ActionType, ConditionType> {
+	/**
+	 * The possible results of a generalization algorithm.
+	 * 
+	 * @author romanm
+	 */
 	public static enum Result {
-		OK, CONDITION_INFERENCE_FAILURE, TIMEOUT
+		OK, CONDITION_INFERENCE_FAILURE, OUT_OF_RESOURCES
 	};
 
 	/**
@@ -28,5 +33,5 @@ public abstract class GlobalCFGGeneralizer<StateType, ActionType, ConditionType>
 	 * @return The result of trying to generalize the given plans into a valid CFG.
 	 */
 	public abstract Result generalize(Collection<Plan<StateType, ActionType>> plans,
-			CFG<StateType, ActionType, ConditionType> result);
+			CFG<ActionType, ConditionType> result);
 }

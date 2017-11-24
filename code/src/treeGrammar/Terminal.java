@@ -8,7 +8,7 @@ import java.util.List;
  * 
  * @author romanm
  */
-public abstract class Terminal extends Operator {
+public abstract class Terminal extends InternalNode {
 	protected Terminal() {
 		super(0);
 	}

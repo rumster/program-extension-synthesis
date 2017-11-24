@@ -13,14 +13,14 @@ public class Renderer {
 	public static final Renderer v = new Renderer();
 	private static STGLoader templates = new STGLoader(Renderer.class, "grammar");
 
-	public static String render(Operator op) {
+	public static String render(InternalNode op) {
 		ST template = templates.load("OperatorTree");
 		template.add("name", op.getName());
 		for (Node n : op.getArgs()) {
 			if (n instanceof Nonterminal || n instanceof Terminal) {
 				template.add("args", n);
 			} else {
-				Operator sub = (Operator) n;
+				InternalNode sub = (InternalNode) n;
 				template.add("args", render(sub));
 			}
 		}

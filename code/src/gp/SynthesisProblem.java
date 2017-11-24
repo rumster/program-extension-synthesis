@@ -1,8 +1,5 @@
 package gp;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * A synthesis specification.
  * 
@@ -12,8 +9,8 @@ import java.util.List;
  *            The type of states over which the specification is given.
  */
 public class SynthesisProblem<StateType, ActionType, ConditionType> {
-	public String name;
-	public List<InputOutputExample<StateType>> examples = new ArrayList<>();
+	public final String name;
+	public final Spec<StateType, ActionType, ConditionType> spec;
 
 	/**
 	 * Constructs a named synthesis problem from a problem domain and a list of
@@ -23,11 +20,12 @@ public class SynthesisProblem<StateType, ActionType, ConditionType> {
 	 *            The name of the problem, typically used for the generated program.
 	 * @param domain
 	 *            A problem domain.
-	 * @param examples
-	 *            A set of examples.
+	 * @param spec
+	 *            A specification.
 	 */
 	public SynthesisProblem(String name, ProblemDomain<StateType, ActionType, ConditionType> domain,
-			List<InputOutputExample<StateType>> examples) {
+			Spec<StateType, ActionType, ConditionType> spec) {
 		this.name = name;
+		this.spec = spec;
 	}
 }

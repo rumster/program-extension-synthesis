@@ -10,7 +10,7 @@ import java.util.List;
  */
 public class Nonterminal extends Node {
 	public final String name;
-	protected final List<Operator> productions = new ArrayList<>();
+	protected final List<InternalNode> productions = new ArrayList<>();
 	private static int counter;
 
 	public Nonterminal(String name) {
@@ -39,7 +39,7 @@ public class Nonterminal extends Node {
 		return this.name.equals(other.name);
 	}
 
-	public void add(Operator op) {
+	public void add(InternalNode op) {
 		productions.add(op);
 	}
 
@@ -48,7 +48,7 @@ public class Nonterminal extends Node {
 		return this;
 	}
 
-	public List<Operator> getProductions() {
+	public List<InternalNode> getProductions() {
 		return productions;
 	}
 
