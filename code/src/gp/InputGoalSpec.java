@@ -16,7 +16,13 @@ import java.util.List;
  * @param <ConditionType>
  *            The type of conditions.
  */
-public class InputGoalSpec<StateType, ActionType, ConditionType> implements Spec<StateType, ActionType, ConditionType> {
+public abstract class InputGoalSpec<StateType, ActionType, ConditionType> {
+	public final String name;
+
+	public InputGoalSpec(String name) {
+		this.name = name;
+	}
+
 	public final List<InputGoals> examples = new ArrayList<>();
 
 	/**
@@ -35,7 +41,12 @@ public class InputGoalSpec<StateType, ActionType, ConditionType> implements Spec
 		}
 	}
 
-	@Override
+	/**
+	 * Tests whether the given control-flow graph satisfies the specification.
+	 * 
+	 * @param cfg
+	 *            A control-flow graph.
+	 */
 	public boolean holds(CFG<ActionType, ConditionType> cfg) {
 		throw new UnsupportedOperationException("unimplemented!");
 	}

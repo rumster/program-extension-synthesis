@@ -23,6 +23,10 @@ public interface Plan<StateType, ActionType> {
 	public default boolean isEmpty() {
 		return size() == 0;
 	}
+	
+	public Iterable<StateType> states();
+	
+	public Iterable<ActionType> actions();
 
 	public StateType stateAt(int i);
 
@@ -33,15 +37,33 @@ public interface Plan<StateType, ActionType> {
 	}
 
 	public default StateType last() {
+		assert !isEmpty();
 		return stateAt(size() - 1);
 	}
 
 	public void setFirst(StateType state);
 
+	/**
+	 * Precondition: <code>!isEmpty()</code>
+	 * 
+	 * @param action
+	 * @param state
+	 */
 	public void append(ActionType action, StateType state);
 
+	/**
+	 * Precondition: <code>!isEmpty()</code>
+	 * 
+	 * @param action
+	 * @param state
+	 */
 	public void prepend(ActionType action, StateType state);
 
+	/**
+	 * Precondition: <code>!isEmpty()</code>
+	 * 
+	 * @param other
+	 */
 	public default void appendPlan(Plan<StateType, ActionType> other) {
 		if (other.isEmpty()) {
 			return;
@@ -55,6 +77,11 @@ public interface Plan<StateType, ActionType> {
 		}
 	}
 
+	/**
+	 * Precondition: <code>!isEmpty()</code>
+	 * 
+	 * @param other
+	 */
 	public void prependPlan(Plan<StateType, ActionType> other);
 
 	// public static String toVerticalString() {

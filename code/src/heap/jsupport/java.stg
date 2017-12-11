@@ -1,0 +1,107 @@
+Nonterminal(name) ::= <<
+$name$
+>>
+
+IfStmt(cond, then, elseNode) ::= <<
+$if(elseNode)$
+if ($cond$) {
+  $then$
+} else {
+  $elseNode$
+}
+$else$
+if ($cond$) {
+  $then$
+}
+$endif$
+>>
+
+Nonterminal(n) ::= <<
+[$n$]
+>>
+
+WhileStmt(cond, body) ::= <<
+while ($cond$) {
+  $body$
+}
+>>
+
+SkipStmt() ::= <<
+// skip
+>>
+
+SequenceStmt(args) ::= <<
+$args; separator=" "$
+>>
+
+AssignStmt(lhs, rhs) ::= <<
+$lhs$=$rhs$;
+>>
+
+OrExpr(lhs, rhs) ::= <<
+($lhs$) || ($rhs$)
+>>
+
+AndExpr(lhs, rhs) ::= <<
+$lhs$ && $rhs$
+>>
+
+NotExpr(sub) ::= <<
+!($sub$)
+>>
+
+EqExpr(lhs, rhs) ::= <<
+$lhs$==$rhs$
+>>
+
+LtExpr(lhs, rhs) ::= <<
+$lhs$<$rhs$
+>>
+
+LeqExpr(lhs, rhs) ::= <<
+$lhs$<=$rhs$
+>>
+
+NewExpr(type) ::= <<
+new $type$()
+>>
+
+DerefExpr(lhs, field) ::= <<
+$lhs$.$field$
+>>
+
+NullExpr() ::= <<
+null
+>>
+
+Int(value) ::= <<
+$value$
+>>
+
+MinusExpr(sub) ::= <<
+-($sub$)
+>>
+
+PlusExpr(lhs, rhs) ::= <<
+$lhs$+$rhs$
+>>
+
+IntVar(name) ::= <<
+$name$
+>>
+
+RefVar(name) ::= <<
+$name$
+>>
+
+IntField(name) ::= <<
+$name$
+>>
+
+RefField(name) ::= <<
+$name$
+>>
+
+RefType(name) ::= <<
+$name$
+>>

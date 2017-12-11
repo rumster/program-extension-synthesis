@@ -1,5 +1,11 @@
 package gp;
 
+import java.util.ArrayList;
+import java.util.logging.Logger;
+
+import gp.CFGGeneralizer.Result;
+import gp.Planner.PlanResultType;
+
 /**
  * Synthesizes a CFG from a list of input-output examples by using the given
  * planner and CFG generalizer (which internally uses and condition inferencer).
@@ -16,24 +22,63 @@ package gp;
  *            The type of condition in the program.
  */
 public class NaiveSynthesizer<StateType, ActionType, ConditionType> {
-	@SuppressWarnings("unused")
-	private SynthesisProblem<StateType, ActionType, ConditionType> problem;
-
-	@SuppressWarnings("unused")
 	private final Planner<StateType, ActionType> planner;
 
-	@SuppressWarnings("unused")
 	private final CFGGeneralizer<StateType, ActionType, ConditionType> cfgGeneralizer;
 
+	private final GPDebugger<StateType, ActionType, ConditionType> debugger;
+	private final Logger logger;
+
 	public NaiveSynthesizer(Planner<StateType, ActionType> planner,
-			CFGGeneralizer<StateType, ActionType, ConditionType> cfgGeneralizer) {
+			CFGGeneralizer<StateType, ActionType, ConditionType> cfgGeneralizer, Logger logger,
+			GPDebugger<StateType, ActionType, ConditionType> debugger) {
+		assert planner != null && cfgGeneralizer != null;
 		this.planner = planner;
 		this.cfgGeneralizer = cfgGeneralizer;
+		this.logger = logger;
+		this.debugger = debugger;
 	}
 
-	public boolean synthesize(SynthesisProblem<StateType, ActionType, ConditionType> problem,
+	public boolean synthesize(InputOutputProblem<StateType, ActionType, ConditionType> problem,
 			CFG<ActionType, ConditionType> result) {
-		this.problem = problem;
-		throw new UnsupportedOperationException("unimplemented!");
+		ArrayList<Plan<StateType, ActionType>> plans = new ArrayList<>();
+		for (InputOutputExample<StateType> example : problem.examples) {
+			StateType input = example.first;
+			StateType output = example.second;
+			Plan<StateType, ActionType> plan = new ArrayListPlan<>();
+			logger.info("Planning for example " + example.index + "...");
+			PlanResultType planResult = planner.findPlan(input, state -> state.equals(output), plan);
+			switch (planResult) {
+			case OK:
+				plans.add(plan);
+				debugger.printPlan(plan, example.index);
+				logger.info("Found a plan for example " + example.index);
+				break;
+			case NO_PLAN_EXISTS:
+				if (logger != null) {
+					logger.info("No plan exists for example " + example.index + "! Skipping example.");
+				}
+				break;
+			case TIMEOUT:
+				if (logger != null) {
+					logger.info("Time out on example " + example.index + "! Skipping example.");
+				}
+				break;
+			}
+		}
+		logger.info("Generalizing " + plans.size() + " plans...");
+		Result generalizationResult = cfgGeneralizer.generalize(plans, result);
+		switch (generalizationResult) {
+		case OK:
+			logger.info("Generalization succeeded!");
+			break;
+		case CONDITION_INFERENCE_FAILURE:
+			logger.info("Generalization was unable to infer conditions!");
+			break;
+		case OUT_OF_RESOURCES:
+			logger.info("Generalization ran out of resources!");
+			break;
+		}
+		return generalizationResult == Result.OK;
 	}
 }

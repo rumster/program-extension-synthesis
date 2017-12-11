@@ -1,54 +1,58 @@
 package heap;
 
-import heap.State.Val;
-import treeGrammar.Terminal;
+import grammar.Token;
 
 /**
  * The base class of fields.
  * 
  * @author romanm
  */
-public abstract class Field extends Terminal {
+public abstract class Field extends Token {
+	public final String name;
+
 	/**
 	 * The type of object containing the field.
 	 */
 	public final RefType srcType;
 
-	protected final String name;
-
 	/**
 	 * The type of the referenced value.
 	 */
-	protected final Type dstType;
+	public final Type dstType;
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
-		result = prime * result + ((srcType == null) ? 0 : srcType.hashCode());
 		return result;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (!super.equals(obj))
+		}
+		if (!super.equals(obj)) {
 			return false;
-		if (!(obj instanceof Field))
+		}
+		if (!(obj instanceof Field)) {
 			return false;
+		}
 		Field other = (Field) obj;
 		if (name == null) {
-			if (other.name != null)
+			if (other.name != null) {
 				return false;
+			}
 		} else if (!name.equals(other.name))
 			return false;
 		if (srcType == null) {
-			if (other.srcType != null)
+			if (other.srcType != null) {
 				return false;
-		} else if (!srcType.equals(other.srcType))
+			}
+		} else if (srcType != other.srcType) {
 			return false;
+		}
 		return true;
 	}
 
@@ -57,15 +61,6 @@ public abstract class Field extends Terminal {
 		this.srcType = srcType;
 		this.dstType = dstType;
 		srcType.add(this);
-	}
-
-	public Type getDstType() {
-		return dstType;
-	}
-
-	@Override
-	public final String getName() {
-		return name;
 	}
 
 	/**

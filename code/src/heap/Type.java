@@ -1,14 +1,14 @@
 package heap;
 
-import treeGrammar.Terminal;
-import treeGrammar.Visitor;
+import grammar.Token;
+import grammar.Visitor;
 
 /**
- * The base class of programming language types.
+ * The base class of PWhile types.
  * 
  * @author romanm
  */
-public abstract class Type extends Terminal {
+public abstract class Type extends Token {
 	protected final String name;
 
 	public Type(String name) {
@@ -49,5 +49,10 @@ public abstract class Type extends Terminal {
 	public void accept(Visitor v) {
 		PWhileVisitor whileVisitor = (PWhileVisitor) v;
 		whileVisitor.visit(this);
+	}
+	
+	@Override
+	public String toString() {
+		return name;
 	}
 }

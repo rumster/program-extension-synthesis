@@ -1,0 +1,23 @@
+Store(vars, refObjs, heap) ::= <<
+($vars, refObjs:{var, obj|$var$=$obj$}; separator=" "$$if(heap)$ $heap; separator=" "$$endif$)
+>>
+
+Fields(obj, fields, succs) ::= <<
+$fields, succs:{field, succ|$obj$.$field$=$succ$}; separator=" "$
+>>
+
+StoreDOT(objects, refVarNodes, refVarVals, nonRefVarVals, refFields) ::= <<
+digraph state {
+  null [shape=plaintext];
+  $objects:{it|$it.first$ [label="$it.second$", shape=box];}; separator="\n"$
+  $refVarNodes:{it|$it$ [label="$it$", shape=plaintext];}; separator="\n"$
+  $refVarVals:{it|$it.first$ -> $it.second$;}; separator="\n"$
+  $nonRefVarVals:{it|$it.first$ [label="$it.second$", shape=plaintext];}; separator="\n"$
+  $refFields:{it|$it.first$ -> $it.second$ [label="$it.third$"];}; separator="\n"$
+}
+>>
+
+objectContent(name, vals) ::= <<
+$name$
+$vals; separator="\n"$
+>>

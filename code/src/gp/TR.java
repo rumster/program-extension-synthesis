@@ -1,6 +1,7 @@
 package gp;
 
 import java.util.Collection;
+import java.util.Iterator;
 
 /**
  * A non-deterministic transition relation with a positive weight associated
@@ -23,6 +24,13 @@ public interface TR<StateType, ActionType> {
 	 * Returns the set of actions that are enabled for the given state.
 	 */
 	public Collection<ActionType> enabledActions(StateType state);
+
+	/**
+	 * Returns an iterator of the set of enabled actions.
+	 */
+	public default Iterator<ActionType> enabledActionsIterator(StateType state) {
+		return enabledActions(state).iterator();
+	}
 
 	/**
 	 * Returns the cost of taking the transition from the source state to the

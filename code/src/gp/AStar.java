@@ -18,7 +18,7 @@ import bgu.cs.util.BucketHeap;
  * @param <ActionType>
  *            The type of actions in the transition relation.
  */
-public class AStar<StateType, ActionType> implements Planner<StateType, ActionType> {
+public class AStar<StateType, ActionType> implements Planner<StateType, ActionType>, Searcher<StateType, ActionType> {
 	/**
 	 * The transition relation over which the search is performed.
 	 */
@@ -32,13 +32,24 @@ public class AStar<StateType, ActionType> implements Planner<StateType, ActionTy
 	}
 
 	@Override
-	public Result findPlan(StateType input, Predicate<StateType> goalTest, Plan<StateType, ActionType> addToPlan) {
-		Node<StateType, ActionType> resultNode = search(input, goalTest);
+	public PlanResultType findPlan(StateType input, Predicate<StateType> goalTest,
+			Plan<StateType, ActionType> addToPlan) {
+		Node<StateType, ActionType> resultNode = searchNode(input, goalTest);
 		if (resultNode != null) {
 			createPath(resultNode, addToPlan);
-			return Result.OK;
+			return PlanResultType.OK;
 		} else {
-			return Result.NO_PLAN_EXISTS;
+			return PlanResultType.NO_PLAN_EXISTS;
+		}
+	}
+
+	@Override
+	public SearchResult<StateType> findState(StateType initial, Predicate<StateType> goalTest) {
+		Node<StateType, ActionType> goalNode = searchNode(initial, goalTest);
+		if (goalNode == null) {
+			return SearchResult.noSolutionExists();
+		} else {
+			return SearchResult.of(goalNode.state);
 		}
 	}
 
@@ -51,7 +62,7 @@ public class AStar<StateType, ActionType> implements Planner<StateType, ActionTy
 	 *            The predicate expressing the goal states.
 	 * @return The resulting search node or null if no plan exists.
 	 */
-	protected Node<StateType, ActionType> search(StateType initial, Predicate<StateType> goalTest) {
+	protected Node<StateType, ActionType> searchNode(StateType initial, Predicate<StateType> goalTest) {
 		Map<StateType, Node<StateType, ActionType>> stateToNode = new HashMap<>();
 		BucketHeap<Float, Node<StateType, ActionType>> open = new BucketHeap<>();
 

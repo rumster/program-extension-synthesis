@@ -7,7 +7,18 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry combineaccessrules="false" kind="src" path="/Util"/>
-	<classpathentry kind="lib" path="lib/antlr-4.4-complete.jar"/>
 	<classpathentry kind="lib" path="lib/trove-3.0.3.jar"/>
+	<classpathentry kind="lib" path="lib/commons-configuration2-2.0.jar"/>
+	<classpathentry kind="lib" path="lib/commons-logging-1.2.jar"/>
+	<classpathentry kind="lib" path="lib/commons-beanutils-1.9.2.jar"/>
+	<classpathentry kind="lib" path="lib/commons-exec-1.3.jar"/>
+	<classpathentry kind="lib" path="lib/commons-lang3-3.4.jar"/>
+	<classpathentry kind="lib" path="lib/java_cup.jar"/>
+	<classpathentry kind="lib" path="lib/java-cup-11b-runtime.jar"/>
+	<classpathentry kind="lib" path="lib/jflex-1.6.1.jar"/>
+	<classpathentry kind="lib" path="lib/pddl4j-3.5.0.jar"/>
+	<classpathentry kind="lib" path="lib/smtinterpol-2.1-335-g4c543a5.jar"/>
+	<classpathentry kind="lib" path="lib/ST-4.0.8.jar"/>
+	<classpathentry kind="src" path="benchmarks"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

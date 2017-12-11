@@ -1,6 +1,6 @@
 package heap;
 
-import treeGrammar.Visitor;
+import grammar.Visitor;
 
 /**
  * A terminal representing a reference variable.
@@ -8,11 +8,8 @@ import treeGrammar.Visitor;
  * @author romanm
  */
 public class RefVar extends Var {
-	public final RefType type;
-
 	public RefVar(String name, RefType type, VarRole role, boolean out, boolean readonly) {
-		super(name, role, out, readonly);
-		this.type = type;
+		super(name, type, role, out, readonly);
 	}
 
 	public RefVar(String name, RefType type) {
@@ -23,5 +20,10 @@ public class RefVar extends Var {
 	public void accept(Visitor v) {
 		PWhileVisitor whileVisitor = (PWhileVisitor) v;
 		whileVisitor.visit(this);
+	}
+
+	@Override
+	public RefType getType() {
+		return (RefType) type;
 	}
 }

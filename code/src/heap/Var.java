@@ -1,18 +1,18 @@
 package heap;
 
-import treeGrammar.Terminal;
+import grammar.Token;
 
 /**
  * The base class of variables.
  * 
  * @author romanm
  */
-public abstract class Var extends Terminal {
+public abstract class Var extends Token {
 	public final VarRole role;
 
 	/**
-	 * Indicates whether this variable, which should be an argument, is live
-	 * when the synthesized program terminates.
+	 * Indicates whether this variable, which should be an argument, is live when
+	 * the synthesized program terminates.
 	 */
 	public final boolean out;
 
@@ -21,21 +21,20 @@ public abstract class Var extends Terminal {
 	 */
 	public final boolean readonly;
 
-	protected final String name;
+	public final String name;
+	
+	protected final Type type;
 
 	public static enum VarRole {
 		ARG, TEMPORARY
 	}
 
-	public Var(String name, VarRole role, boolean out, boolean readonly) {
+	public Var(String name, Type type, VarRole role, boolean out, boolean readonly) {
 		this.name = name;
+		this.type = type;
 		this.role = role;
 		this.out = out;
 		this.readonly = readonly;
-	}
-
-	public Var(String name) {
-		this(name, VarRole.TEMPORARY, false, false);
 	}
 
 	@Override
@@ -71,9 +70,18 @@ public abstract class Var extends Terminal {
 			return false;
 		return true;
 	}
+	
+	public Type getType() {
+		return type;
+	}
 
 	@Override
 	public final String getName() {
 		return name;
+	}
+	
+	@Override
+	public final String toString() {
+		return name + ":" + getType().name;
 	}
 }

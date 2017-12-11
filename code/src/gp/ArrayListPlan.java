@@ -27,29 +27,37 @@ public class ArrayListPlan<StateType, ActionType> implements Plan<StateType, Act
 		this.actions.addAll(actions);
 	}
 
+	@Override
 	public void setFirst(StateType n) {
-		assert states.isEmpty();
+		assert isEmpty();
 		this.states.add(n);
 	}
 
+	@Override
 	public void append(ActionType action, StateType node) {
+		assert !isEmpty();
 		this.actions.add(action);
 		this.states.add(node);
 	}
 
+	@Override
 	public boolean isEmpty() {
 		return states.isEmpty();
 	}
 
+	@Override
 	public void appendPlan(Plan<StateType, ActionType> other) {
-		throw new UnsupportedOperationException();
-		/*
-		 * if (other.states.size() < 2) return; if (isEmpty()) {
-		 * states.addAll(other.states); actions.addAll(other.actions); } else { final
-		 * StateType lastState = last(); assert lastState != null; assert
-		 * lastState.equals(other.first()); states.addAll(other.states.subList(1,
-		 * other.states.size())); actions.addAll(other.actions); }
-		 */
+		boolean first = true;
+		for (StateType state: other.states()) {
+			if (first && !states.isEmpty()) {
+				continue;
+			}
+			this.states.add(state);
+			first = false;
+		}
+		for (ActionType action: other.actions()) {
+			this.actions.add(action);
+		}
 	}
 
 	@Override
@@ -76,5 +84,15 @@ public class ArrayListPlan<StateType, ActionType> implements Plan<StateType, Act
 	@Override
 	public void prependPlan(Plan<StateType, ActionType> other) {
 		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Iterable<StateType> states() {
+		return states;
+	}
+
+	@Override
+	public Iterable<ActionType> actions() {
+		return actions;
 	}
 }

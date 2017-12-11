@@ -1,0 +1,50 @@
+package heap;
+
+import java.util.ArrayList;
+
+import dataStructures.SLL;
+import heap.HeapSynthesisProblem;
+import heap.jsupport.*;
+
+/**
+ * A benchmark for finding the first cell with the given integer value. lengths.
+ * 
+ * @author romanm
+ */
+public class SLLFind extends HeapRunner {
+	public static class BenchEnv extends JavaEnv {
+		@MethodArg(out = true, readonly = true)
+		public SLL head;
+
+		@MethodArg(out = false, readonly = true)
+		public int val;
+
+		@MethodArg(out = true)
+		public SLL ret;
+	}
+
+	public static void main(String[] args) {
+		SLLFind benchmark = new SLLFind();
+		benchmark.run(args);
+	}
+
+	@Override
+	public HeapSynthesisProblem genProblem() {
+		ArrayList<JavaEnv> inputs = new ArrayList<>();
+		for (int i = 2; i < 100; ++i) {
+			BenchEnv env = new BenchEnv();
+			env.head = SLL.genRandomAcyclic(i);
+			SLL t = env.head;
+			if (i % 2 == 0) {
+				for (int j = 0; j < i / 2; ++j) {
+					t = t.n;
+				}
+			}
+			env.val = t.d;
+			inputs.add(env);
+		}
+		JavaProblemGenerator problemGen = new JavaProblemGenerator(super.logger);
+		HeapSynthesisProblem problem = problemGen.generate(SLL.class, "find", inputs);
+		return problem;
+	}
+}

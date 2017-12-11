@@ -1,6 +1,6 @@
 package heap;
 
-import treeGrammar.Visitor;
+import grammar.Visitor;
 
 /**
  * A terminal representing an integer type variable.
@@ -9,7 +9,7 @@ import treeGrammar.Visitor;
  */
 public class IntVar extends Var {
 	public IntVar(String name, VarRole role, boolean out, boolean readonly) {
-		super(name, role, out, readonly);
+		super(name, IntType.v, role, out, readonly);
 	}
 
 	@Override

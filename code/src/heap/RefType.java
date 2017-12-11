@@ -3,7 +3,7 @@ package heap;
 import java.util.HashSet;
 import java.util.Set;
 
-import treeGrammar.Visitor;
+import grammar.Visitor;
 
 /**
  * Represents an object type.
@@ -19,8 +19,7 @@ public class RefType extends Type {
 
 	public void add(Field field) {
 		assert field.srcType == this;
-		if (!fields.contains(field))
-			fields.add(field);
+		fields.add(field);
 	}
 
 	@Override
@@ -41,8 +40,9 @@ public class RefType extends Type {
 			return false;
 		RefType other = (RefType) obj;
 		if (fields == null) {
-			if (other.fields != null)
+			if (other.fields != null) {
 				return false;
+			}
 		} else if (!fields.equals(other.fields))
 			return false;
 		return true;
@@ -52,5 +52,10 @@ public class RefType extends Type {
 	public void accept(Visitor v) {
 		PWhileVisitor whileVisitor = (PWhileVisitor) v;
 		whileVisitor.visit(this);
+	}
+	
+	@Override
+	public String toString() {
+		return name;
 	}
 }

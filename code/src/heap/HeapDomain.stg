@@ -1,0 +1,41 @@
+HeapDomain(types, vars, actions) ::= <<
+Types = {
+  $types; separator="\n"$
+}
+
+Variables = {
+  $vars:{it|$it.name$:$it.type$}; separator="\n"$
+}
+
+Actions = {
+  $actions; separator="\n"$
+}
+>>
+
+RefType(name, fields) ::= <<
+type $name$ {
+  $fields; separator="\n"$
+}
+>>
+
+Field(name, dstType) ::= <<
+$name$ : $dstType$
+>>
+
+IntType() ::= <<int>>
+
+Copy(lhs, rhs) ::= <<
+$lhs$=$rhs$
+>>
+
+Var(name) ::= <<
+$name$
+>>
+
+IntVar(name) ::= <<
+$name$
+>>
+
+RefVar(name) ::= <<
+$name$
+>>

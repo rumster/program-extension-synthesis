@@ -8,10 +8,9 @@ package gp;
  * @param <StateType>
  *            The type of states over which the specification is given.
  */
-public class SynthesisProblem<StateType, ActionType, ConditionType> {
+public abstract class SynthesisProblem<StateType, ActionType, ConditionType> {
 	public final String name;
-	public final Spec<StateType, ActionType, ConditionType> spec;
-
+	
 	/**
 	 * Constructs a named synthesis problem from a problem domain and a list of
 	 * examples.
@@ -23,9 +22,17 @@ public class SynthesisProblem<StateType, ActionType, ConditionType> {
 	 * @param spec
 	 *            A specification.
 	 */
-	public SynthesisProblem(String name, ProblemDomain<StateType, ActionType, ConditionType> domain,
-			Spec<StateType, ActionType, ConditionType> spec) {
+	public SynthesisProblem(String name) {
 		this.name = name;
-		this.spec = spec;
 	}
+	
+	public abstract Domain<StateType, ActionType, ConditionType> domain();
+
+	/**
+	 * Tests whether the given control-flow graph satisfies the specification.
+	 * 
+	 * @param cfg
+	 *            A control-flow graph.
+	 */
+	public abstract boolean holds(CFG<ActionType, ConditionType> cfg);
 }

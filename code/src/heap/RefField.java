@@ -1,8 +1,7 @@
 package heap;
 
-import heap.State.Obj;
-import heap.State.Val;
-import treeGrammar.Visitor;
+import grammar.Visitor;
+import heap.Store.Obj;
 
 /**
  * A terminal for reference fields.
@@ -14,7 +13,6 @@ public class RefField extends Field {
 		super(name, srcType, dstType);
 	}
 
-	@Override
 	public RefType getDstType() {
 		return (RefType) dstType;
 	}
@@ -28,5 +26,10 @@ public class RefField extends Field {
 	@Override
 	public Val getDefaultVal() {
 		return Obj.NULL;
+	}
+	
+	@Override
+	public String toString() {
+		return name;
 	}
 }

@@ -1,6 +1,6 @@
 package heap;
 
-import treeGrammar.Visitor;
+import grammar.Visitor;
 
 /**
  * Represents an object type.
@@ -13,11 +13,6 @@ public class IntType extends Type {
 	protected IntType() {
 		super("int");
 	}
-
-//	@Override
-//	public boolean equals(Object o) {
-//		return this == o;
-//	}
 
 	@Override
 	public void accept(Visitor v) {

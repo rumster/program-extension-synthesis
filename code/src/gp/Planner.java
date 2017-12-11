@@ -16,11 +16,11 @@ import java.util.function.Predicate;
  */
 public interface Planner<StateType, ActionType> {
 	/**
-	 * The result of a search for a plan.
+	 * The type of result for a plan search.
 	 * 
 	 * @author romanm
 	 */
-	public static enum Result {
+	public static enum PlanResultType {
 		OK, NO_PLAN_EXISTS, TIMEOUT
 	}
 
@@ -37,5 +37,6 @@ public interface Planner<StateType, ActionType> {
 	 *            If a plan is found, it is appended to this one.
 	 * @return The result of the search.
 	 */
-	public Result findPlan(StateType input, Predicate<StateType> goalTest, Plan<StateType, ActionType> addToPlan);
+	public PlanResultType findPlan(StateType input, Predicate<StateType> goalTest,
+			Plan<StateType, ActionType> addToPlan);
 }

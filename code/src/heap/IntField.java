@@ -1,7 +1,6 @@
 package heap;
 
-import heap.State.Val;
-import treeGrammar.Visitor;
+import grammar.Visitor;
 
 /**
  * A terminal for integer-valued fields.
@@ -21,6 +20,6 @@ public class IntField extends Field {
 
 	@Override
 	public Val getDefaultVal() {
-		return State.Int.ZERO;
+		return IntVal.ZERO;
 	}
 }
