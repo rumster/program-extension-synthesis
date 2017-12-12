@@ -45,7 +45,7 @@
 		<move file="HeapParser.java" tofile="${src}/heap/ast/HeapParser.java" />
 		<move file="HeapSym.java" tofile="${src}/heap/ast/HeapSym.java" />
 		
-		<replace file="${src}/heap/ast/HeapParser.java" value='@SuppressWarnings({"rawtypes", "unused"}) class CUP$HeapParser$actions'>
+		<replace file="${src}/heap/ast/HeapParser.java" value='@SuppressWarnings({"rawtypes", "unused", "unchecked"}) class CUP$HeapParser$actions'>
 			<replacetoken>class CUP$HeapParser$actions</replacetoken>
 		</replace>		
 		<replace file="${src}/heap/ast/HeapParser.java" value='@SuppressWarnings({"rawtypes", "unused"}) public class HeapParser'>

@@ -6,24 +6,22 @@ import java.util.*;
 
 import heap.ast.Token;
 
+import java_cup.runtime.Symbol;
+
 /** A parser for heap synthesis problems.
  * @author Roman Manevich
  */
 parser code {:
    private HeapLexer lexer;
     
-   /** 
+   /**
+    * Parses the file with the given name and returns the corresponding abstract syntax tree.
     */
-   public void parseFile(String file) throws SyntaxError, FileNotFoundException, Exception {
+   public ASTProblem parseFile(String file) throws SyntaxError, FileNotFoundException, Exception {
 	lexer = new HeapLexer(new FileReader(file));
 	HeapParser parser = new HeapParser(lexer);
-			
-	try { 
-		parser.parse();
-	}
-	finally {
-		lexer = null;
-	}
+	Symbol root = parser.parse();
+	return (ASTProblem) root.value;
   }
   	
   @Override	
@@ -33,86 +31,142 @@ parser code {:
   }
 :}
 
-terminal TYPE, VAR, INT_TYPE, NULL, INT_VAL,
+terminal TYPE, VAR, NULL, EXAMPLE,
          COMMA, COLON, ARROW, LP, RP, LCB, RCB;
 		
+terminal String INT_VAL; 
 terminal String ID;
+
+// Unfortunately, CUP doesn't recognize generic types.
+// Therefore, all lists are untyped.
 		
-nonterminal problem;
-nonterminal elemList;
-nonterminal elem;
-nonterminal typeDef;
-nonterminal fields;
-nonterminal field;
-nonterminal funDef;
-nonterminal args;
-nonterminal arg;
-nonterminal temps;
-nonterminal temp;
-nonterminal example;
-nonterminal symheap;
-nonterminal heapElems;
-nonterminal heapElem;
-nonterminal predVal;
+nonterminal ASTProblem problem;
+nonterminal List elemList; // <AST>
+nonterminal AST elem;
+nonterminal ASTRefType typeDef;
+nonterminal List fields; // <ASTField>
+nonterminal ASTField field;
+nonterminal ASTFun funDef;
+nonterminal List args; // <ASTVar>
+nonterminal List temps; // <ASTVar>
+nonterminal ASTVar temp;
+nonterminal ASTVar var;
+nonterminal List examples; // <ASTExample>
+nonterminal ASTExample example;
+nonterminal ASTStore store;
+nonterminal AST storeVal;
+nonterminal List heapElems; // <ASTfieldVal>
+nonterminal ASTfieldVal fieldVal;
 
 ///////////////////////////////////////////////////
 // Productions
 
-problem ::= elemList
+problem ::= elemList:elements
+	{: RESULT = new ASTProblem(elements); :}
 ;
 
-elemList ::= elem
-	| elemList elem
+elemList ::= elem:e
+	{: RESULT = new ArrayList<AST>();
+	   RESULT.add(e);
+    :}
+	| elemList:prefix elem:e
+	{: prefix.add(e);
+	   RESULT = prefix;
+	:}
 ;
 
-elem ::= typeDef
-	| funDef
-	| example
+elem ::= typeDef:e
+	{: RESULT = e; :}
+	| funDef:e
+	{: RESULT = e; :}
 ;
 
-typeDef ::= TYPE ID LCB fields RCB
+typeDef ::= TYPE ID:name LCB fields:fields RCB
+	{: RESULT = new ASTRefType(name, fields); :}
 ;
 
-fields ::= field
-	| fields field
+fields ::= field:f
+	{: RESULT = new ArrayList<ASTField>();
+	   RESULT.add(f);
+	:}
+	| fields:prefix field:f
+	{: prefix.add(f);
+	   RESULT = prefix;
+	:}
 ;
 
-field ::= ID COLON ID
-	| ID COLON INT_TYPE
+field ::= ID:name COLON ID:type
+	{: RESULT = new ASTField(name, type); :}
 ;
 
-funDef ::= ID LP args RP ARROW LP args RP LCB temps RCB
+funDef ::= ID:name LP args:inargs RP ARROW LP args:outargs RP LCB temps:temps examples:examples RCB
+	{: RESULT = new ASTFun(name, inargs, outargs, temps, examples); :}
 ;
 
-args ::= arg
-	| args COMMA arg
+args ::= var:a
+	{: RESULT = new ArrayList<ASTVar>();
+	   RESULT.add(a);
+	:}
+	| args:prefix COMMA var:a
+	{: prefix.add(a);
+	   RESULT = prefix;
+	:}
 ;
 
-arg ::= ID COLON ID
+var ::= ID:name COLON ID:type
+	{: RESULT = new ASTVar(name, type); :}
 ;
 
-temps ::= temp
-	| temps COMMA temp
+temps ::= temp:t
+	{: RESULT = new ArrayList<ASTVar>();
+	   RESULT.add(t);
+	:}
+	| temps:prefix COMMA temp:t
+	{: prefix.add(t);
+	   RESULT = prefix;
+	:}
 ;
 
-temp ::= VAR ID:ID
+temp ::= VAR var:v
+	{: RESULT = v; :}
 ;
 
-example ::= ID LCB RCB symheap ARROW LCB symheap RCB
+examples ::= example:e
+	{: RESULT = new ArrayList<ASTExample>();
+	   RESULT.add(e);
+	:}
+	| examples:prefix example:e
+	{: prefix.add(e);
+	   RESULT = prefix;
+	:} 
 ;
 
-symheap ::= heapElems
+example ::= EXAMPLE LCB store:input ARROW store:goal RCB
+	{: RESULT = new ASTExample(input, goal); :}
 ;
 
-heapElems ::= heapElem
-	| heapElems heapElem
+store ::= heapElems:elements
+	{: RESULT = new ASTStore(elements); :}
 ;
 
-heapElem ::= predVal
+heapElems ::= storeVal:v
+	{: RESULT = new ArrayList<ASTFieldVal>();
+	   RESULT.add(v);
+	:}
+	| heapElems:prefix storeVal:v
+	{: prefix.add(v);
+	   RESULT = prefix;
+	:} 
 ;
 
-predVal ::= ID LP ID RP
-	| ID LP ID COMMA ID RP
-	| ID LP ID COMMA NULL RP
-	| ID LP ID COMMA INT_VAL RP
+storeVal ::= ID:var LP ID:val RP
+	{: RESULT = new ASTRefVarVal(var, val); :}
+	| ID:var LP INT_VAL:val RP
+	{: RESULT = new ASTIntVarVal(var, Integer.parseInt(val)); :}
+	| ID:field LP ID:src COMMA ID:dst RP
+	{: RESULT = new ASTRefFieldVal(field, src, dst); :}
+	| ID:field LP ID:src COMMA NULL RP
+	{: RESULT = new ASTRefFieldVal(field, src, AST.NULL_VAL_NAME); :}
+	| ID:field LP ID:src COMMA INT_VAL:val RP
+	{: RESULT = new ASTIntFieldVal(field, src, Integer.parseInt(val)); :}
 ;

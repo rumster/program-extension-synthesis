@@ -34,12 +34,12 @@ package heap.ast;
    * Translates characters to character classes
    */
   private static final String ZZ_CMAP_PACKED = 
-    "\11\0\1\30\1\31\1\32\1\32\1\30\22\0\1\30\7\0\1\23"+
-    "\1\24\2\0\1\20\1\4\1\0\1\27\1\2\11\3\1\21\3\0"+
-    "\1\22\2\0\32\1\4\0\1\1\1\0\1\12\3\1\1\10\3\1"+
-    "\1\14\2\1\1\17\1\1\1\15\1\1\1\7\1\1\1\13\1\1"+
-    "\1\5\1\16\1\11\2\1\1\6\1\1\1\25\1\0\1\26\7\0"+
-    "\1\32\u1fa2\0\1\32\1\32\uffff\0\uffff\0\uffff\0\uffff\0\uffff\0\uffff\0\uffff\0\uffff\0\uffff\0\uffff\0\uffff\0\uffff\0\uffff\0\uffff\0\uffff\0\uffff\0\udfe6\0";
+    "\11\0\1\31\1\32\1\33\1\33\1\31\22\0\1\31\7\0\1\24"+
+    "\1\25\2\0\1\21\1\4\1\0\1\30\1\2\11\3\1\22\3\0"+
+    "\1\23\2\0\32\1\4\0\1\1\1\0\1\12\3\1\1\10\6\1"+
+    "\1\14\1\13\1\17\1\1\1\7\1\1\1\16\1\1\1\5\1\20"+
+    "\1\15\1\1\1\11\1\6\1\1\1\26\1\0\1\27\7\0\1\33"+
+    "\u1fa2\0\1\33\1\33\uffff\0\uffff\0\uffff\0\uffff\0\uffff\0\uffff\0\uffff\0\uffff\0\uffff\0\uffff\0\uffff\0\uffff\0\uffff\0\uffff\0\uffff\0\uffff\0\udfe6\0";
 
   /** 
    * Translates characters to character classes
@@ -54,10 +54,11 @@ package heap.ast;
   private static final String ZZ_ACTION_PACKED_0 =
     "\3\0\1\1\1\2\2\3\1\1\4\2\1\4\1\5"+
     "\1\6\1\7\1\10\1\11\1\1\1\12\1\13\1\14"+
-    "\4\2\1\15\1\2\1\16\1\17\1\2\1\20\1\21";
+    "\4\2\1\15\2\2\1\16\1\2\1\17\1\2\1\20"+
+    "\2\2\1\21";
 
   private static int [] zzUnpackAction() {
-    int [] result = new int[33];
+    int [] result = new int[37];
     int offset = 0;
     offset = zzUnpackAction(ZZ_ACTION_PACKED_0, offset, result);
     return result;
@@ -82,14 +83,14 @@ package heap.ast;
   private static final int [] ZZ_ROWMAP = zzUnpackRowMap();
 
   private static final String ZZ_ROWMAP_PACKED_0 =
-    "\0\0\0\33\0\66\0\33\0\121\0\33\0\154\0\207"+
-    "\0\242\0\275\0\330\0\363\0\33\0\33\0\33\0\33"+
-    "\0\33\0\33\0\u010e\0\33\0\33\0\33\0\u0129\0\u0144"+
-    "\0\u015f\0\u017a\0\33\0\u0195\0\121\0\121\0\u01b0\0\121"+
-    "\0\121";
+    "\0\0\0\34\0\70\0\34\0\124\0\34\0\160\0\214"+
+    "\0\250\0\304\0\340\0\374\0\34\0\34\0\34\0\34"+
+    "\0\34\0\34\0\u0118\0\34\0\34\0\34\0\u0134\0\u0150"+
+    "\0\u016c\0\u0188\0\34\0\u01a4\0\u01c0\0\124\0\u01dc\0\124"+
+    "\0\u01f8\0\124\0\u0214\0\u0230\0\124";
 
   private static int [] zzUnpackRowMap() {
-    int [] result = new int[33];
+    int [] result = new int[37];
     int offset = 0;
     offset = zzUnpackRowMap(ZZ_ROWMAP_PACKED_0, offset, result);
     return result;
@@ -112,21 +113,25 @@ package heap.ast;
   private static final int [] ZZ_TRANS = zzUnpackTrans();
 
   private static final String ZZ_TRANS_PACKED_0 =
-    "\1\4\1\5\1\6\1\7\1\10\1\11\3\5\1\12"+
-    "\2\5\1\13\1\14\2\5\1\15\1\16\1\4\1\17"+
-    "\1\20\1\21\1\22\1\23\2\24\34\0\31\24\1\25"+
-    "\2\0\3\5\1\0\13\5\15\0\2\7\32\0\1\7"+
-    "\16\0\1\26\11\0\3\5\1\0\1\5\1\27\11\5"+
-    "\14\0\3\5\1\0\5\5\1\30\5\5\14\0\3\5"+
-    "\1\0\10\5\1\31\2\5\14\0\3\5\1\0\11\5"+
-    "\1\32\1\5\42\0\1\33\4\0\3\5\1\0\2\5"+
-    "\1\34\10\5\14\0\3\5\1\0\6\5\1\35\4\5"+
-    "\14\0\3\5\1\0\1\36\12\5\14\0\3\5\1\0"+
-    "\12\5\1\37\14\0\3\5\1\0\3\5\1\40\7\5"+
-    "\14\0\3\5\1\0\12\5\1\41\13\0";
+    "\1\4\1\5\1\6\1\7\1\10\1\11\2\5\1\12"+
+    "\4\5\1\13\1\5\1\14\1\5\1\15\1\16\1\4"+
+    "\1\17\1\20\1\21\1\22\1\23\2\24\35\0\32\24"+
+    "\1\25\2\0\3\5\1\0\14\5\15\0\2\7\33\0"+
+    "\1\7\17\0\1\26\11\0\3\5\1\0\1\5\1\27"+
+    "\12\5\14\0\3\5\1\0\4\5\1\30\7\5\14\0"+
+    "\3\5\1\0\5\5\1\31\6\5\14\0\3\5\1\0"+
+    "\13\5\1\32\43\0\1\33\4\0\3\5\1\0\2\5"+
+    "\1\34\11\5\14\0\3\5\1\0\5\5\1\35\6\5"+
+    "\14\0\3\5\1\0\11\5\1\36\2\5\14\0\3\5"+
+    "\1\0\7\5\1\37\4\5\14\0\3\5\1\0\3\5"+
+    "\1\40\10\5\14\0\3\5\1\0\6\5\1\41\5\5"+
+    "\14\0\3\5\1\0\7\5\1\42\4\5\14\0\3\5"+
+    "\1\0\2\5\1\43\11\5\14\0\3\5\1\0\7\5"+
+    "\1\44\4\5\14\0\3\5\1\0\3\5\1\45\10\5"+
+    "\13\0";
 
   private static int [] zzUnpackTrans() {
-    int [] result = new int[459];
+    int [] result = new int[588];
     int offset = 0;
     offset = zzUnpackTrans(ZZ_TRANS_PACKED_0, offset, result);
     return result;
@@ -165,10 +170,10 @@ package heap.ast;
 
   private static final String ZZ_ATTRIBUTE_PACKED_0 =
     "\1\0\1\10\1\0\1\11\1\1\1\11\6\1\6\11"+
-    "\1\1\3\11\4\1\1\11\6\1";
+    "\1\1\3\11\4\1\1\11\12\1";
 
   private static int [] zzUnpackAttribute() {
-    int [] result = new int[33];
+    int [] result = new int[37];
     int offset = 0;
     offset = zzUnpackAttribute(ZZ_ATTRIBUTE_PACKED_0, offset, result);
     return result;
@@ -269,7 +274,7 @@ public int getLineNumber() { return yyline + 1; }
     char [] map = new char[0x110000];
     int i = 0;  /* index in packed string  */
     int j = 0;  /* index in unpacked array */
-    while (i < 142) {
+    while (i < 140) {
       int  count = packed.charAt(i++);
       char value = packed.charAt(i++);
       do map[j++] = value; while (--count > 0);
@@ -692,15 +697,15 @@ public int getLineNumber() { return yyline + 1; }
             }
           case 31: break;
           case 15: 
-            { return new Token(HeapSym.INT_TYPE, yytext(), yyline, yycolumn);
+            { return new Token(HeapSym.TYPE, yytext(), yyline, yycolumn);
             }
           case 32: break;
           case 16: 
-            { return new Token(HeapSym.TYPE, yytext(), yyline, yycolumn);
+            { return new Token(HeapSym.NULL, yytext(), yyline, yycolumn);
             }
           case 33: break;
           case 17: 
-            { return new Token(HeapSym.NULL, yytext(), yyline, yycolumn);
+            { return new Token(HeapSym.EXAMPLE, yytext(), yyline, yycolumn);
             }
           case 34: break;
           default:

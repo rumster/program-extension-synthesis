@@ -37,8 +37,8 @@ Int			= 0|{PosDigit}{Digit}*|-{PosDigit}{Digit}*
 
 <YYINITIAL> {
   "type"		{ return new Token(HeapSym.TYPE, yytext(), yyline, yycolumn); }
+  "example"		{ return new Token(HeapSym.EXAMPLE, yytext(), yyline, yycolumn); }
   "var"			{ return new Token(HeapSym.VAR, yytext(), yyline, yycolumn); }
-  "int"			{ return new Token(HeapSym.INT_TYPE, yytext(), yyline, yycolumn); }
   "null"		{ return new Token(HeapSym.NULL, yytext(), yyline, yycolumn); }
   
   {Id}			{ return new Token(HeapSym.ID, yytext(), yyline, yycolumn); }
