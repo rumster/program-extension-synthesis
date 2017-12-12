@@ -50,9 +50,4 @@ public abstract class Type extends Token {
 		PWhileVisitor whileVisitor = (PWhileVisitor) v;
 		whileVisitor.visit(this);
 	}
-	
-	@Override
-	public String toString() {
-		return name;
-	}
 }

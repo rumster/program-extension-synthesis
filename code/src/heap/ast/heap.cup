@@ -1,0 +1,118 @@
+// @author Roman Manevich.
+package heap.ast;
+
+import java.io.*;
+import java.util.*;
+
+import heap.ast.Token;
+
+/** A parser for heap synthesis problems.
+ * @author Roman Manevich
+ */
+parser code {:
+   private HeapLexer lexer;
+    
+   /** 
+    */
+   public void parseFile(String file) throws SyntaxError, FileNotFoundException, Exception {
+	lexer = new HeapLexer(new FileReader(file));
+	HeapParser parser = new HeapParser(lexer);
+			
+	try { 
+		parser.parse();
+	}
+	finally {
+		lexer = null;
+	}
+  }
+  	
+  @Override	
+  public void report_fatal_error(String message, Object info) throws SyntaxError {
+    Token token = (Token) info;
+    throw new SyntaxError("Syntax error at " + token.line + ":" + token.column + " on " + token.text);
+  }
+:}
+
+terminal TYPE, VAR, INT_TYPE, NULL, INT_VAL,
+         COMMA, COLON, ARROW, LP, RP, LCB, RCB;
+		
+terminal String ID;
+		
+nonterminal problem;
+nonterminal elemList;
+nonterminal elem;
+nonterminal typeDef;
+nonterminal fields;
+nonterminal field;
+nonterminal funDef;
+nonterminal args;
+nonterminal arg;
+nonterminal temps;
+nonterminal temp;
+nonterminal example;
+nonterminal symheap;
+nonterminal heapElems;
+nonterminal heapElem;
+nonterminal predVal;
+
+///////////////////////////////////////////////////
+// Productions
+
+problem ::= elemList
+;
+
+elemList ::= elem
+	| elemList elem
+;
+
+elem ::= typeDef
+	| funDef
+	| example
+;
+
+typeDef ::= TYPE ID LCB fields RCB
+;
+
+fields ::= field
+	| fields field
+;
+
+field ::= ID COLON ID
+	| ID COLON INT_TYPE
+;
+
+funDef ::= ID LP args RP ARROW LP args RP LCB temps RCB
+;
+
+args ::= arg
+	| args COMMA arg
+;
+
+arg ::= ID COLON ID
+;
+
+temps ::= temp
+	| temps COMMA temp
+;
+
+temp ::= VAR ID:ID
+;
+
+example ::= ID LCB RCB symheap ARROW LCB symheap RCB
+;
+
+symheap ::= heapElems
+;
+
+heapElems ::= heapElem
+	| heapElems heapElem
+;
+
+heapElem ::= predVal
+;
+
+predVal ::= ID LP ID RP
+	| ID LP ID COMMA ID RP
+	| ID LP ID COMMA NULL RP
+	| ID LP ID COMMA INT_VAL RP
+;

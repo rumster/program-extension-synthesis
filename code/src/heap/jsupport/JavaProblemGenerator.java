@@ -12,7 +12,7 @@ import heap.*;
 import heap.Store.Obj;
 
 /**
- * Generates a {@link HeapSynthesisProblem} from a Java {@link Method} and an
+ * Generates a {@link HeapProblem} from a Java {@link Method} and an
  * object where the fields correspond to the method arguments.
  * 
  * @author romanm
@@ -28,17 +28,17 @@ public class JavaProblemGenerator {
 		this.logger = logger;
 	}
 
-	public HeapSynthesisProblem generate(Class<?> owner, String methodName, List<JavaEnv> ig) {
+	public HeapProblem generate(Class<?> owner, String methodName, List<JavaEnv> ig) {
 		return generate(ReflectionUtils.getMethodByName(owner, methodName), ig);
 	}
 
-	public HeapSynthesisProblem generate(Method m, List<JavaEnv> inputs) {
+	public HeapProblem generate(Method m, List<JavaEnv> inputs) {
 		if (inputs.size() == 0)
 			return null;
 		Class<? extends JavaEnv> envType = inputs.get(0).getClass();
 		heapWalker = new JavaHeapWalker(m, envType, logger);
 		HeapDomain domain = HeapDomain.fromVarsAndTypes(heapWalker.getVars(), heapWalker.getRefTypes());
-		HeapSynthesisProblem result = new HeapSynthesisProblem(m.getName(), domain);
+		HeapProblem result = new HeapProblem(m.getName(), domain);
 
 		for (JavaEnv input : inputs) {
 			try {

@@ -1,10 +1,10 @@
 HeapDomain(types, vars, actions) ::= <<
 Types = {
-  $types; separator="\n"$
+  $types:{it|$it.name$}; separator="\n"$
 }
 
 Variables = {
-  $vars:{it|$it.name$:$it.type$}; separator="\n"$
+  $vars:{it|$it.name$:$it.type.name$}; separator="\n"$
 }
 
 Actions = {

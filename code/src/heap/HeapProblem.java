@@ -7,10 +7,10 @@ import gp.InputOutputProblem;
  * 
  * @author romanm
  */
-public class HeapSynthesisProblem extends InputOutputProblem<Store, BasicStmt, Condition> {
+public class HeapProblem extends InputOutputProblem<Store, BasicStmt, Condition> {
 	public final HeapDomain domain;
 	
-	public HeapSynthesisProblem(String name, HeapDomain domain) {
+	public HeapProblem(String name, HeapDomain domain) {
 		super(name);
 		this.domain = domain;
 	}

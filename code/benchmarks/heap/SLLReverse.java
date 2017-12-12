@@ -3,7 +3,7 @@ package heap;
 import java.util.ArrayList;
 
 import dataStructures.SLL;
-import heap.HeapSynthesisProblem;
+import heap.HeapProblem;
 import heap.jsupport.*;
 
 /**
@@ -26,7 +26,7 @@ public class SLLReverse extends HeapRunner {
 	}
 
 	@Override
-	public HeapSynthesisProblem genProblem() {
+	public HeapProblem genProblem() {
 		ArrayList<JavaEnv> inputs = new ArrayList<>();
 		for (int i = 30; i >= 1; --i) {/// 100
 			BenchEnv env = new BenchEnv();
@@ -34,7 +34,7 @@ public class SLLReverse extends HeapRunner {
 			inputs.add(env);
 		}
 		JavaProblemGenerator problemGen = new JavaProblemGenerator(super.logger);
-		HeapSynthesisProblem problem = problemGen.generate(SLL.class, "reverse", inputs);
+		HeapProblem problem = problemGen.generate(SLL.class, "reverse", inputs);
 		return problem;
 	}
 }

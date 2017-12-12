@@ -3,7 +3,7 @@ package heap;
 import java.util.ArrayList;
 
 import dataStructures.SLL;
-import heap.HeapSynthesisProblem;
+import heap.HeapProblem;
 import heap.jsupport.*;
 
 /**
@@ -28,7 +28,7 @@ public class SLLMerge extends HeapRunner {
 	}
 
 	@Override
-	public HeapSynthesisProblem genProblem() {
+	public HeapProblem genProblem() {
 		ArrayList<JavaEnv> inputs = new ArrayList<>();
 		for (int i = 14; i < 16; ++i) {
 			BenchEnv env = new BenchEnv();
@@ -37,7 +37,7 @@ public class SLLMerge extends HeapRunner {
 			inputs.add(env);
 		}
 		JavaProblemGenerator problemGen = new JavaProblemGenerator(super.logger);
-		HeapSynthesisProblem problem = problemGen.generate(SLL.class, "merge", inputs);
+		HeapProblem problem = problemGen.generate(SLL.class, "merge", inputs);
 		return problem;
 	}
 }

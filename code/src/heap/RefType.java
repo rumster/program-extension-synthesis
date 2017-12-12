@@ -11,7 +11,13 @@ import grammar.Visitor;
  * @author romanm
  */
 public class RefType extends Type {
-	public Set<Field> fields = new HashSet<>();
+	public final Set<Field> fields = new HashSet<>();
+
+	/**
+	 * Indicates whether additional fields may be added. When the type is accessed,
+	 * it automatically becomes immutable.
+	 */
+	private boolean mutable = true;
 
 	public RefType(String name) {
 		super(name);
@@ -19,11 +25,13 @@ public class RefType extends Type {
 
 	public void add(Field field) {
 		assert field.srcType == this;
+		assert mutable;
 		fields.add(field);
 	}
 
 	@Override
 	public int hashCode() {
+		mutable = false;
 		final int prime = 31;
 		int result = super.hashCode();
 		result = prime * result + ((fields == null) ? 0 : fields.hashCode());
@@ -32,6 +40,7 @@ public class RefType extends Type {
 
 	@Override
 	public boolean equals(Object obj) {
+		mutable = false;
 		if (this == obj)
 			return true;
 		if (!super.equals(obj))
@@ -50,12 +59,8 @@ public class RefType extends Type {
 
 	@Override
 	public void accept(Visitor v) {
+		mutable = false;
 		PWhileVisitor whileVisitor = (PWhileVisitor) v;
 		whileVisitor.visit(this);
-	}
-	
-	@Override
-	public String toString() {
-		return name;
 	}
 }

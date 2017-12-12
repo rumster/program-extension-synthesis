@@ -3,7 +3,7 @@ package heap;
 import java.util.ArrayList;
 
 import dataStructures.SLL;
-import heap.HeapSynthesisProblem;
+import heap.HeapProblem;
 import heap.jsupport.*;
 
 /**
@@ -29,7 +29,7 @@ public class SLLFind extends HeapRunner {
 	}
 
 	@Override
-	public HeapSynthesisProblem genProblem() {
+	public HeapProblem genProblem() {
 		ArrayList<JavaEnv> inputs = new ArrayList<>();
 		for (int i = 2; i < 100; ++i) {
 			BenchEnv env = new BenchEnv();
@@ -44,7 +44,7 @@ public class SLLFind extends HeapRunner {
 			inputs.add(env);
 		}
 		JavaProblemGenerator problemGen = new JavaProblemGenerator(super.logger);
-		HeapSynthesisProblem problem = problemGen.generate(SLL.class, "find", inputs);
+		HeapProblem problem = problemGen.generate(SLL.class, "find", inputs);
 		return problem;
 	}
 }

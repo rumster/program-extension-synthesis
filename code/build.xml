@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  =======================================================================
+    Application build file
+  =======================================================================
+-->
+<project name="Generalized Planning" default="build" basedir=".">
+	<!-- Set global properties for this build -->
+	<property name="src" value="src" />
+	<property name="lib" value="lib" />
+	<property name="tools" value="tools" />
+	<property name="build" value="bin" />
+	<property name="javadocs" value="javadocs" />
+
+	<!--
+       ===================================================================
+         Sets up internal values
+       ===================================================================
+  -->
+	<target name="init" description="-> sets up internal values">
+		<!-- Create the directory for classes and other resources -->
+		<mkdir dir="${build}" />
+	</target>
+
+	<!--
+	       ===================================================================
+	         Generates the heap parser
+	       ===================================================================
+	  -->
+	<target name="heap parser" depends="heap scanner" description="-> generates the heap parser">
+		<delete file="${src}/heap/ast/Parser.java" />
+		<delete file="${src}/heap/ast/sym.java" />
+
+		<java classname="java_cup.Main" classpath="${lib}/java_cup.jar">
+			<arg value="-parser" />
+			<arg value="HeapParser" />
+			<arg value="-package" />
+			<arg value="heap.ast" />
+			<arg value="-symbols" />
+			<arg value="HeapSym" />
+			<arg value="${src}/heap/ast/heap.cup" />
+		</java>
+		
+		<move file="HeapParser.java" tofile="${src}/heap/ast/HeapParser.java" />
+		<move file="HeapSym.java" tofile="${src}/heap/ast/HeapSym.java" />
+		
+		<replace file="${src}/heap/ast/HeapParser.java" value='@SuppressWarnings({"rawtypes", "unused"}) class CUP$HeapParser$actions'>
+			<replacetoken>class CUP$HeapParser$actions</replacetoken>
+		</replace>		
+		<replace file="${src}/heap/ast/HeapParser.java" value='@SuppressWarnings({"rawtypes", "unused"}) public class HeapParser'>
+			<replacetoken>public class HeapParser</replacetoken>
+		</replace>		
+		
+	</target>
+
+	<!--
+	       ===================================================================
+	         Generates the heap scanner
+	       ===================================================================
+	  -->
+	<target name="heap scanner" depends="init" description="-> generates the heap scanner">
+		<delete file="${src}/heap/ast/HeapLexer.java" />
+
+		<java classname="jflex.Main" classpath="${lib}/jflex-1.6.1.jar">
+			<arg value="${src}/heap/ast/heap.lex" />
+		</java>
+
+		<replace file="${src}/heap/ast/HeapLexer.java" value='@SuppressWarnings(value={"all"}) public class HeapLexer'>
+			<replacetoken>public class HeapLexer</replacetoken>
+		</replace>
+	</target>
+
+	<!--
+       ===================================================================
+         Compiles the sources
+       ===================================================================
+  -->
+	<target name="classes" depends="init" description="-> compiles the source code to create the tree of classes">
+		<!-- Copy resource files -->
+		<copy todir="${build}">
+			<fileset dir="${src}">
+				<exclude name="**/*.java" />
+			</fileset>
+		</copy>
+
+		<!-- Compile the java code from ${src} into ${classes} -->
+		<echo message="Compiling sources..." />
+		<javac srcdir="${src}" destdir="${build}" source="1.9" classpath="${lib}/java_cup.jar; ${lib}/Util.jar" includeantruntime="false" />
+	</target>
+
+	<!--
+       ===================================================================
+         Create javadocs
+       ===================================================================
+  -->
+	<target name="javadocs" depends="init" description="-> creates javadocs">
+		<javadoc packagenames="bgu.*" sourcepath="src" classpath="${lib}/java_cup.jar; ${lib}/Util.jar" defaultexcludes="yes" destdir="${javadocs}" author="true" version="true" use="true" windowtitle="Logic Tools">
+		</javadoc>
+	</target>
+
+	<!--
+       ===================================================================
+         Cleans and the builds
+       ===================================================================
+  -->
+	<target name="rebuild" depends="clean, build" description="-> first cleans and then build everything">
+	</target>
+
+	<!--
+       ===================================================================
+         Builds everything
+       ===================================================================
+  -->
+	<target name="build" depends="init, classes" description="-> generates the scanner and parser and compiles all classes">
+	</target>
+
+	<!--
+       ===================================================================
+         Packs classes into a jar file
+       ===================================================================
+  -->
+	<target name="jar" depends="build" description="-> packs all classes into a jar file">
+		<tstamp>
+			<format property="TODAY" pattern="d-MMMM-yyyy" locale="en,GB" />
+		</tstamp>
+
+		<!-- Create a manifest for the jar file -->
+		<manifest file="MANIFEST.MF">
+			<attribute name="Built-By" value="${user.name}" />
+			<attribute name="Main-Class" value="heap.Main" />
+			<attribute name="Class-Path" value="${lib}/jflex-1.6.1.jar ${lib}/java_cup.jar ${lib}/java-cup-11b-runtime.jar ${lib}/Util.jar ${lib}/ST-4.0.8.jar" />
+			<section name="GeneralizedPlanning">
+				<attribute name="Implementation-Version" value="${TODAY}" />
+			</section>
+		</manifest>
+
+		<jar destfile="GeneralizedPlanning.jar" basedir="${build}" manifest="MANIFEST.MF" />
+	</target>
+
+	<!--
+       ===================================================================
+         Deletes the build directory tree
+       ===================================================================
+  -->
+	<target name="clean" description="-> cleans up build and dist directories">
+		<delete dir="${build}" />
+		<delete dir="${javadocs}" />
+		<delete file="LogicTools.jar" />
+		<delete file="MANIFEST.MF" />
+	</target>
+</project>

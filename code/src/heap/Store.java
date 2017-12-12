@@ -392,6 +392,9 @@ public class Store {
 	 * @author romanm
 	 */
 	public static class Obj extends Val {
+		/**
+		 * The constant null objects.
+		 */
 		public static final Obj NULL = new Obj(new RefType("nulltype")) {
 			@Override
 			public String getName() {
@@ -404,20 +407,27 @@ public class Store {
 			}
 		};
 
+		/**
+		 * The type of this object.
+		 */
 		public final RefType type;
-		public final int count;
+
+		/**
+		 * The "address" of this objects.
+		 */
+		private final int id;
 
 		private static int counter = 0;
 
 		public Obj(RefType type) {
 			this.type = type;
-			this.count = counter;
+			this.id = counter;
 			++counter;
 		}
 
 		@Override
 		public String toString() {
-			return type + "#" + count;
+			return type + "#" + id;
 		}
 	}
 

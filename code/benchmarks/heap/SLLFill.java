@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Random;
 
 import dataStructures.SLL;
-import heap.HeapSynthesisProblem;
+import heap.HeapProblem;
 import heap.jsupport.*;
 
 /**
@@ -30,7 +30,7 @@ public class SLLFill extends HeapRunner {
 	}
 
 	@Override
-	public HeapSynthesisProblem genProblem() {
+	public HeapProblem genProblem() {
 		ArrayList<JavaEnv> inputs = new ArrayList<>();
 		Random r = new Random(31);
 		for (int i = 1; i < 6; ++i) {
@@ -40,7 +40,7 @@ public class SLLFill extends HeapRunner {
 			inputs.add(env);
 		}
 		JavaProblemGenerator problemGen = new JavaProblemGenerator(super.logger);
-		HeapSynthesisProblem problem = problemGen.generate(SLL.class, "fill", inputs);
+		HeapProblem problem = problemGen.generate(SLL.class, "fill", inputs);
 		return problem;
 	}
 }

@@ -41,7 +41,7 @@ public abstract class HeapRunner {
 
 	private Configuration config = null;
 
-	protected abstract HeapSynthesisProblem genProblem();
+	protected abstract HeapProblem genProblem();
 
 	/**
 	 * Starts the ball rolling.
@@ -67,7 +67,7 @@ public abstract class HeapRunner {
 		synthesisTime.reset();
 		planningTime.reset();
 		try {
-			HeapSynthesisProblem problem = genProblem();
+			HeapProblem problem = genProblem();
 			debugger = new HeapDebugger(logger, problem.name, outputDirPath);
 			debugger.printLink(logFilePath, "Events log");
 			debugger.printCodeFile("problem.txt", problem.toString(), "Specification");

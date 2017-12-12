@@ -37,7 +37,7 @@ public class StoreUtils {
 	private static String getObjName(Obj o) {
 		String result = objToName.get(o);
 		if (result == null) {
-			result = o.type + "#" + objToName.size();
+			result = o.type.name + "#" + objToName.size();
 			objToName.put(o, result);
 		}
 		return result;
