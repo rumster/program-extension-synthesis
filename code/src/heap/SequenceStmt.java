@@ -41,7 +41,7 @@ public class SequenceStmt extends Node {
 		return result;
 	}
 
-	public SequenceStmt(List<? extends Node> args) {
+	public SequenceStmt(List<Node> args) {
 		super(countNonterminals(args));
 		this.args.addAll(args);
 	}

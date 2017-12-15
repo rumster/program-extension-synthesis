@@ -26,7 +26,7 @@ public class SLLFill extends HeapRunner {
 
 	public static void main(String[] args) {
 		SLLFill benchmark = new SLLFill();
-		benchmark.run(args);
+		benchmark.run();
 	}
 
 	@Override

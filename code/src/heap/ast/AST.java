@@ -7,7 +7,10 @@ package heap.ast;
  */
 public abstract class AST {
 	public static String INT_TYPE_NAME = "int";
-	public static String NULL_VAL_NAME = "null";	
+	public static String NULL_VAL_NAME = "null";
+	
+	public int line;
+	public int column;
 
 	/**
 	 * Implements a part of the visitor pattern.

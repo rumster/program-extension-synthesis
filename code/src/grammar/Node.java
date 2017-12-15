@@ -19,7 +19,7 @@ public abstract class Node {
 	 */
 	public final int numOfNonterminals;
 
-	public static int countNonterminals(List<? extends Node> nodes) {
+	public static int countNonterminals(List<Node> nodes) {
 		int result = 0;
 		for (Node n : nodes) {
 			result += n.numOfNonterminals;

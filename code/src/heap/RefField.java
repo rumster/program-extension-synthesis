@@ -1,7 +1,6 @@
 package heap;
 
 import grammar.Visitor;
-import heap.Store.Obj;
 
 /**
  * A terminal for reference fields.

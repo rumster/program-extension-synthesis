@@ -12,7 +12,7 @@ import grammar.*;
  * 
  * @author romanm
  */
-public class NotExpr extends Condition {
+public class NotExpr extends Node implements Condition {
 	protected List<Node> args = new ArrayList<>(1);
 
 	protected NotExpr(int numOfNonterminals) {
@@ -52,5 +52,10 @@ public class NotExpr extends Condition {
 	public void accept(Visitor v) {
 		PWhileVisitor whileVisitor = (PWhileVisitor) v;
 		whileVisitor.visit(this);
+	}
+
+	@Override
+	public boolean holds(Store s) {
+		return PWhileInterpreter.v.test(this, s);
 	}
 }

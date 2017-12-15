@@ -1,7 +1,7 @@
-indexedExample(inputImageFileName, outputImageFileName, index) ::= <<
-<div id="example$index$" style="display:none;">
+indexedExample(inputImageFileName, outputImageFileName, id) ::= <<
+<div id="example$id$" style="display:none;">
 <table>
-  <caption>Example $index$</caption>
+  <caption>Example $id$</caption>
   <tr>
     <th>Input</th>
     <th>Output</th> 

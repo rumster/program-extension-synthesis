@@ -2,7 +2,6 @@ package heap.jsupport;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -12,8 +11,17 @@ import java.util.Set;
 import java.util.logging.Logger;
 
 import bgu.cs.util.ReflectionUtils;
-import heap.*;
-import heap.Store.Obj;
+import heap.Field;
+import heap.IntField;
+import heap.IntVal;
+import heap.IntVar;
+import heap.Obj;
+import heap.RefField;
+import heap.RefType;
+import heap.RefVar;
+import heap.Store;
+import heap.Val;
+import heap.Var;
 import heap.Var.VarRole;
 
 /**
@@ -63,26 +71,13 @@ public class JavaHeapWalker {
 						|| field.getName().equals(JavaProblemGenerator.THIS_PARAM));
 				createVar(field.getName(), field.getType(), VarRole.ARG, isOut, isReadonly);
 			} else {
-				createVar(field.getName(), field.getType(), VarRole.TEMPORARY, false, false);
+				createVar(field.getName(), field.getType(), VarRole.TEMP, false, false);
 			}
 		}
 	}
 
 	public Collection<Var> getVars() {
 		return nameToVar.values();
-	}
-
-	/**
-	 * Returns the set of variables that go out of scope when the method terminates.
-	 */
-	public Collection<Var> getDeadOutVars() {
-		ArrayList<Var> result = new ArrayList<>();
-		for (Var var : getVars()) {
-			if (!var.out) {
-				result.add(var);
-			}
-		}
-		return result;
 	}
 
 	public Collection<RefType> getRefTypes() {

@@ -22,7 +22,7 @@ public class SLLReverse extends HeapRunner {
 
 	public static void main(String[] args) {
 		SLLReverse benchmark = new SLLReverse();
-		benchmark.run(args);
+		benchmark.run();
 	}
 
 	@Override

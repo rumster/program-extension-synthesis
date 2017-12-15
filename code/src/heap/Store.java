@@ -63,6 +63,8 @@ public class Store {
 	 * 
 	 * @param objects
 	 *            The set of allocated objects.
+	 * @param freeObjects
+	 *            The objects that are not currently allocated.
 	 * @param env
 	 *            An environment mapping variables to fields.
 	 * @param heap
@@ -103,6 +105,8 @@ public class Store {
 			return true;
 		Store other = (Store) o;
 		if (!objects.equals(other.objects))
+			return false;
+		if (!freeObjects.equals(other.freeObjects))
 			return false;
 		if (!env.equals(other.env))
 			return false;
@@ -155,6 +159,11 @@ public class Store {
 		return env.containsKey(var);
 	}
 
+	public boolean isInitialized(Object obj, Field field) {
+		Map<Field, Val> objFields = heap.get(obj);
+		return objFields != null && objFields.containsKey(field);
+	}
+
 	/**
 	 * Evaluates an expression in this state returning its value or null if the
 	 * expression is illegal (e.g., a null dereference or an access to an
@@ -168,7 +177,7 @@ public class Store {
 			DerefExpr deref = (DerefExpr) code;
 			Node lhs = deref.getLhs();
 			Val lval = eval(lhs);
-			if (lval == null || lval == Obj.NULL || lval == Obj.TOP)
+			if (lval == null || lval == Obj.NULL)
 				return null;
 			Obj lobj = (Obj) lval;
 			Field field = deref.getField();
@@ -219,10 +228,8 @@ public class Store {
 
 	public Val eval(RefVar var, Field field) {
 		Obj obj = eval(var);
-		if (obj == null)
-			return Val.TOP;
-		else
-			return eval(obj, field);
+		assert obj != null;
+		return eval(obj, field);
 	}
 
 	/**
@@ -302,6 +309,7 @@ public class Store {
 
 		Map<Obj, Map<Field, Val>> newHeap = new HashMap<>(heap);
 		Map<Field, Val> lobjFields = newHeap.get(lobj);
+		lobjFields = lobjFields == null ? Collections.emptyMap() : lobjFields;
 		lobjFields = new HashMap<>(lobjFields);
 		newHeap.put(lobj, lobjFields);
 		lobjFields.put(field, v);
@@ -384,51 +392,6 @@ public class Store {
 			}
 		}
 		return template.render();
-	}
-
-	/**
-	 * A heap object.
-	 * 
-	 * @author romanm
-	 */
-	public static class Obj extends Val {
-		/**
-		 * The constant null objects.
-		 */
-		public static final Obj NULL = new Obj(new RefType("nulltype")) {
-			@Override
-			public String getName() {
-				return "NULL";
-			}
-
-			@Override
-			public String toString() {
-				return "NULL";
-			}
-		};
-
-		/**
-		 * The type of this object.
-		 */
-		public final RefType type;
-
-		/**
-		 * The "address" of this objects.
-		 */
-		private final int id;
-
-		private static int counter = 0;
-
-		public Obj(RefType type) {
-			this.type = type;
-			this.id = counter;
-			++counter;
-		}
-
-		@Override
-		public String toString() {
-			return type + "#" + id;
-		}
 	}
 
 	/**

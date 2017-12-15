@@ -10,7 +10,7 @@ import grammar.*;
  * 
  * @author romanm
  */
-public class LtExpr extends Condition {
+public class LtExpr extends Node implements Condition {
 	protected List<Node> args = new ArrayList<>(2);
 
 	protected LtExpr(int numOfNonterminals) {
@@ -55,5 +55,10 @@ public class LtExpr extends Condition {
 	@Override
 	public LtExpr clone(List<Node> args) {
 		return new LtExpr(args);
+	}
+	
+	@Override
+	public boolean holds(Store s) {
+		return PWhileInterpreter.v.test(this, s);
 	}
 }

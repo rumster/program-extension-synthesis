@@ -11,9 +11,9 @@ import java.util.List;
  */
 public class Nonterminal extends Node {
 	public final String name;
-	
+
 	protected final List<Node> productions = new ArrayList<>();
-	
+
 	private static int instanceCounter;
 
 	public Nonterminal(String name) {

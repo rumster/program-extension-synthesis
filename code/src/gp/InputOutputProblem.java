@@ -3,6 +3,10 @@ package gp;
 import java.util.ArrayList;
 import java.util.List;
 
+import heap.BasicStmt;
+import heap.Condition;
+import heap.Store;
+
 /**
  * A specification consisting of a list of input-output state examples.
  * 
@@ -15,11 +19,11 @@ import java.util.List;
  * @param <ConditionType>
  *            The type of conditions.
  */
-public class InputOutputProblem<StateType, ActionType, ConditionType> {
+public abstract class InputOutputProblem<StateType, ActionType, ConditionType> {
 	public final String name;
 
 	public static enum SpecTestResult {
-		SPEC_FAIL, SPEC_SATISFIED, ILLEGAL, TOP;
+		SPEC_FAIL, SPEC_SATISFIED, ILLEGAL;
 
 		@Override
 		public String toString() {
@@ -30,18 +34,28 @@ public class InputOutputProblem<StateType, ActionType, ConditionType> {
 				return "success";
 			case ILLEGAL:
 				return "program performs an illegal operation";
-			case TOP:
-				return "top";
 			}
 			return "unexpected test result type!";
 		}
 	}
 
+	public abstract Domain<Store, BasicStmt, Condition> domain();
+
 	public InputOutputProblem(String name) {
 		this.name = name;
 	}
 
+	/**
+	 * Tests whether the first state matches the second, where the second state may
+	 * be a partial state, serving as a (conjunctive) condition for the first state.
+	 */
+	public abstract boolean match(StateType first, StateType second);
+
 	public List<InputOutputExample<StateType>> examples = new ArrayList<>();
+
+	public void addExample(InputOutputExample<StateType> example) {
+		this.examples.add(example);
+	}
 
 	public void addExample(StateType input, StateType output) {
 		this.examples.add(new InputOutputExample<>(input, output, examples.size()));

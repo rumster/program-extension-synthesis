@@ -7,6 +7,7 @@ public class ASTRefType extends AST {
 	public final List<ASTField> fields;
 
 	public ASTRefType(String name, List<ASTField> fields) {
+		assert name != null && fields != null;
 		this.name = name;
 		this.fields = fields;
 	}

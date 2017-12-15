@@ -45,11 +45,8 @@ public abstract class HeapRunner {
 
 	/**
 	 * Starts the ball rolling.
-	 * 
-	 * @param args
-	 *            Command line arguments.
 	 */
-	public void run(String[] args) {
+	public void run() {
 		Configurations configs = new Configurations();
 		try {
 			config = configs.properties(new File(PROPERTIES_FILE_NAME));

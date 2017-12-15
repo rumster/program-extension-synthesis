@@ -4,7 +4,6 @@ import java.util.Collection;
 import java.util.List;
 
 import grammar.Node;
-import heap.Store.Obj;
 
 /**
  * An assignment of null into a variable.

@@ -13,10 +13,10 @@ public class Renderer {
 	public static final Renderer v = new Renderer();
 	private static STGLoader templates = new STGLoader(Renderer.class, "grammar");
 
-	public static String render(Node op) {
+	public static String render(Node node) {
 		ST template = templates.load("OperatorTree");
-		template.add("name", op.getName());
-		for (Node n : op.getArgs()) {
+		template.add("name", node.getName());
+		for (Node n : node.getArgs()) {
 			if (n instanceof Nonterminal || n instanceof Token) {
 				template.add("args", n);
 			} else {

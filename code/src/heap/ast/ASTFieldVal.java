@@ -1,11 +1,11 @@
 package heap.ast;
 
-public abstract class ASTFieldVal extends AST {
+public abstract class ASTFieldVal extends ASTVal {
 	public final String fieldName;
-	public final String obj;
+	public final String objName;
 
 	public ASTFieldVal(String fieldName, String obj) {
 		this.fieldName = fieldName;
-		this.obj = obj;
+		this.objName = obj;
 	}
 }

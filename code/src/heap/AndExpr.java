@@ -10,7 +10,7 @@ import grammar.*;
  * 
  * @author romanm
  */
-public class AndExpr extends Condition {
+public class AndExpr extends Node implements Condition {
 	protected List<Node> args = new ArrayList<>(2);
 
 	protected AndExpr(int numOfNonterminals) {
@@ -55,5 +55,16 @@ public class AndExpr extends Condition {
 	@Override
 	public AndExpr clone(List<Node> args) {
 		return new AndExpr(args);
+	}
+
+	@Override
+	public boolean holds(Store s) {
+		for (Node arg: args) {
+			Condition c = (Condition) arg;
+			if (!c.holds(s)) {
+				return false;
+			}
+		}
+		return true;
 	}
 }

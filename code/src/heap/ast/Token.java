@@ -13,9 +13,16 @@ public class Token extends Symbol {
 	public final String text;
 
 	public Token(int id, String text, int line, int column) {
-		super(id);
+		super(id, text);
 		this.line = line;
 		this.column = column;
 		this.text = text.intern();
+	}
+
+	public Token(int id, Integer val, int line, int column) {
+		super(id, val);
+		this.line = line;
+		this.column = column;
+		this.text = val.toString();
 	}
 }

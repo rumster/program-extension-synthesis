@@ -4,7 +4,6 @@ import gp.Plan;
 import grammar.Node;
 import grammar.Nonterminal;
 import heap.Store.ErrorStore;
-import heap.Store.Obj;
 
 /**
  * Interprets a program for a given state. The interpreter attempts to run even

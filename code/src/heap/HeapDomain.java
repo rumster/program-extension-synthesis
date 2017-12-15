@@ -45,7 +45,7 @@ public class HeapDomain implements Domain<Store, BasicStmt, Condition> {
 
 	@Override
 	public boolean test(Condition c, Store state) {
-		return PWhileInterpreter.v.test(c, state);
+		return c.holds(state);
 	}
 
 	public static HeapDomain fromVarsAndTypes(Collection<Var> vars, Collection<RefType> refTypes) {
@@ -70,7 +70,7 @@ public class HeapDomain implements Domain<Store, BasicStmt, Condition> {
 				if (refVar.role == VarRole.ARG) {
 					refArgs.add(refVar);
 				}
-				if (refVar.role == VarRole.TEMPORARY) {
+				if (refVar.role == VarRole.TEMP) {
 					refTemps.add(refVar);
 				}
 			}
@@ -149,7 +149,10 @@ public class HeapDomain implements Domain<Store, BasicStmt, Condition> {
 				template.add("types", type);
 			}
 		}
-		template.add("vars", vars);
+		for (Var v : vars) {
+			template.add("vars", renderer.render(v));
+		}
+		// template.add("vars", vars);
 		template.add("actions", actions);
 		return template.render();
 

@@ -22,7 +22,7 @@ public class SLLFindMax extends HeapRunner {
 
 	public static void main(String[] args) {
 		SLLFindMax benchmark = new SLLFindMax();
-		benchmark.run(args);
+		benchmark.run();
 	}
 
 	@Override

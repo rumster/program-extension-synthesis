@@ -25,7 +25,7 @@ public class SLLFind extends HeapRunner {
 
 	public static void main(String[] args) {
 		SLLFind benchmark = new SLLFind();
-		benchmark.run(args);
+		benchmark.run();
 	}
 
 	@Override

@@ -31,10 +31,10 @@ parser code {:
   }
 :}
 
-terminal TYPE, VAR, NULL, EXAMPLE,
-         COMMA, COLON, ARROW, LP, RP, LCB, RCB;
+terminal TYPE, VAR, NULL, EXAMPLE, MUT,
+         COMMA, DOT, EQ, AND, COLON, ARROW, LP, RP, LCB, RCB;
 		
-terminal String INT_VAL; 
+terminal Integer INT_VAL; 
 terminal String ID;
 
 // Unfortunately, CUP doesn't recognize generic types.
@@ -45,18 +45,24 @@ nonterminal List elemList; // <AST>
 nonterminal AST elem;
 nonterminal ASTRefType typeDef;
 nonterminal List fields; // <ASTField>
+nonterminal List optionalFields; // <ASTField>
 nonterminal ASTField field;
 nonterminal ASTFun funDef;
-nonterminal List args; // <ASTVar>
+nonterminal List inputArgs; // <ASTVar>
+nonterminal List outputArgs; // <ASTVar>
+nonterminal List optionalInputArgs; // <ASTVar>
+nonterminal List optionalOutputArgs; // <ASTVar>
 nonterminal List temps; // <ASTVar>
+nonterminal List optionalTemps; // <ASTVar>
 nonterminal ASTVar temp;
 nonterminal ASTVar var;
 nonterminal List examples; // <ASTExample>
+nonterminal List optionalExamples; // <ASTExample>
 nonterminal ASTExample example;
 nonterminal ASTStore store;
 nonterminal AST storeVal;
 nonterminal List heapElems; // <ASTfieldVal>
-nonterminal ASTfieldVal fieldVal;
+nonterminal List optionalHeapElems; // <ASTfieldVal>
 
 ///////////////////////////////////////////////////
 // Productions
@@ -81,8 +87,14 @@ elem ::= typeDef:e
 	{: RESULT = e; :}
 ;
 
-typeDef ::= TYPE ID:name LCB fields:fields RCB
+typeDef ::= TYPE ID:name LCB optionalFields:fields RCB
 	{: RESULT = new ASTRefType(name, fields); :}
+;
+
+optionalFields ::= 
+	{: RESULT = new ArrayList<ASTField>(); :}
+	| fields:fields
+	{: RESULT = fields; :}
 ;
 
 fields ::= field:f
@@ -99,22 +111,59 @@ field ::= ID:name COLON ID:type
 	{: RESULT = new ASTField(name, type); :}
 ;
 
-funDef ::= ID:name LP args:inargs RP ARROW LP args:outargs RP LCB temps:temps examples:examples RCB
+funDef ::= ID:name LP optionalInputArgs:inargs RP ARROW LP optionalOutputArgs:outargs RP LCB optionalTemps:temps optionalExamples:examples RCB
 	{: RESULT = new ASTFun(name, inargs, outargs, temps, examples); :}
 ;
 
-args ::= var:a
-	{: RESULT = new ArrayList<ASTVar>();
+optionalInputArgs ::= 
+	{: RESULT = new ArrayList<ASTVar>(); :}
+	| inputArgs:args
+	{: RESULT = args; :}
+;
+
+optionalOutputArgs ::= 
+	{: RESULT = new ArrayList<ASTVar>(); :}
+	| outputArgs:args
+	{: RESULT = args; :}
+;
+
+inputArgs ::= var:a
+	{: a.readonly = true;
+	   RESULT = new ArrayList<ASTVar>();
 	   RESULT.add(a);
 	:}
-	| args:prefix COMMA var:a
+	| MUT var:a
+	{: a.readonly = false;
+	   RESULT = new ArrayList<ASTVar>();
+	   RESULT.add(a);
+	:}
+	| inputArgs:prefix COMMA var:a
+	{: prefix.add(a);
+	   RESULT = prefix;
+	:}
+;
+
+outputArgs ::= var:a
+	{: a.readonly = false;
+	   RESULT = new ArrayList<ASTVar>();
+	   RESULT.add(a);
+	:}
+	| outputArgs:prefix COMMA var:a
 	{: prefix.add(a);
 	   RESULT = prefix;
 	:}
 ;
 
 var ::= ID:name COLON ID:type
-	{: RESULT = new ASTVar(name, type); :}
+	{: RESULT = new ASTVar(name, type);
+	   RESULT.readonly = true;
+	:}
+;
+
+optionalTemps ::=  
+	{: RESULT = new ArrayList<ASTVar>(); :}
+	| temps:temps
+	{: RESULT = temps; :}
 ;
 
 temps ::= temp:t
@@ -128,7 +177,15 @@ temps ::= temp:t
 ;
 
 temp ::= VAR var:v
-	{: RESULT = v; :}
+	{: RESULT = v;
+	   v.readonly = false;
+	:}
+;
+
+optionalExamples ::=
+	{: RESULT = new ArrayList<ASTExample>(); :}
+	| examples:examples
+	{: RESULT = examples; :}
 ;
 
 examples ::= example:e
@@ -145,28 +202,36 @@ example ::= EXAMPLE LCB store:input ARROW store:goal RCB
 	{: RESULT = new ASTExample(input, goal); :}
 ;
 
-store ::= heapElems:elements
+store ::= optionalHeapElems:elements
 	{: RESULT = new ASTStore(elements); :}
 ;
 
+optionalHeapElems ::= 
+	{: RESULT = new ArrayList<ASTVal>(); :}
+	| heapElems:heapElems
+	{: RESULT = heapElems; :}
+;
+
 heapElems ::= storeVal:v
-	{: RESULT = new ArrayList<ASTFieldVal>();
+	{: RESULT = new ArrayList<ASTVal>();
 	   RESULT.add(v);
 	:}
-	| heapElems:prefix storeVal:v
+	| heapElems:prefix AND storeVal:v
 	{: prefix.add(v);
 	   RESULT = prefix;
 	:} 
 ;
 
-storeVal ::= ID:var LP ID:val RP
+storeVal ::= ID:var EQ ID:val
 	{: RESULT = new ASTRefVarVal(var, val); :}
-	| ID:var LP INT_VAL:val RP
-	{: RESULT = new ASTIntVarVal(var, Integer.parseInt(val)); :}
-	| ID:field LP ID:src COMMA ID:dst RP
+	| ID:var EQ NULL
+	{: RESULT = new ASTRefVarVal(var, AST.NULL_VAL_NAME); :}
+	| ID:var EQ INT_VAL:val
+	{: RESULT = new ASTIntVarVal(var, val); :}
+	| ID:src DOT ID:field EQ ID:dst
 	{: RESULT = new ASTRefFieldVal(field, src, dst); :}
-	| ID:field LP ID:src COMMA NULL RP
+	| ID:src DOT ID:field EQ NULL
 	{: RESULT = new ASTRefFieldVal(field, src, AST.NULL_VAL_NAME); :}
-	| ID:field LP ID:src COMMA INT_VAL:val RP
-	{: RESULT = new ASTIntFieldVal(field, src, Integer.parseInt(val)); :}
+	| ID:src DOT ID:field EQ INT_VAL:val
+	{: RESULT = new ASTIntFieldVal(field, src, val); :}
 ;

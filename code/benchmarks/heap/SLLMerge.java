@@ -24,7 +24,7 @@ public class SLLMerge extends HeapRunner {
 
 	public static void main(String[] args) {
 		SLLMerge benchmark = new SLLMerge();
-		benchmark.run(args);
+		benchmark.run();
 	}
 
 	@Override

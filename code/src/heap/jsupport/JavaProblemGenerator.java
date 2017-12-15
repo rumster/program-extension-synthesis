@@ -9,7 +9,6 @@ import java.util.logging.Logger;
 
 import bgu.cs.util.ReflectionUtils;
 import heap.*;
-import heap.Store.Obj;
 
 /**
  * Generates a {@link HeapProblem} from a Java {@link Method} and an

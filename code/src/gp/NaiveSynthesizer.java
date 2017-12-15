@@ -46,22 +46,22 @@ public class NaiveSynthesizer<StateType, ActionType, ConditionType> {
 			StateType input = example.first;
 			StateType output = example.second;
 			Plan<StateType, ActionType> plan = new ArrayListPlan<>();
-			logger.info("Planning for example " + example.index + "...");
-			PlanResultType planResult = planner.findPlan(input, state -> state.equals(output), plan);
+			logger.info("Planning for example " + example.name + "...");
+			PlanResultType planResult = planner.findPlan(input, state -> problem.match(state, output), plan);
 			switch (planResult) {
 			case OK:
 				plans.add(plan);
-				debugger.printPlan(plan, example.index);
-				logger.info("Found a plan for example " + example.index);
+				debugger.printPlan(plan, example.id);
+				logger.info("Found a plan for example " + example.name);
 				break;
 			case NO_PLAN_EXISTS:
 				if (logger != null) {
-					logger.info("No plan exists for example " + example.index + "! Skipping example.");
+					logger.info("No plan exists for example " + example.name + "! Skipping example.");
 				}
 				break;
 			case TIMEOUT:
 				if (logger != null) {
-					logger.info("Time out on example " + example.index + "! Skipping example.");
+					logger.info("Timed out on example " + example.name + "! Skipping example.");
 				}
 				break;
 			}

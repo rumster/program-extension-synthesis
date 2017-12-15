@@ -3,10 +3,10 @@ package heap.ast;
 import java.util.List;
 
 public class ASTStore extends AST {
-	public final List<ASTFieldVal> fieldVals;
+	public final List<ASTVal> vals;
 
-	public ASTStore(List<ASTFieldVal> fieldVals) {
-		this.fieldVals = fieldVals;
+	public ASTStore(List<ASTVal> vals) {
+		this.vals = vals;
 	}
 
 	@Override

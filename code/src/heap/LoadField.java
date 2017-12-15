@@ -4,7 +4,6 @@ import java.util.Collection;
 import java.util.List;
 
 import grammar.Node;
-import heap.Store.Obj;
 
 /**
  * An assignment of a field value into a variable.
@@ -26,7 +25,7 @@ public class LoadField extends AssignStmt {
 
 	@Override
 	public boolean enabled(Store s) {
-		return s.isInitialized(rhs) && s.eval(rhs) != Obj.NULL;
+		return s.isInitialized(rhs) && s.isInitialized(s.eval(rhs), field) && s.eval(rhs) != Obj.NULL;
 	}
 
 	@Override

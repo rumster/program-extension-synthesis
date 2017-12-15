@@ -22,7 +22,6 @@ import bgu.cs.util.graph.MultiGraph;
 import bgu.cs.util.graph.visualization.GraphizVisualizer;
 import gnu.trove.map.TObjectIntMap;
 import gnu.trove.map.hash.TObjectIntHashMap;
-import heap.Store.Obj;
 
 /**
  * Store-related utility methods.
@@ -83,7 +82,7 @@ public class StoreUtils {
 			ST objContent = templates.load("objectContent");
 			objContent.add("name", objName);
 			for (Field f : o.type.fields) {
-				if (!(f instanceof RefField)) {
+				if (state.isInitialized(o, f) && !(f instanceof RefField)) {
 					objContent.add("vals", f.name + "=" + state.eval(o, f).toString());
 				}
 			}
@@ -99,13 +98,15 @@ public class StoreUtils {
 				refVarToDotNodeName.put(refVar, var.name);
 				template.add("refVarNodes", var.name);
 			} else {
-				template.add("nonRefVarVals", new Pair<String, String>(var.name, var.name + "=" + state.eval(var)));
+				if (state.isInitialized(var)) {
+					template.add("nonRefVarVals", new Pair<String, String>(var.name, var.name + "=" + state.eval(var)));
+				}
 			}
 		}
 
 		// Add arrows from reference variables to objects.
 		state.getEnvMap().forEach((var, val) -> {
-			if (var instanceof RefVar) {
+			if (state.isInitialized(var) && var instanceof RefVar) {
 				RefVar refVar = (RefVar) var;
 				Obj o = (Obj) val;
 				template.add("refVarVals",
@@ -117,7 +118,7 @@ public class StoreUtils {
 		for (Obj src : state.getObjects()) {
 			String srcName = objToDotNodeName.get(src);
 			for (Field f : src.type.fields) {
-				if (f instanceof RefField) {
+				if (state.isInitialized(src, f) && f instanceof RefField) {
 					RefField refField = (RefField) f;
 					Obj dst = state.eval(src, refField);
 					String dstName = objToDotNodeName.get(dst);

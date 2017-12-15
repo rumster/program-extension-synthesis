@@ -6,11 +6,11 @@ import java.util.List;
 import grammar.*;
 
 /**
- * The operator corresponding to a comparison between two values.
+ * The operator corresponding to an equality comparison between two values.
  * 
  * @author romanm
  */
-public class EqExpr extends Condition {
+public class EqExpr extends Node implements Condition {
 	protected List<Node> args = new ArrayList<>(2);
 
 	protected EqExpr(int numOfNonterminals) {
@@ -55,5 +55,10 @@ public class EqExpr extends Condition {
 	@Override
 	public EqExpr clone(List<Node> args) {
 		return new EqExpr(args);
+	}
+
+	@Override
+	public boolean holds(Store s) {
+		return PWhileInterpreter.v.test(this, s);
 	}
 }

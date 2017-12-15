@@ -13,7 +13,7 @@ public class RefVar extends Var {
 	}
 
 	public RefVar(String name, RefType type) {
-		this(name, type, VarRole.TEMPORARY, false, false);
+		this(name, type, VarRole.TEMP, false, false);
 	}
 
 	@Override

@@ -10,7 +10,7 @@ import grammar.*;
  * 
  * @author romanm
  */
-public class LeqExpr extends Condition {
+public class LeqExpr extends Node implements Condition {
 	protected List<Node> args = new ArrayList<>(2);
 
 	protected LeqExpr(int numOfNonterminals) {
@@ -55,5 +55,10 @@ public class LeqExpr extends Condition {
 	@Override
 	public LeqExpr clone(List<Node> args) {
 		return new LeqExpr(args);
+	}
+	
+	@Override
+	public boolean holds(Store s) {
+		return PWhileInterpreter.v.test(this, s);
 	}
 }

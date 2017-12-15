@@ -1,6 +1,7 @@
 package heap;
 
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 import grammar.Visitor;
@@ -23,10 +24,23 @@ public class RefType extends Type {
 		super(name);
 	}
 
+	public Optional<Field> findField(String name) {
+		for (Field f : fields) {
+			if (f.name.equals(name)) {
+				return Optional.of(f);
+			}
+		}
+		return Optional.empty();
+	}
+
 	public void add(Field field) {
 		assert field.srcType == this;
 		assert mutable;
-		fields.add(field);
+		if (findField(field.name).isPresent()) {
+			assert findField(field.name).get() == field;
+		} else {
+			fields.add(field);
+		}
 	}
 
 	@Override
@@ -62,5 +76,10 @@ public class RefType extends Type {
 		mutable = false;
 		PWhileVisitor whileVisitor = (PWhileVisitor) v;
 		whileVisitor.visit(this);
+	}
+	
+	@Override
+	public String toString() {
+		return name;
 	}
 }

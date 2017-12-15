@@ -4,7 +4,7 @@ Types = {
 }
 
 Variables = {
-  $vars:{it|$it.name$:$it.type.name$}; separator="\n"$
+  $vars; separator="\n"$
 }
 
 Actions = {
@@ -28,14 +28,10 @@ Copy(lhs, rhs) ::= <<
 $lhs$=$rhs$
 >>
 
-Var(name) ::= <<
-$name$
+IntVar(name, is_readonly) ::= <<
+$if(is_readonly)$$else$mut $endif$$name$
 >>
 
-IntVar(name) ::= <<
-$name$
->>
-
-RefVar(name) ::= <<
-$name$
+RefVar(name, is_readonly) ::= <<
+$if(is_readonly)$$else$mut $endif$$name$
 >>

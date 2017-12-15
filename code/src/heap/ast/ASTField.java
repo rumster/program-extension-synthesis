@@ -2,11 +2,11 @@ package heap.ast;
 
 public class ASTField extends AST {
 	public final String name;
-	public final String type;
+	public final String typeName;	
 	
 	public ASTField(String name, String type) {
 		this.name = name;
-		this.type = type;
+		this.typeName = type;
 	}
 		
 	@Override

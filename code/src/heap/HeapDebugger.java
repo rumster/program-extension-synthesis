@@ -34,9 +34,9 @@ public class HeapDebugger extends GPDebugger<Store, BasicStmt, Condition> {
 		Logger examplesLogger = logDetailedExampleRendering ? logger : null;
 		ST exampleListTemplate = heapTemplates.load("examples");
 		for (InputOutputExample<Store> example : examples) {
-			String inputFileName = outputDirPath + File.separator + "example_input_" + example.index + "."
+			String inputFileName = outputDirPath + File.separator + "example_input_" + example.id + "."
 					+ STATE_IMAGE_FILE_POSTFIX;
-			String outputFileName = outputDirPath + File.separator + "example_output_" + example.index + "."
+			String outputFileName = outputDirPath + File.separator + "example_output_" + example.id + "."
 					+ STATE_IMAGE_FILE_POSTFIX;
 			StoreUtils.printStore(example.first, inputFileName, examplesLogger);
 			StoreUtils.printStore(example.second, outputFileName, examplesLogger);
@@ -44,8 +44,8 @@ public class HeapDebugger extends GPDebugger<Store, BasicStmt, Condition> {
 			ST indexedExampleTemplate = heapTemplates.load("indexedExample");
 			indexedExampleTemplate.add("inputImageFileName", inputFileName);
 			indexedExampleTemplate.add("outputImageFileName", outputFileName);
-			indexedExampleTemplate.add("index", example.index);
-			exampleListTemplate.add("indices", example.index);
+			indexedExampleTemplate.add("id", example.id);
+			exampleListTemplate.add("indices", example.id);
 			exampleListTemplate.add("indexedExample", indexedExampleTemplate.render());
 		}
 		String exampleListFileName = outputDirPath + File.separator + "examples.html";
