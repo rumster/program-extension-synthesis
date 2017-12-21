@@ -88,7 +88,7 @@ public class HeapDomain implements Domain<Store, BasicStmt, Condition> {
 			if (lhs.readonly) {
 				continue;
 			}
-			for (Var rhs : typeToVar.selectFirst(lhs.getType())) {
+			for (Var rhs : typeToVar.select1(lhs.getType())) {
 				if (lhs != rhs) {
 					Copy stmt = new Copy(lhs, rhs);
 					result.add(stmt);
@@ -109,7 +109,7 @@ public class HeapDomain implements Domain<Store, BasicStmt, Condition> {
 					// lhs.f = null
 					result.add(new StoreFieldNullExpr(lhs, (RefField) f));
 				}
-				for (Var rhs : typeToVar.selectFirst(f.dstType)) {
+				for (Var rhs : typeToVar.select1(f.dstType)) {
 					// lhs.f = rhs
 					result.add(new StoreField(lhs, f, rhs));
 				}
@@ -118,7 +118,7 @@ public class HeapDomain implements Domain<Store, BasicStmt, Condition> {
 			if (!lhs.readonly) {
 				for (Field f : fields) {
 					if (f.dstType == lhs.getType()) {
-						for (Var rhs : typeToVar.selectFirst(f.srcType)) {
+						for (Var rhs : typeToVar.select1(f.srcType)) {
 							// lhs = rhs.f
 							result.add(new LoadField(lhs, (RefVar) rhs, f));
 						}
@@ -142,6 +142,9 @@ public class HeapDomain implements Domain<Store, BasicStmt, Condition> {
 					ST fieldTemplate = templates.load("Field");
 					fieldTemplate.add("name", f.name);
 					fieldTemplate.add("dstType", f.dstType.name);
+					if (f.ghost) {
+						fieldTemplate.add("ghost", "true");
+					}
 					refTypeTemplate.add("fields", fieldTemplate.render());
 				}
 				template.add("types", refTypeTemplate.render());

@@ -36,7 +36,11 @@ public class StoreFieldNullExpr extends AssignStmt {
 		} else {
 			result = s.assign(lhs, field, Obj.NULL);
 		}
-		return List.of(result);
+		if (result.containsGarbage()) {
+			return List.of();
+		} else {
+			return List.of(result);
+		}
 	}
 
 	@Override
@@ -44,7 +48,7 @@ public class StoreFieldNullExpr extends AssignStmt {
 		DerefExpr expr = (DerefExpr) args.get(0);
 		return new StoreFieldNullExpr((RefVar) expr.getLhs(), (RefField) expr.getField());
 	}
-	
+
 	@Override
 	public String toString() {
 		return lhs.name + "." + field.name + "=null";

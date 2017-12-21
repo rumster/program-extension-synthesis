@@ -3,12 +3,13 @@ package gp;
 import java.util.ArrayList;
 import java.util.List;
 
+import gp.controlFlowGraph.CFG;
 import heap.BasicStmt;
 import heap.Condition;
 import heap.Store;
 
 /**
- * A specification consisting of a list of input-output state examples.
+ * A specification consisting of a list of input-output examples.
  * 
  * @author romanm
  *
@@ -51,17 +52,17 @@ public abstract class InputOutputProblem<StateType, ActionType, ConditionType> {
 	 */
 	public abstract boolean match(StateType first, StateType second);
 
-	public List<InputOutputExample<StateType>> examples = new ArrayList<>();
+	public List<Example<StateType>> examples = new ArrayList<>();
 
-	public void addExample(InputOutputExample<StateType> example) {
+	public void addExample(Example<StateType> example) {
 		this.examples.add(example);
 	}
 
 	public void addExample(StateType input, StateType output) {
-		this.examples.add(new InputOutputExample<>(input, output, examples.size()));
+		this.examples.add(new Example<>(input, output, examples.size()));
 	}
 
-	public boolean test(CFG<ActionType, ConditionType> prog) {
+	public boolean test(CFG<StateType, ActionType, ConditionType> prog) {
 		throw new UnsupportedOperationException("unimplemented!");
 		// for (Pair<State, State> example : problem.examples) {
 		// State input = example.first;

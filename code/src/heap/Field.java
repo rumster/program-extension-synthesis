@@ -20,6 +20,8 @@ public abstract class Field extends Token {
 	 */
 	public final Type dstType;
 
+	public final boolean ghost;
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -56,10 +58,11 @@ public abstract class Field extends Token {
 		return true;
 	}
 
-	public Field(String name, RefType srcType, Type dstType) {
+	public Field(String name, RefType srcType, Type dstType, boolean ghost) {
 		this.name = name;
 		this.srcType = srcType;
 		this.dstType = dstType;
+		this.ghost = ghost;
 		srcType.add(this);
 	}
 

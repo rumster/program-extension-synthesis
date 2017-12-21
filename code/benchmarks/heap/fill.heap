@@ -8,6 +8,8 @@ fill(head:SLL, val:int) -> () {
 
   example {
     head==o1 && o1.n==o2 && o2.n==o3 && o3.n==o4 && o4.n==null && val==42 ->
+    t==o1 ->
+    o1.d==42 ->
     head==o1 && o1.n==o2 && o2.n==o3 && o3.n==o4 && o4.n==null &&
     o1.d==42 && o2.d==42 && o3.d==42 && o4.d==42
   }

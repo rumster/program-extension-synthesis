@@ -10,7 +10,7 @@ import bgu.cs.util.FileUtils;
 import bgu.cs.util.Pair;
 import bgu.cs.util.STGLoader;
 import gp.GPDebugger;
-import gp.InputOutputExample;
+import gp.Example;
 import gp.Plan;
 
 /**
@@ -29,24 +29,25 @@ public class HeapDebugger extends GPDebugger<Store, BasicStmt, Condition> {
 		super(logger, title, outputDirPath);
 	}
 
-	public boolean printExamples(List<InputOutputExample<Store>> examples) {
+	public boolean printExamples(List<Example<Store>> examples) {
 		logger.info("Visualizing examples...");
 		Logger examplesLogger = logDetailedExampleRendering ? logger : null;
-		ST exampleListTemplate = heapTemplates.load("examples");
-		for (InputOutputExample<Store> example : examples) {
-			String inputFileName = outputDirPath + File.separator + "example_input_" + example.id + "."
-					+ STATE_IMAGE_FILE_POSTFIX;
-			String outputFileName = outputDirPath + File.separator + "example_output_" + example.id + "."
-					+ STATE_IMAGE_FILE_POSTFIX;
-			StoreUtils.printStore(example.first, inputFileName, examplesLogger);
-			StoreUtils.printStore(example.second, outputFileName, examplesLogger);
-
+		ST exampleListTemplate = heapTemplates.load("examples");		
+		for (Example<Store> example : examples) {
 			ST indexedExampleTemplate = heapTemplates.load("indexedExample");
-			indexedExampleTemplate.add("inputImageFileName", inputFileName);
-			indexedExampleTemplate.add("outputImageFileName", outputFileName);
+			int stepIndex = 0;
+			for (Store stage : example) {
+				String storeImageFileName = outputDirPath + File.separator + "example_" + example.id + "_" + stepIndex
+						+ "." + STATE_IMAGE_FILE_POSTFIX;
+				StoreUtils.printStore(stage, storeImageFileName, examplesLogger);
+				indexedExampleTemplate.add("imageFileNames", storeImageFileName);
+				String stepName = stepIndex + "";
+				indexedExampleTemplate.add("stageNames", stepName);
+				++stepIndex;
+			}
 			indexedExampleTemplate.add("id", example.id);
-			exampleListTemplate.add("indices", example.id);
 			exampleListTemplate.add("indexedExample", indexedExampleTemplate.render());
+			exampleListTemplate.add("indices", example.id);
 		}
 		String exampleListFileName = outputDirPath + File.separator + "examples.html";
 		FileUtils.stringToFile(exampleListTemplate.render(), exampleListFileName);

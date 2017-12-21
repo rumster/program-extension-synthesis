@@ -38,7 +38,11 @@ public class LoadField extends AssignStmt {
 		} else {
 			result = s.assign(lhs, s.eval(rhs, field));
 		}
-		return List.of(result);
+		if (result.containsGarbage()) {
+			return List.of();
+		} else {
+			return List.of(result);
+		}
 	}
 
 	@Override

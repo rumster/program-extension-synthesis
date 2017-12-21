@@ -14,16 +14,7 @@ import java.util.function.Predicate;
  *            The type of actions that label transitions in the transition
  *            relation.
  */
-public interface Planner<StateType, ActionType> {
-	/**
-	 * The type of result for a plan search.
-	 * 
-	 * @author romanm
-	 */
-	public static enum PlanResultType {
-		OK, NO_PLAN_EXISTS, TIMEOUT
-	}
-
+public interface Planner<StateType, ActionType> extends Searcher<StateType, ActionType> {
 	/**
 	 * Attempts to finds a sequence of actions from the given input state to a state
 	 * satisfying the goal.
@@ -37,6 +28,22 @@ public interface Planner<StateType, ActionType> {
 	 *            If a plan is found, it is appended to this one.
 	 * @return The result of the search.
 	 */
-	public PlanResultType findPlan(StateType input, Predicate<StateType> goalTest,
+	public SearchResultType findPlan(StateType input, Predicate<StateType> goalTest,
 			Plan<StateType, ActionType> addToPlan);
+
+	@Override
+	public default SearchResult<StateType> findState(StateType input, Predicate<StateType> goalTest) {
+		Plan<StateType, ActionType> plan = new ArrayListPlan<>();
+		SearchResultType result = findPlan(input, goalTest, plan);
+		switch (result) {
+		case OK:
+			return SearchResult.of(plan.lastState());
+		case NO_SOLUTION_EXISTS:
+			return SearchResult.noSolutionExists();
+		case OUT_OF_RESOURCES:
+			return SearchResult.outOfResources();
+		default:
+			throw new Error("Unexpected search result type: " + result.getClass().getSimpleName());
+		}
+	}
 }

@@ -41,6 +41,7 @@ Int			= 0|{PosDigit}{Digit}*|-{PosDigit}{Digit}*
   "var"			{ return new Token(HeapSym.VAR, yytext(), yyline, yycolumn); }
   "null"		{ return new Token(HeapSym.NULL, yytext(), yyline, yycolumn); }
   "mut"			{ return new Token(HeapSym.MUT, yytext(), yyline, yycolumn); }
+  "ghost"		{ return new Token(HeapSym.GHOST, yytext(), yyline, yycolumn); }
   
   {Id}			{ return new Token(HeapSym.ID, yytext(), yyline, yycolumn); }
   {Int}			{ try {

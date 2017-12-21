@@ -49,7 +49,7 @@ public interface Operator<ActionType> {
 		List<ArgType> signature = signature();
 		List<Collection<Arg>> argDomains = new ArrayList<>(signature().size());
 		for (int i = 0; i < signature.size(); ++i) {
-			argDomains.set(i, argTypeToArg.selectFirst(signature.get(i)));
+			argDomains.set(i, argTypeToArg.select1(signature.get(i)));
 		}
 		ArrayList<Arg> actuals = new ArrayList<>(signature.size());
 		CartesianIterator<Arg> argTupleIterator = new CartesianIterator<>(argDomains, actuals);

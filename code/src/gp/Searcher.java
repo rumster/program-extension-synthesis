@@ -16,15 +16,6 @@ import java.util.function.Predicate;
  */
 public interface Searcher<StateType, ActionType> {
 	/**
-	 * A general indication on the result of a search.
-	 * 
-	 * @author romanm
-	 */
-	public static enum SearchResultType {
-		OK, NO_SOUTION_EXISTS, OUT_OF_RESOURCES
-	}
-
-	/**
 	 * The result of a search.
 	 * 
 	 * @author romanm
@@ -45,7 +36,7 @@ public interface Searcher<StateType, ActionType> {
 		}
 
 		public static <StateType> SearchResult<StateType> noSolutionExists() {
-			return new SearchResult<StateType>(null, SearchResultType.NO_SOUTION_EXISTS);
+			return new SearchResult<StateType>(null, SearchResultType.NO_SOLUTION_EXISTS);
 		}
 
 		public static <StateType> SearchResult<StateType> outOfResources() {
@@ -57,7 +48,7 @@ public interface Searcher<StateType, ActionType> {
 		}
 
 		public boolean fail() {
-			return resultType == SearchResultType.NO_SOUTION_EXISTS || resultType == SearchResultType.OUT_OF_RESOURCES;
+			return resultType == SearchResultType.NO_SOLUTION_EXISTS || resultType == SearchResultType.OUT_OF_RESOURCES;
 		}
 
 		public boolean found() {

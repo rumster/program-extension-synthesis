@@ -1,7 +1,6 @@
 package heap.ast;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -9,8 +8,22 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import gp.InputOutputExample;
-import heap.*;
+import gp.Example;
+import heap.Field;
+import heap.HeapDomain;
+import heap.HeapProblem;
+import heap.IntField;
+import heap.IntType;
+import heap.IntVal;
+import heap.IntVar;
+import heap.Obj;
+import heap.RefField;
+import heap.RefType;
+import heap.RefVar;
+import heap.Store;
+import heap.Type;
+import heap.Val;
+import heap.Var;
 import heap.Var.VarRole;
 
 /**
@@ -44,7 +57,7 @@ public class ProblemCompiler {
 		HeapProblem result = new HeapProblem(funAST.name, domain);
 		int exampleId = 0;
 		for (ASTExample exampleAST : funAST.examples) {
-			InputOutputExample<Store> example = new ExampleBuilder(exampleAST, exampleId).build();
+			Example<Store> example = new ExampleBuilder(exampleAST, exampleId).build();
 			result.addExample(example);
 			++exampleId;
 		}
@@ -90,10 +103,10 @@ public class ProblemCompiler {
 							+ " refers to undefined type " + fieldAST.typeName, fieldAST);
 				}
 				if (fieldType == IntType.v) {
-					IntField field = new IntField(fieldAST.name, type);
+					IntField field = new IntField(fieldAST.name, type, fieldAST.ghost);
 					type.add(field);
 				} else {
-					RefField field = new RefField(fieldAST.name, type, (RefType) fieldType);
+					RefField field = new RefField(fieldAST.name, type, (RefType) fieldType, fieldAST.ghost);
 					type.add(field);
 				}
 			}
@@ -166,7 +179,7 @@ public class ProblemCompiler {
 	}
 
 	/**
-	 * Converts an {@link ASTExample} into an {@link InputOutputExample}.
+	 * Converts an {@link ASTExample} into an {@link Example}.
 	 * 
 	 * @author romanm
 	 */
@@ -181,11 +194,11 @@ public class ProblemCompiler {
 			this.exampleId = exampleId;
 		}
 
-		public InputOutputExample<Store> build() {
+		public Example<Store> build() {
 			ObjFinder objFinder = new ObjFinder();
-			Set<String> inputObjNames = objFinder.find(exampleAST.input);
+			Set<String> inputObjNames = objFinder.find(exampleAST.input());
 			inputObjNames.remove(AST.NULL_VAL_NAME);
-			Set<String> goalObjNames = objFinder.find(exampleAST.goal);
+			Set<String> goalObjNames = objFinder.find(exampleAST.goal());
 			goalObjNames.remove(AST.NULL_VAL_NAME);
 			Set<String> allObjNames = new HashSet<>();
 			allObjNames.addAll(inputObjNames);
@@ -214,11 +227,26 @@ public class ProblemCompiler {
 			}
 			Set<Obj> freeInputObjs = new HashSet<>(goalObjs);
 			freeInputObjs.removeAll(inputObjs);
-			Set<Obj> freeGoalObjs = Collections.emptySet();
 
-			Store input = new StoreBuilder(inputObjs, freeInputObjs, exampleAST.input).build();
-			Store goal = new StoreBuilder(inputObjs, freeGoalObjs, exampleAST.goal).build();
-			return new InputOutputExample<Store>(input, goal, exampleId);
+			List<Store> stores = new ArrayList<>(exampleAST.steps.size());
+			for (ASTStore storeAST : exampleAST.steps) {
+				Set<String> storeObjNames = objFinder.find(storeAST);
+				storeObjNames.remove(AST.NULL_VAL_NAME);
+				Set<Obj> storeObjs;
+
+				if (storeAST == exampleAST.steps.get(0)) {
+					storeObjs = inputObjs;
+				} else {
+					storeObjs = new HashSet<>();
+					for (String objName : storeObjNames) {
+						Obj obj = objNameToObj.get(objName);
+						storeObjs.add(obj);
+					}					
+				}
+				Store store = new StoreBuilder(storeObjs, freeInputObjs, storeAST).build();
+				stores.add(store);
+			}
+			return new Example<Store>(stores, exampleId);
 		}
 
 		private void inferObjectTypes() {
@@ -226,8 +254,9 @@ public class ProblemCompiler {
 			boolean typeChange = true;
 			while (typeChange) {
 				typeChange = false;
-				typeChange |= typeAssigner.infer(exampleAST.input);
-				typeChange |= typeAssigner.infer(exampleAST.goal);
+				for (ASTStore storeAST : exampleAST.steps) {
+					typeChange |= typeAssigner.infer(storeAST);
+				}
 			}
 		}
 
@@ -308,6 +337,7 @@ public class ProblemCompiler {
 
 			public void visit(ASTRefFieldVal n) {
 				result.add(n.objName);
+				result.add(n.val);
 			}
 
 			public void visit(ASTIntFieldVal n) {

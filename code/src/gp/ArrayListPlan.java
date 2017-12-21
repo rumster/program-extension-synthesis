@@ -50,6 +50,7 @@ public class ArrayListPlan<StateType, ActionType> implements Plan<StateType, Act
 		boolean first = true;
 		for (StateType state: other.states()) {
 			if (first && !states.isEmpty()) {
+				first = false;
 				continue;
 			}
 			this.states.add(state);

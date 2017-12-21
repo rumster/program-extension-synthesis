@@ -31,7 +31,7 @@ parser code {:
   }
 :}
 
-terminal TYPE, VAR, NULL, EXAMPLE, MUT,
+terminal TYPE, VAR, NULL, EXAMPLE, MUT, GHOST,
          COMMA, DOT, EQ, AND, COLON, ARROW, LP, RP, LCB, RCB;
 		
 terminal Integer INT_VAL; 
@@ -59,6 +59,7 @@ nonterminal ASTVar var;
 nonterminal List examples; // <ASTExample>
 nonterminal List optionalExamples; // <ASTExample>
 nonterminal ASTExample example;
+nonterminal List exampleSteps; // <ASTStore>
 nonterminal ASTStore store;
 nonterminal AST storeVal;
 nonterminal List heapElems; // <ASTfieldVal>
@@ -108,7 +109,9 @@ fields ::= field:f
 ;
 
 field ::= ID:name COLON ID:type
-	{: RESULT = new ASTField(name, type); :}
+	{: RESULT = new ASTField(name, type, false); :}
+	| GHOST ID:name COLON ID:type
+	{: RESULT = new ASTField(name, type, true); :}
 ;
 
 funDef ::= ID:name LP optionalInputArgs:inargs RP ARROW LP optionalOutputArgs:outargs RP LCB optionalTemps:temps optionalExamples:examples RCB
@@ -198,8 +201,18 @@ examples ::= example:e
 	:} 
 ;
 
-example ::= EXAMPLE LCB store:input ARROW store:goal RCB
-	{: RESULT = new ASTExample(input, goal); :}
+example ::= EXAMPLE LCB exampleSteps:steps RCB
+	{: RESULT = new ASTExample(steps); :}
+;
+
+exampleSteps ::= store:s
+	{: RESULT = new ArrayList<ASTStore>();
+	   RESULT.add(s);
+	:}
+	| exampleSteps:prefix ARROW store:next
+	{: prefix.add(next);
+	   RESULT = prefix;
+	:} 
 ;
 
 store ::= optionalHeapElems:elements

@@ -160,7 +160,7 @@ public class JavaHeapWalker {
 			if (ReflectionUtils.isIntType(fieldType)) {
 				result = jfieldToSynthField.get(field);
 				if (result == null) {
-					result = new IntField(field.getName(), owner);
+					result = new IntField(field.getName(), owner, false);
 					jfieldToSynthField.put(field, result);
 				}
 			} else {
@@ -171,7 +171,7 @@ public class JavaHeapWalker {
 				RefType dstType = geRefType(fieldType);
 				result = jfieldToSynthField.get(field);
 				if (result == null) {
-					result = new RefField(field.getName(), owner, dstType);
+					result = new RefField(field.getName(), owner, dstType, false);
 					jfieldToSynthField.put(field, result);
 				}
 			} else {

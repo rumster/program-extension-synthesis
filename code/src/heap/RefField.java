@@ -8,8 +8,8 @@ import grammar.Visitor;
  * @author romanm
  */
 public class RefField extends Field {
-	public RefField(String name, RefType srcType, RefType dstType) {
-		super(name, srcType, dstType);
+	public RefField(String name, RefType srcType, RefType dstType, boolean ghost) {
+		super(name, srcType, dstType, ghost);
 	}
 
 	public RefType getDstType() {
@@ -26,7 +26,7 @@ public class RefField extends Field {
 	public Val getDefaultVal() {
 		return Obj.NULL;
 	}
-	
+
 	@Override
 	public String toString() {
 		return name;

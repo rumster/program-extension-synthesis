@@ -34,7 +34,11 @@ public class Copy extends AssignStmt {
 		} else {
 			result = s.assign(lhs, s.eval(rhs));
 		}
-		return List.of(result);
+		if (result.containsGarbage()) {
+			return List.of();
+		} else {
+			return List.of(result);
+		}
 	}
 
 	@Override

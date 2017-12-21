@@ -1,14 +1,12 @@
-indexedExample(inputImageFileName, outputImageFileName, id) ::= <<
+indexedExample(imageFileNames, stageNames, id) ::= <<
 <div id="example$id$" style="display:none;">
 <table>
   <caption>Example $id$</caption>
   <tr>
-    <th>Input</th>
-    <th>Output</th> 
+    $stageNames:{it|<th>Stage $it$</th>}; separator="\n"$
   </tr>
   <tr>
-    <td><img src="$inputImageFileName$"></td>
-    <td><img src="$outputImageFileName$"></td>
+    $imageFileNames:{it|<td><img src="$it$"></td>}; separator="\n"$
   </tr>
 </table>
 </div>

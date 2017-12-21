@@ -7,24 +7,25 @@ package heap.ast;
  */
 public abstract class Visitor {
 	public void visit(ASTExample n) {
-		n.input.accept(this);
-		n.goal.accept(this);
+		for (ASTStore storeAST : n.steps) {
+			storeAST.accept(this);
+		}
 	}
 
-	public void visit(ASTField n) {		
+	public void visit(ASTField n) {
 	}
 
 	public void visit(ASTFun n) {
-		for (ASTVar var: n.inputArgs) {
+		for (ASTVar var : n.inputArgs) {
 			var.accept(this);
 		}
-		for (ASTVar var: n.outputArgs) {
+		for (ASTVar var : n.outputArgs) {
 			var.accept(this);
 		}
-		for (ASTVar var: n.temps) {
+		for (ASTVar var : n.temps) {
 			var.accept(this);
 		}
-		for (ASTExample example: n.examples) {
+		for (ASTExample example : n.examples) {
 			example.accept(this);
 		}
 	}
@@ -42,13 +43,13 @@ public abstract class Visitor {
 	}
 
 	public void visit(ASTRefType n) {
-		for (ASTField field: n.fields) {
+		for (ASTField field : n.fields) {
 			field.accept(this);
 		}
 	}
 
 	public void visit(ASTStore n) {
-		for (ASTVal val: n.vals) {
+		for (ASTVal val : n.vals) {
 			val.accept(this);
 		}
 	}

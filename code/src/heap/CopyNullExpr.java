@@ -26,7 +26,11 @@ public class CopyNullExpr extends AssignStmt {
 	@Override
 	public Collection<Store> apply(Store s) {
 		Store result = s.assign(lhs, Obj.NULL);
-		return List.of(result);
+		if (result.containsGarbage()) {
+			return List.of();
+		} else {
+			return List.of(result);
+		}
 	}
 
 	@Override

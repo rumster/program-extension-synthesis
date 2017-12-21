@@ -1,6 +1,8 @@
-package gp;
+package gp.controlFlowGraph;
 
 import java.util.Collection;
+
+import gp.Plan;
 
 /**
  * An algorithm for inferring a CFG from a set of plans.
@@ -33,5 +35,5 @@ public abstract class CFGGeneralizer<StateType, ActionType, ConditionType> {
 	 * @return The result of trying to generalize the given plans into a valid CFG.
 	 */
 	public abstract Result generalize(Collection<Plan<StateType, ActionType>> plans,
-			CFG<ActionType, ConditionType> result);
+			CFG<StateType, ActionType, ConditionType> result);
 }

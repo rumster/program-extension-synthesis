@@ -40,7 +40,11 @@ public class StoreField extends AssignStmt {
 		} else {
 			result = s.assign(lhs, field, s.eval(rhs));
 		}
-		return List.of(result);
+		if (result.containsGarbage()) {
+			return List.of();
+		} else {
+			return List.of(result);
+		}
 	}
 
 	@Override
@@ -48,7 +52,7 @@ public class StoreField extends AssignStmt {
 		DerefExpr expr = (DerefExpr) args.get(0);
 		return new StoreField((RefVar) expr.getLhs(), expr.getField(), (Var) args.get(1));
 	}
-	
+
 	@Override
 	public String toString() {
 		return lhs.name + "." + field.name + "=" + rhs.name;

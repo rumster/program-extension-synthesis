@@ -7,8 +7,8 @@ import java.util.Optional;
 import java.util.Stack;
 
 import gp.AStar;
+import gp.SearchResultType;
 import gp.Searcher.SearchResult;
-import gp.Searcher.SearchResultType;
 import gp.TR;
 
 /**

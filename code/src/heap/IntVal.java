@@ -9,7 +9,6 @@ import grammar.Visitor;
  */
 public class IntVal extends Val {
 	public static final RefType type = new RefType("Int");
-	public static final IntField field = new IntField("val", type);
 	public static final IntVal ZERO = new IntVal(0);
 
 	public final int num;

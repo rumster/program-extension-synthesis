@@ -32,11 +32,11 @@ public interface Plan<StateType, ActionType> {
 
 	public ActionType actionAt(int i);
 
-	public default StateType first() {
+	public default StateType firstState() {
 		return stateAt(0);
 	}
 
-	public default StateType last() {
+	public default StateType lastState() {
 		assert !isEmpty();
 		return stateAt(size() - 1);
 	}
@@ -45,9 +45,6 @@ public interface Plan<StateType, ActionType> {
 
 	/**
 	 * Precondition: <code>!isEmpty()</code>
-	 * 
-	 * @param action
-	 * @param state
 	 */
 	public void append(ActionType action, StateType state);
 
@@ -68,7 +65,7 @@ public interface Plan<StateType, ActionType> {
 		if (other.isEmpty()) {
 			return;
 		} else {
-			if (!other.first().equals(this.last())) {
+			if (!other.firstState().equals(this.lastState())) {
 				throw new IllegalArgumentException("First state of given plan must match last state of this plan!");
 			}
 			for (int i = 0; i < other.size() - 1; ++i) {

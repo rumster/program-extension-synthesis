@@ -18,8 +18,8 @@ type $name$ {
 }
 >>
 
-Field(name, dstType) ::= <<
-$name$ : $dstType$
+Field(name, dstType, ghost) ::= <<
+$if(ghost)$ghost $else$$endif$$name$ : $dstType$
 >>
 
 IntType() ::= <<int>>

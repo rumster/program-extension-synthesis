@@ -87,6 +87,9 @@ public class Store {
 	public Map<Field, Val> geFields(Obj obj) {
 		assert objects.contains(obj);
 		Map<Field, Val> result = heap.get(obj);
+		if (result == null) {
+			result = Collections.emptyMap();
+		}
 		return result;
 	}
 

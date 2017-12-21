@@ -1,10 +1,13 @@
 package gp;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Predicate;
 import java.util.logging.Logger;
 
-import gp.CFGGeneralizer.Result;
-import gp.Planner.PlanResultType;
+import gp.controlFlowGraph.CFG;
+import gp.controlFlowGraph.CFGGeneralizer;
+import gp.controlFlowGraph.CFGGeneralizer.Result;
 
 /**
  * Synthesizes a CFG from a list of input-output examples by using the given
@@ -40,26 +43,37 @@ public class NaiveSynthesizer<StateType, ActionType, ConditionType> {
 	}
 
 	public boolean synthesize(InputOutputProblem<StateType, ActionType, ConditionType> problem,
-			CFG<ActionType, ConditionType> result) {
+			CFG<StateType, ActionType, ConditionType> result) {
 		ArrayList<Plan<StateType, ActionType>> plans = new ArrayList<>();
-		for (InputOutputExample<StateType> example : problem.examples) {
-			StateType input = example.first;
-			StateType output = example.second;
+		for (Example<StateType> example : problem.examples) {
+			if (example.stages.size() == 1) {
+				continue;
+			}
+			
+			List<Predicate<StateType>> goals = new ArrayList<>(example.stages.size() - 1);
+			for (int i = 1; i < example.stages.size(); ++i) {
+				StateType goalState = example.stages.get(i);
+				goals.add(state -> problem.match(state, goalState));
+			}
+
+			StateType input = example.input();
+			//StateType output = example.goal();
 			Plan<StateType, ActionType> plan = new ArrayListPlan<>();
 			logger.info("Planning for example " + example.name + "...");
-			PlanResultType planResult = planner.findPlan(input, state -> problem.match(state, output), plan);
+			//SearchResultType planResult = planner.findPlan(input, state -> problem.match(state, output), plan);
+			SearchResultType planResult = findPlan(input, goals, plan, example);
 			switch (planResult) {
 			case OK:
 				plans.add(plan);
 				debugger.printPlan(plan, example.id);
 				logger.info("Found a plan for example " + example.name);
 				break;
-			case NO_PLAN_EXISTS:
+			case NO_SOLUTION_EXISTS:
 				if (logger != null) {
 					logger.info("No plan exists for example " + example.name + "! Skipping example.");
 				}
 				break;
-			case TIMEOUT:
+			case OUT_OF_RESOURCES:
 				if (logger != null) {
 					logger.info("Timed out on example " + example.name + "! Skipping example.");
 				}
@@ -80,5 +94,30 @@ public class NaiveSynthesizer<StateType, ActionType, ConditionType> {
 			break;
 		}
 		return generalizationResult == Result.OK;
+	}
+
+	public SearchResultType findPlan(StateType input, List<Predicate<StateType>> goalTests,
+			Plan<StateType, ActionType> addToPlan, Example<StateType> example) {
+		StateType current = input;
+		SearchResultType planResult = null;
+		for (Predicate<StateType> goal : goalTests) {
+			planResult = planner.findPlan(current, goal, addToPlan);
+			switch (planResult) {
+			case OK:
+				current = addToPlan.lastState();
+				break;
+			case NO_SOLUTION_EXISTS:
+				if (logger != null) {
+					logger.info("No plan exists for example " + example.name + "! Skipping example.");
+				}
+				return planResult;
+			case OUT_OF_RESOURCES:
+				if (logger != null) {
+					logger.info("Timed out on example " + example.name + "! Skipping example.");
+				}
+				return planResult;
+			}
+		}
+		return planResult;
 	}
 }

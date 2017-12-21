@@ -1,5 +1,7 @@
 package gp;
 
+import gp.controlFlowGraph.CFG;
+
 /**
  * A synthesis specification.
  * 
@@ -34,5 +36,5 @@ public abstract class SynthesisProblem<StateType, ActionType, ConditionType> {
 	 * @param cfg
 	 *            A control-flow graph.
 	 */
-	public abstract boolean holds(CFG<ActionType, ConditionType> cfg);
+	public abstract boolean holds(CFG<StateType, ActionType, ConditionType> cfg);
 }

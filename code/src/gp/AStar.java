@@ -32,14 +32,14 @@ public class AStar<StateType, ActionType> implements Planner<StateType, ActionTy
 	}
 
 	@Override
-	public PlanResultType findPlan(StateType input, Predicate<StateType> goalTest,
+	public SearchResultType findPlan(StateType input, Predicate<StateType> goalTest,
 			Plan<StateType, ActionType> addToPlan) {
 		Node<StateType, ActionType> resultNode = searchNode(input, goalTest);
 		if (resultNode != null) {
 			createPath(resultNode, addToPlan);
-			return PlanResultType.OK;
+			return SearchResultType.OK;
 		} else {
-			return PlanResultType.NO_PLAN_EXISTS;
+			return SearchResultType.NO_SOLUTION_EXISTS;
 		}
 	}
 
@@ -120,10 +120,12 @@ public class AStar<StateType, ActionType> implements Planner<StateType, ActionTy
 	 * Uses the 'computedFrom' back links to construct the path from the initial
 	 * node to the given node.
 	 * 
+	 * TODO: make the plan concatenation more efficient.
+	 * 
 	 * @param node
 	 *            A search node.
 	 */
-	protected void createPath(final Node<StateType, ActionType> node, Plan<StateType, ActionType> addToPath) {
+	protected void createPath(final Node<StateType, ActionType> node, Plan<StateType, ActionType> addToPlan) {
 		ArrayList<ActionType> actions = new ArrayList<>();
 		ArrayList<StateType> states = new ArrayList<>();
 		states.add(node.state);
@@ -136,7 +138,7 @@ public class AStar<StateType, ActionType> implements Planner<StateType, ActionTy
 		Collections.reverse(actions);
 		Collections.reverse(states);
 		Plan<StateType, ActionType> result = new ArrayListPlan<>(states, actions);
-		addToPath.appendPlan(result);
+		addToPlan.appendPlan(result);
 	}
 
 	/**
