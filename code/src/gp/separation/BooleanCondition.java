@@ -1,4 +1,4 @@
-package gp;
+package gp.separation;
 
 public interface BooleanCondition {
 	public BooleanCondition not(BooleanCondition sub);

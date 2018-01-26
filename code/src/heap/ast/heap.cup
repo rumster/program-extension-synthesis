@@ -32,7 +32,7 @@ parser code {:
 :}
 
 terminal TYPE, VAR, NULL, EXAMPLE, MUT, GHOST,
-         COMMA, DOT, EQ, AND, COLON, ARROW, LP, RP, LCB, RCB;
+         COMMA, DOT, EQ, ASSIGN, AND, COLON, ARROW, LP, RP, LCB, RCB;
 		
 terminal Integer INT_VAL; 
 terminal String ID;
@@ -59,7 +59,8 @@ nonterminal ASTVar var;
 nonterminal List examples; // <ASTExample>
 nonterminal List optionalExamples; // <ASTExample>
 nonterminal ASTExample example;
-nonterminal List exampleSteps; // <ASTStore>
+nonterminal List exampleSteps; // <ASTStep>
+nonterminal ASTStep step;
 nonterminal ASTStore store;
 nonterminal AST storeVal;
 nonterminal List heapElems; // <ASTfieldVal>
@@ -205,14 +206,24 @@ example ::= EXAMPLE LCB exampleSteps:steps RCB
 	{: RESULT = new ASTExample(steps); :}
 ;
 
-exampleSteps ::= store:s
-	{: RESULT = new ArrayList<ASTStore>();
+exampleSteps ::= step:s
+	{: RESULT = new ArrayList<ASTStep>();
 	   RESULT.add(s);
 	:}
-	| exampleSteps:prefix ARROW store:next
+	| exampleSteps:prefix ARROW step:next
 	{: prefix.add(next);
 	   RESULT = prefix;
 	:} 
+;
+
+step ::= store:s
+	{: RESULT = s;	:}
+	| ID:lhs ASSIGN ID:rhs
+	{: RESULT = new ASTCopy(lhs, rhs); :}
+	| ID:lhs ASSIGN ID:rhs DOT ID:field
+	{: RESULT = new ASTLoadField(lhs, rhs, field); :}
+	| ID:lhs DOT ID:field ASSIGN ID:rhs
+	{: RESULT = new ASTStoreField(lhs, field, rhs); :}
 ;
 
 store ::= optionalHeapElems:elements

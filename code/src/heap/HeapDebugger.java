@@ -9,6 +9,7 @@ import org.stringtemplate.v4.ST;
 import bgu.cs.util.FileUtils;
 import bgu.cs.util.Pair;
 import bgu.cs.util.STGLoader;
+import bgu.cs.util.Union2;
 import gp.GPDebugger;
 import gp.Example;
 import gp.Plan;
@@ -29,21 +30,26 @@ public class HeapDebugger extends GPDebugger<Store, BasicStmt, Condition> {
 		super(logger, title, outputDirPath);
 	}
 
-	public boolean printExamples(List<Example<Store>> examples) {
+	public boolean printExamples(List<Example<Store, BasicStmt>> examples) {
 		logger.info("Visualizing examples...");
 		Logger examplesLogger = logDetailedExampleRendering ? logger : null;
-		ST exampleListTemplate = heapTemplates.load("examples");		
-		for (Example<Store> example : examples) {
+		ST exampleListTemplate = heapTemplates.load("examples");
+		for (Example<Store, BasicStmt> example : examples) {
 			ST indexedExampleTemplate = heapTemplates.load("indexedExample");
-			int stepIndex = 0;
-			for (Store stage : example) {
-				String storeImageFileName = outputDirPath + File.separator + "example_" + example.id + "_" + stepIndex
-						+ "." + STATE_IMAGE_FILE_POSTFIX;
-				StoreUtils.printStore(stage, storeImageFileName, examplesLogger);
-				indexedExampleTemplate.add("imageFileNames", storeImageFileName);
-				String stepName = stepIndex + "";
-				indexedExampleTemplate.add("stageNames", stepName);
-				++stepIndex;
+			for (int stepIndex = 0; stepIndex < example.size(); ++stepIndex) {
+				Union2<Store, BasicStmt> step = example.step(stepIndex);
+				if (step.isT1()) {
+					Store stage = step.getT1();
+					String storeImageFileName = outputDirPath + File.separator + "example_" + example.id + "_"
+							+ stepIndex + "." + STATE_IMAGE_FILE_POSTFIX;
+					StoreUtils.printStore(stage, storeImageFileName, examplesLogger);
+					indexedExampleTemplate.add("imageFileNames", storeImageFileName);
+					String stepName = stepIndex + "";
+					indexedExampleTemplate.add("stageNames", stepName);
+				}
+				else {
+					// TODO: print statement.
+				}
 			}
 			indexedExampleTemplate.add("id", example.id);
 			exampleListTemplate.add("indexedExample", indexedExampleTemplate.render());

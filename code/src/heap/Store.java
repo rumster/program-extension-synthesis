@@ -172,21 +172,28 @@ public class Store {
 	 * expression is illegal (e.g., a null dereference or an access to an
 	 * uninitialized variable).
 	 */
-	public Val eval(Node code) {
-		if (code instanceof Var) {
-			Var var = (Var) code;
-			return eval(var);
-		} else if (code instanceof DerefExpr) {
-			DerefExpr deref = (DerefExpr) code;
+	public Val eval(Node n) {
+		if (n instanceof Var) {
+			Var var = (Var) n;
+			if (isInitialized(var)) {
+				return eval(var);
+			} else {
+				throw new IllegalArgumentException("Attempt to evaluate an uninitialized variable " + var.name);
+			}
+		} else if (n instanceof DerefExpr) {
+			DerefExpr deref = (DerefExpr) n;
 			Node lhs = deref.getLhs();
 			Val lval = eval(lhs);
-			if (lval == null || lval == Obj.NULL)
-				return null;
+			if (lval == null || lval == Obj.NULL) {
+				throw new IllegalArgumentException("Attempt to evaluate an illegal expression " + deref.toString());
+			}
 			Obj lobj = (Obj) lval;
 			Field field = deref.getField();
 			return eval(lobj, field);
+		} else if (n instanceof IntVal) {
+			return (IntVal) n;
 		} else {
-			assert false : "Unexpected expression " + code + "!";
+			assert false : "Unexpected expression " + n + "!";
 			return null;
 		}
 	}

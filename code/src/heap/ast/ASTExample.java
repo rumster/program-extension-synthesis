@@ -3,18 +3,18 @@ package heap.ast;
 import java.util.List;
 
 public class ASTExample extends AST {
-	public final List<ASTStore> steps;
+	public final List<ASTStep> steps;
 
-	public ASTExample(List<ASTStore> steps) {
+	public ASTExample(List<ASTStep> steps) {
 		this.steps = steps;
 	}
 
 	public ASTStore input() {
-		return steps.get(0);
+		return (ASTStore) steps.get(0);
 	}
 
 	public ASTStore goal() {
-		return steps.get(steps.size() - 1);
+		return (ASTStore)  steps.get(steps.size() - 1);
 	}
 
 	@Override

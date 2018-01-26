@@ -1,16 +1,18 @@
 package heap;
 
+import java.util.Collection;
 import java.util.Map;
+import java.util.Optional;
 
 import gp.Domain;
-import gp.InputOutputProblem;
+import gp.SynthesisProblem;
 
 /**
  * A synthesis problem for heap-manipulating programs.
  * 
  * @author romanm
  */
-public class HeapProblem extends InputOutputProblem<Store, BasicStmt, Condition> {
+public class HeapProblem extends SynthesisProblem<Store, BasicStmt, Condition> {
 	public final HeapDomain domain;
 
 	public HeapProblem(String name, HeapDomain domain) {
@@ -50,5 +52,16 @@ public class HeapProblem extends InputOutputProblem<Store, BasicStmt, Condition>
 
 		// TODO: handle free objects.
 		return true;
+	}
+
+	@Override
+	public Optional<Store> apply(BasicStmt action, Store state) {
+		Collection<Store> succs = BasicHeapTR.applier.apply(state, action);
+		if (succs.size() == 1) {
+			Store next = succs.iterator().next();
+			return Optional.of(next);
+		} else {
+			return Optional.empty();
+		}
 	}
 }

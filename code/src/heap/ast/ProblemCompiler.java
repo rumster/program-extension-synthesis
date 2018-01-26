@@ -8,7 +8,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import bgu.cs.util.Union2;
 import gp.Example;
+import heap.BasicStmt;
 import heap.Field;
 import heap.HeapDomain;
 import heap.HeapProblem;
@@ -57,7 +59,7 @@ public class ProblemCompiler {
 		HeapProblem result = new HeapProblem(funAST.name, domain);
 		int exampleId = 0;
 		for (ASTExample exampleAST : funAST.examples) {
-			Example<Store> example = new ExampleBuilder(exampleAST, exampleId).build();
+			Example<Store, BasicStmt> example = new ExampleBuilder(exampleAST, exampleId).build();
 			result.addExample(example);
 			++exampleId;
 		}
@@ -194,7 +196,7 @@ public class ProblemCompiler {
 			this.exampleId = exampleId;
 		}
 
-		public Example<Store> build() {
+		public Example<Store, BasicStmt> build() {
 			ObjFinder objFinder = new ObjFinder();
 			Set<String> inputObjNames = objFinder.find(exampleAST.input());
 			inputObjNames.remove(AST.NULL_VAL_NAME);
@@ -228,25 +230,32 @@ public class ProblemCompiler {
 			Set<Obj> freeInputObjs = new HashSet<>(goalObjs);
 			freeInputObjs.removeAll(inputObjs);
 
-			List<Store> stores = new ArrayList<>(exampleAST.steps.size());
-			for (ASTStore storeAST : exampleAST.steps) {
-				Set<String> storeObjNames = objFinder.find(storeAST);
-				storeObjNames.remove(AST.NULL_VAL_NAME);
-				Set<Obj> storeObjs;
+			List<Union2<Store, BasicStmt>> stores = new ArrayList<>(exampleAST.steps.size());
+			for (ASTStep stepAST : exampleAST.steps) {
+				if (stepAST instanceof ASTStore) {
+					ASTStore storeAST = (ASTStore) stepAST;
 
-				if (storeAST == exampleAST.steps.get(0)) {
-					storeObjs = inputObjs;
-				} else {
-					storeObjs = new HashSet<>();
-					for (String objName : storeObjNames) {
-						Obj obj = objNameToObj.get(objName);
-						storeObjs.add(obj);
-					}					
+					Set<String> storeObjNames = objFinder.find(storeAST);
+					storeObjNames.remove(AST.NULL_VAL_NAME);
+					Set<Obj> storeObjs;
+
+					if (storeAST == exampleAST.steps.get(0)) {
+						storeObjs = inputObjs;
+					} else {
+						storeObjs = new HashSet<>();
+						for (String objName : storeObjNames) {
+							Obj obj = objNameToObj.get(objName);
+							storeObjs.add(obj);
+						}
+					}
+					Store store = new StoreBuilder(storeObjs, freeInputObjs, storeAST).build();
+					stores.add(Union2.ofT1(store));
 				}
-				Store store = new StoreBuilder(storeObjs, freeInputObjs, storeAST).build();
-				stores.add(store);
+				else {
+					
+				}
 			}
-			return new Example<Store>(stores, exampleId);
+			return new Example<Store, BasicStmt>(stores, exampleId);
 		}
 
 		private void inferObjectTypes() {
@@ -254,8 +263,11 @@ public class ProblemCompiler {
 			boolean typeChange = true;
 			while (typeChange) {
 				typeChange = false;
-				for (ASTStore storeAST : exampleAST.steps) {
-					typeChange |= typeAssigner.infer(storeAST);
+				for (ASTStep stepAST : exampleAST.steps) {
+					if (stepAST instanceof ASTStore) {
+						ASTStore storeAST = (ASTStore) stepAST;
+						typeChange |= typeAssigner.infer(storeAST);
+					}
 				}
 			}
 		}

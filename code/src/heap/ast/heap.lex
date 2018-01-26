@@ -54,6 +54,7 @@ Int			= 0|{PosDigit}{Digit}*|-{PosDigit}{Digit}*
   ","  			{ return new Token(HeapSym.COMMA, yytext(), yyline, yycolumn); }
   "."  			{ return new Token(HeapSym.DOT, yytext(), yyline, yycolumn); }
   "==" 			{ return new Token(HeapSym.EQ, yytext(), yyline, yycolumn); }
+  "=" 			{ return new Token(HeapSym.ASSIGN, yytext(), yyline, yycolumn); }
   "&&" 			{ return new Token(HeapSym.AND, yytext(), yyline, yycolumn); }
   ":"  			{ return new Token(HeapSym.COLON, yytext(), yyline, yycolumn); }
   "->" 			{ return new Token(HeapSym.ARROW, yytext(), yyline, yycolumn); }

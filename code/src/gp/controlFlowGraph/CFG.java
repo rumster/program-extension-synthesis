@@ -1,10 +1,6 @@
 package gp.controlFlowGraph;
 
-import java.util.Collection;
-
 import bgu.cs.util.graph.HashMultiGraph;
-import bgu.cs.util.rel.HashRel2;
-import bgu.cs.util.rel.Rel2;
 
 /**
  * A control-flow graph where nodes are associated with sets of states..
@@ -46,14 +42,12 @@ public class CFG<StateType, ActionType, ConditionType>
 		public void setCondition(ConditionType condition) {
 			throw new IllegalArgumentException("A skip edge is immutable!");
 		}
-		
+
 		@Override
 		public String toString() {
 			return "skip";
 		}
 	};
-
-	public Rel2<Node, StateType> nodeToState = new HashRel2<>();
 
 	/**
 	 * A node in the graph.
@@ -97,9 +91,8 @@ public class CFG<StateType, ActionType, ConditionType>
 		@Override
 		public String toString() {
 			if (condition != null) {
-				return condition.toString() + "=>" + action.toString();
-			}
-			else {
+				return condition.toString() + "/" + action.toString();
+			} else {
 				return action.toString();
 			}
 		}
@@ -110,8 +103,13 @@ public class CFG<StateType, ActionType, ConditionType>
 		addNode(EXIT);
 	}
 
-	public void setNodeStates(Node n, Collection<StateType> states) {
-		nodeToState.remove(n);
-		nodeToState.addAll(n, states);
+	public void mergeNodes(Node from, Node to) {
+		if (from == to) {
+			return;
+		}
+		if (from == ENTRY || from == EXIT) {
+			throw new IllegalArgumentException("Attempt to merge " + from.toString() + " into " + to.toString());
+		}
+
 	}
 }

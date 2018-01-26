@@ -1,6 +1,7 @@
-package gp;
+package gp.separation;
 
 import java.util.Collection;
+import java.util.List;
 
 /**
  * An algorithm for inferring conditions that separate two sets of states.
@@ -13,5 +14,5 @@ import java.util.Collection;
  *            The type of conditions.
  */
 public abstract class ConditionInferencer<StateType, ConditionType> {
-	public abstract void inferSeparator(Collection<StateType> first, Collection<StateType> second);
+	public abstract List<ConditionType> inferSeparators(List<Collection<StateType>> labelToStates);
 }

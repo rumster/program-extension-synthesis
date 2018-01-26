@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import bgu.cs.util.Union2;
+
 /**
  * An example used to drive the synthesis.
  * 
@@ -12,7 +14,7 @@ import java.util.List;
  * @param <StateType>
  *            The type of states.
  */
-public class Example<StateType> implements Iterable<StateType> {
+public class Example<StateType, ActionType> implements Iterable<Union2<StateType, ActionType>> {
 	public final String name;
 	public final int id;
 
@@ -20,7 +22,7 @@ public class Example<StateType> implements Iterable<StateType> {
 	 * A list of intermediate states. The first state is the input and the last
 	 * state is the goal state.
 	 */
-	protected final List<StateType> stages;
+	protected final List<Union2<StateType, ActionType>> stages;
 
 	public Example(StateType input, StateType goal, int id, String name) {
 		assert id >= 0;
@@ -28,15 +30,15 @@ public class Example<StateType> implements Iterable<StateType> {
 		this.id = id;
 		this.name = name;
 		this.stages = new ArrayList<>(2);
-		stages.add(input);
-		stages.add(goal);
+		stages.add(Union2.ofT1(input));
+		stages.add(Union2.ofT1(goal));
 	}
 
 	public Example(StateType input, StateType goal, int id) {
 		this(input, goal, id, "example_" + id);
 	}
 
-	public Example(List<StateType> states, int id, String name) {
+	public Example(List<Union2<StateType, ActionType>> states, int id, String name) {
 		assert id >= 0;
 		assert name != null && name.length() > 0;
 		assert states != null && !states.isEmpty();
@@ -45,20 +47,28 @@ public class Example<StateType> implements Iterable<StateType> {
 		this.stages = states;
 	}
 
-	public Example(List<StateType> states, int id) {
+	public Example(List<Union2<StateType, ActionType>> states, int id) {
 		this(states, id, "example_" + id);
 	}
 
+	public int size() {
+		return stages.size();
+	}
+
+	public Union2<StateType, ActionType> step(int i) {
+		return stages.get(i);
+	}
+
 	public StateType input() {
-		return stages.get(0);
+		return stages.get(0).getT1();
 	}
 
 	public StateType goal() {
-		return stages.get(stages.size() - 1);
+		return stages.get(stages.size() - 1).getT1();
 	}
 
 	@Override
-	public Iterator<StateType> iterator() {
+	public Iterator<Union2<StateType, ActionType>> iterator() {
 		return stages.iterator();
 	}
 }

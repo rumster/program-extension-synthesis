@@ -7,8 +7,8 @@ package heap.ast;
  */
 public abstract class Visitor {
 	public void visit(ASTExample n) {
-		for (ASTStore storeAST : n.steps) {
-			storeAST.accept(this);
+		for (ASTStep step : n.steps) {
+			step.accept(this);
 		}
 	}
 
@@ -61,5 +61,14 @@ public abstract class Visitor {
 	}
 
 	public void visit(ASTIntVarVal n) {
+	}
+
+	public void visit(ASTCopy n) {
+	}
+
+	public void visit(ASTLoadField astLoadField) {
+	}
+
+	public void visit(ASTStoreField astStoreField) {
 	}
 }

@@ -2,6 +2,7 @@ package heap;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 
 import gp.TR;
 
@@ -11,6 +12,9 @@ import gp.TR;
  * @author romanm
  */
 public class BasicHeapTR implements TR<Store, BasicStmt> {
+	public static final BasicHeapTR applier = new BasicHeapTR(
+			HeapDomain.fromVarsAndTypes(Collections.emptyList(), Collections.emptyList()));
+
 	protected final HeapDomain domain;
 
 	public BasicHeapTR(HeapDomain domain) {

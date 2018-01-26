@@ -53,10 +53,10 @@ package heap.ast;
 
   private static final String ZZ_ACTION_PACKED_0 =
     "\3\0\1\1\1\2\2\3\1\1\6\2\1\4\1\5"+
-    "\2\1\1\6\1\7\1\10\1\11\1\12\1\1\1\13"+
-    "\1\14\1\15\6\2\1\16\1\17\1\20\2\2\1\21"+
-    "\1\22\2\2\1\23\1\2\1\24\2\2\1\25\1\2"+
-    "\1\26";
+    "\1\6\1\1\1\7\1\10\1\11\1\12\1\13\1\1"+
+    "\1\14\1\15\1\16\6\2\1\17\1\20\1\21\2\2"+
+    "\1\22\1\23\2\2\1\24\1\2\1\25\2\2\1\26"+
+    "\1\2\1\27";
 
   private static int [] zzUnpackAction() {
     int [] result = new int[50];
@@ -645,11 +645,11 @@ public int getLineNumber() { return yyline + 1; }
           case 1: 
             { throw new LexicalError("Encountered an illegal character: " + yytext() + " at " + yyline + ":" + yycolumn);
             }
-          case 23: break;
+          case 24: break;
           case 2: 
             { return new Token(HeapSym.ID, yytext(), yyline, yycolumn);
             }
-          case 24: break;
+          case 25: break;
           case 3: 
             { try {
                     return new Token(HeapSym.INT_VAL, new Integer(yytext()), yyline, yycolumn);
@@ -658,83 +658,87 @@ public int getLineNumber() { return yyline + 1; }
                     throw new LexicalError("Encountered an ill-formatted number: " + yytext() + " at " + yyline + ":" + yycolumn);
                   }
             }
-          case 25: break;
+          case 26: break;
           case 4: 
             { return new Token(HeapSym.COMMA, yytext(), yyline, yycolumn);
             }
-          case 26: break;
+          case 27: break;
           case 5: 
             { return new Token(HeapSym.DOT, yytext(), yyline, yycolumn);
             }
-          case 27: break;
-          case 6: 
-            { return new Token(HeapSym.COLON, yytext(), yyline, yycolumn);
-            }
           case 28: break;
-          case 7: 
-            { return new Token(HeapSym.LP, yytext(), yyline, yycolumn);
+          case 6: 
+            { return new Token(HeapSym.ASSIGN, yytext(), yyline, yycolumn);
             }
           case 29: break;
-          case 8: 
-            { return new Token(HeapSym.RP, yytext(), yyline, yycolumn);
+          case 7: 
+            { return new Token(HeapSym.COLON, yytext(), yyline, yycolumn);
             }
           case 30: break;
-          case 9: 
-            { return new Token(HeapSym.LCB, yytext(), yyline, yycolumn);
+          case 8: 
+            { return new Token(HeapSym.LP, yytext(), yyline, yycolumn);
             }
           case 31: break;
-          case 10: 
-            { return new Token(HeapSym.RCB, yytext(), yyline, yycolumn);
+          case 9: 
+            { return new Token(HeapSym.RP, yytext(), yyline, yycolumn);
             }
           case 32: break;
-          case 11: 
-            { 
+          case 10: 
+            { return new Token(HeapSym.LCB, yytext(), yyline, yycolumn);
             }
           case 33: break;
-          case 12: 
-            { yybegin(YYINITIAL);
+          case 11: 
+            { return new Token(HeapSym.RCB, yytext(), yyline, yycolumn);
             }
           case 34: break;
-          case 13: 
-            { return new Token(HeapSym.ARROW, yytext(), yyline, yycolumn);
+          case 12: 
+            { 
             }
           case 35: break;
-          case 14: 
-            { return new Token(HeapSym.EQ, yytext(), yyline, yycolumn);
+          case 13: 
+            { yybegin(YYINITIAL);
             }
           case 36: break;
-          case 15: 
-            { return new Token(HeapSym.AND, yytext(), yyline, yycolumn);
+          case 14: 
+            { return new Token(HeapSym.ARROW, yytext(), yyline, yycolumn);
             }
           case 37: break;
-          case 16: 
-            { yybegin(LINECOMMENT);
+          case 15: 
+            { return new Token(HeapSym.EQ, yytext(), yyline, yycolumn);
             }
           case 38: break;
-          case 17: 
-            { return new Token(HeapSym.MUT, yytext(), yyline, yycolumn);
+          case 16: 
+            { return new Token(HeapSym.AND, yytext(), yyline, yycolumn);
             }
           case 39: break;
-          case 18: 
-            { return new Token(HeapSym.VAR, yytext(), yyline, yycolumn);
+          case 17: 
+            { yybegin(LINECOMMENT);
             }
           case 40: break;
-          case 19: 
-            { return new Token(HeapSym.TYPE, yytext(), yyline, yycolumn);
+          case 18: 
+            { return new Token(HeapSym.MUT, yytext(), yyline, yycolumn);
             }
           case 41: break;
-          case 20: 
-            { return new Token(HeapSym.NULL, yytext(), yyline, yycolumn);
+          case 19: 
+            { return new Token(HeapSym.VAR, yytext(), yyline, yycolumn);
             }
           case 42: break;
-          case 21: 
-            { return new Token(HeapSym.GHOST, yytext(), yyline, yycolumn);
+          case 20: 
+            { return new Token(HeapSym.TYPE, yytext(), yyline, yycolumn);
             }
           case 43: break;
-          case 22: 
-            { return new Token(HeapSym.EXAMPLE, yytext(), yyline, yycolumn);
+          case 21: 
+            { return new Token(HeapSym.NULL, yytext(), yyline, yycolumn);
             }
           case 44: break;
+          case 22: 
+            { return new Token(HeapSym.GHOST, yytext(), yyline, yycolumn);
+            }
+          case 45: break;
+          case 23: 
+            { return new Token(HeapSym.EXAMPLE, yytext(), yyline, yycolumn);
+            }
+          case 46: break;
           default:
             zzScanError(ZZ_NO_MATCH);
         }

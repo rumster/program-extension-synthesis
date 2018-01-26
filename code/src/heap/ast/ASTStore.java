@@ -2,7 +2,7 @@ package heap.ast;
 
 import java.util.List;
 
-public class ASTStore extends AST {
+public class ASTStore extends ASTStep {
 	public final List<ASTVal> vals;
 
 	public ASTStore(List<ASTVal> vals) {

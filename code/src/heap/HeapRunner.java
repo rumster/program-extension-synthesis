@@ -16,7 +16,7 @@ import gp.NaiveSynthesizer;
 import gp.Planner;
 import gp.controlFlowGraph.CFG;
 import gp.controlFlowGraph.CFGGeneralizer;
-import gp.controlFlowGraph.SingleNodeGeneralizer;
+import gp.controlFlowGraph.TMTI;
 
 /**
  * Heap-manipulating program synthesis application.
@@ -71,7 +71,7 @@ public abstract class HeapRunner {
 			debugger.printExamples(problem.examples);
 			synthesisTime.start();
 			Planner<Store, BasicStmt> planner = new AStar<Store, BasicStmt>(new BasicHeapTR(problem.domain));
-			CFGGeneralizer<Store, BasicStmt, Condition> generalizer = new SingleNodeGeneralizer<>(debugger);
+			CFGGeneralizer<Store, BasicStmt, Condition> generalizer = new TMTI<>(debugger);
 			NaiveSynthesizer<Store, BasicStmt, Condition> synthesizer = new NaiveSynthesizer<>(planner, generalizer,
 					logger, debugger);
 			CFG<Store, BasicStmt, Condition> result = new CFG<>();
