@@ -12,7 +12,7 @@ import gp.SynthesisProblem;
  * 
  * @author romanm
  */
-public class HeapProblem extends SynthesisProblem<Store, BasicStmt, Condition> {
+public class HeapProblem extends SynthesisProblem<Store, Stmt, BoolExpr> {
 	public final HeapDomain domain;
 
 	public HeapProblem(String name, HeapDomain domain) {
@@ -26,7 +26,7 @@ public class HeapProblem extends SynthesisProblem<Store, BasicStmt, Condition> {
 	}
 
 	@Override
-	public Domain<Store, BasicStmt, Condition> domain() {
+	public Domain<Store, Stmt, BoolExpr> domain() {
 		return domain;
 	}
 
@@ -55,7 +55,7 @@ public class HeapProblem extends SynthesisProblem<Store, BasicStmt, Condition> {
 	}
 
 	@Override
-	public Optional<Store> apply(BasicStmt action, Store state) {
+	public Optional<Store> apply(Stmt action, Store state) {
 		Collection<Store> succs = BasicHeapTR.applier.apply(state, action);
 		if (succs.size() == 1) {
 			Store next = succs.iterator().next();

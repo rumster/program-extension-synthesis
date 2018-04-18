@@ -28,19 +28,19 @@ public class Main extends HeapRunner {
 	@Override
 	public HeapProblem genProblem() {
 		HeapParser parser = new HeapParser();
+		ASTProblem root = null;
 		try {
 			System.out.print("Parsing " + filename + "... ");
-			ASTProblem root = parser.parseFile(filename);
+			root = parser.parseFile(filename);
 			System.out.println("done");
-
-			System.out.print("Compiling... ");
-			ProblemCompiler compiler = new ProblemCompiler(root);
-			HeapProblem problem = compiler.compile();
-			System.out.println("done");
-			System.out.print(problem.toString());
-			return problem;
 		} catch (Exception e) {
 			throw new Error(e.getMessage());
 		}
+		System.out.print("Compiling... ");
+		ProblemCompiler compiler = new ProblemCompiler(root);
+		HeapProblem problem = compiler.compile();
+		System.out.println("done");
+		System.out.print(problem.toString());
+		return problem;
 	}
 }

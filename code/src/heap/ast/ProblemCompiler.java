@@ -10,35 +10,44 @@ import java.util.Set;
 
 import bgu.cs.util.Union2;
 import gp.Example;
-import heap.BasicStmt;
+import heap.AssignStmt;
+import heap.BoolType;
+import heap.DerefExpr;
+import heap.Expr;
 import heap.Field;
 import heap.HeapDomain;
 import heap.HeapProblem;
+import heap.IfStmt;
+import heap.IntBinopExpr;
 import heap.IntField;
 import heap.IntType;
 import heap.IntVal;
 import heap.IntVar;
+import heap.NullExpr;
 import heap.Obj;
 import heap.RefField;
 import heap.RefType;
 import heap.RefVar;
+import heap.SeqStmt;
+import heap.Stmt;
 import heap.Store;
 import heap.Type;
 import heap.Val;
+import heap.ValExpr;
 import heap.Var;
 import heap.Var.VarRole;
+import heap.VarExpr;
+import heap.WhileStmt;
 
 /**
  * Constructs a {@link HeapProblem} from an abstract syntax tree.
  * 
  * @author romanm
- *
  */
 public class ProblemCompiler {
 	protected final ASTProblem root;
 	protected Map<String, Type> nameToType = new HashMap<>();
 	protected Map<String, RefType> nameToRefType = new HashMap<>();
-	protected Map<String, Type> nameToField = new HashMap<>();
 	protected ASTFun funAST;
 	protected Map<String, Var> nameToVar = new HashMap<>();
 	protected List<Var> vars = new ArrayList<>();
@@ -48,18 +57,18 @@ public class ProblemCompiler {
 	}
 
 	public HeapProblem compile() {
-		new TypeBuilder().apply();
+		new RefTypeBuilder().apply();
 		new FieldBuilder().apply();
 		new FunDefFinder().apply();
-		new VarBuilder(VarRole.ARG, false).build(funAST.inputArgs);
-		new VarBuilder(VarRole.ARG, true).build(funAST.outputArgs);
-		new VarBuilder(VarRole.TEMP, false).build(funAST.temps);
+		new TypedVarBuilder(VarRole.ARG, false).build(funAST.inputArgs);
+		new TypedVarBuilder(VarRole.ARG, true).build(funAST.outputArgs);
+		new TypedVarBuilder(VarRole.TEMP, false).build(funAST.temps);
 		HeapDomain domain = HeapDomain.fromVarsAndTypes(vars, nameToRefType.values());
 
 		HeapProblem result = new HeapProblem(funAST.name, domain);
 		int exampleId = 0;
 		for (ASTExample exampleAST : funAST.examples) {
-			Example<Store, BasicStmt> example = new ExampleBuilder(exampleAST, exampleId).build();
+			Example<Store, Stmt> example = new ExampleBuilder(exampleAST, exampleId).build();
 			result.addExample(example);
 			++exampleId;
 		}
@@ -67,11 +76,11 @@ public class ProblemCompiler {
 	}
 
 	/**
-	 * Constructs reference type and associates a {@link Type} with each name.
+	 * Constructs reference types and associates a {@link Type} with each name.
 	 * 
 	 * @author romanm
 	 */
-	public class TypeBuilder extends Visitor {
+	public class RefTypeBuilder extends Visitor {
 		public void apply() {
 			root.accept(this);
 			nameToType.putAll(nameToRefType);
@@ -98,7 +107,7 @@ public class ProblemCompiler {
 
 		public void visit(ASTRefType n) {
 			RefType type = nameToRefType.get(n.name);
-			for (ASTField fieldAST : n.fields) {
+			for (ASTDeclField fieldAST : n.fields) {
 				Type fieldType = nameToType.get(fieldAST.typeName);
 				if (fieldType == null) {
 					throw new SemanticError("Field " + fieldAST.name + " of type " + n.name
@@ -140,26 +149,26 @@ public class ProblemCompiler {
 
 	/**
 	 * Populates the list of variables and mapping from names to variables from a
-	 * list of variable nodes.
+	 * list of variable nodes. Variables are assigned with types.
 	 * 
 	 * @author romanm
 	 */
-	public class VarBuilder extends Visitor {
+	public class TypedVarBuilder extends Visitor {
 		private final VarRole role;
 		private final boolean out;
 
-		public VarBuilder(VarRole role, boolean out) {
+		public TypedVarBuilder(VarRole role, boolean out) {
 			this.role = role;
 			this.out = out;
 		}
 
-		public void build(List<ASTVar> varsAST) {
-			for (ASTVar n : varsAST) {
+		public void build(List<ASTVarDecl> varsAST) {
+			for (ASTVarDecl n : varsAST) {
 				n.accept(this);
 			}
 		}
 
-		public void visit(ASTVar n) {
+		public void visit(ASTVarDecl n) {
 			Type type = nameToType.get(n.type);
 			if (type == IntType.v) {
 				IntVar var = new IntVar(n.name, role, out, n.readonly);
@@ -196,15 +205,22 @@ public class ProblemCompiler {
 			this.exampleId = exampleId;
 		}
 
-		public Example<Store, BasicStmt> build() {
+		public Example<Store, Stmt> build() {
+			if (exampleAST.steps.size() == 0) {
+				throw new SemanticError("Examples must not be empty!", exampleAST);
+			}
+			if (!(exampleAST.steps.get(0) instanceof ASTStore)) {
+				throw new SemanticError("Example must start with a store clause!", exampleAST);
+			}
+
 			ObjFinder objFinder = new ObjFinder();
 			Set<String> inputObjNames = objFinder.find(exampleAST.input());
 			inputObjNames.remove(AST.NULL_VAL_NAME);
-			Set<String> goalObjNames = objFinder.find(exampleAST.goal());
-			goalObjNames.remove(AST.NULL_VAL_NAME);
+			// Set<String> goalObjNames = objFinder.find(exampleAST.goal());
+			// goalObjNames.remove(AST.NULL_VAL_NAME);
 			Set<String> allObjNames = new HashSet<>();
 			allObjNames.addAll(inputObjNames);
-			allObjNames.addAll(goalObjNames);
+			// allObjNames.addAll(goalObjNames);
 
 			inferObjectTypes();
 
@@ -220,17 +236,18 @@ public class ProblemCompiler {
 					if (inputObjNames.contains(objName)) {
 						inputObjs.add(obj);
 					}
-					if (goalObjNames.contains(objName)) {
-						goalObjs.add(obj);
-					}
+					// if (goalObjNames.contains(objName)) {
+					// goalObjs.add(obj);
+					// }
 				} else {
-					throw new SemanticError("Unable to type object " + objName);
+					throw new SemanticError("Unable to type object " + objName, exampleAST);
 				}
 			}
 			Set<Obj> freeInputObjs = new HashSet<>(goalObjs);
 			freeInputObjs.removeAll(inputObjs);
 
-			List<Union2<Store, BasicStmt>> stores = new ArrayList<>(exampleAST.steps.size());
+			List<Union2<Store, Stmt>> stores = new ArrayList<>(exampleAST.steps.size());
+			StmtBuilder stmtBuilder = new StmtBuilder();
 			for (ASTStep stepAST : exampleAST.steps) {
 				if (stepAST instanceof ASTStore) {
 					ASTStore storeAST = (ASTStore) stepAST;
@@ -250,12 +267,14 @@ public class ProblemCompiler {
 					}
 					Store store = new StoreBuilder(storeObjs, freeInputObjs, storeAST).build();
 					stores.add(Union2.ofT1(store));
-				}
-				else {
-					
+				} else {
+					assert stepAST instanceof ASTStmt;
+					ASTStmt stmtAST = (ASTStmt) stepAST;
+					Stmt stmt = stmtBuilder.build(stmtAST);
+					stores.add(Union2.ofT2(stmt));
 				}
 			}
-			return new Example<Store, BasicStmt>(stores, exampleId);
+			return new Example<Store, Stmt>(stores, exampleId);
 		}
 
 		private void inferObjectTypes() {
@@ -273,7 +292,136 @@ public class ProblemCompiler {
 		}
 
 		/**
-		 * Build a store from an AST.
+		 * Builds a statement from an AST while ensuring type-safety.
+		 * 
+		 * @author romanm
+		 */
+		public class StmtBuilder extends Visitor {
+			private Stmt result;
+			private Expr tmpExpr;
+
+			public StmtBuilder() {
+			}
+
+			public Stmt build(ASTStmt stmtAST) {
+				result = null;
+				stmtAST.accept(this);
+				return result;
+			}
+
+			public void visit(ASTVarExpr n) {
+				Var v = nameToVar.get(n.varName);
+				if (v == null) {
+					throw new SemanticError("Unknown variable", n);
+				}
+				tmpExpr = new VarExpr(v);
+				n.setType(v.getType());
+			}
+
+			public void visit(ASTNullExpr n) {
+				tmpExpr = NullExpr.v;
+			}
+
+			public void visit(ASTIntBinOpExpr n) {
+				n.lhs.accept(this);
+				Expr lhsExpr = tmpExpr;
+				n.rhs.accept(this);
+				Expr rhsExpr = tmpExpr;
+				Type lhsType = n.lhs.type().get();
+				Type rhsType = n.lhs.type().get();
+				if (lhsType != IntType.v || rhsType != IntType.v) {
+					throw new SemanticError(
+							"Type error: attempt to apply integer-typed operation to non-integer operands!", n);
+				}
+				n.setType(IntType.v);
+				tmpExpr = new IntBinopExpr(n.op, lhsExpr, rhsExpr);
+			}
+
+			public void visit(ASTIntValExpr n) {
+				n.setType(IntType.v);
+				tmpExpr = new ValExpr(new IntVal(n.val));
+			}
+
+			public void visit(ASTDerefExpr n) {
+				n.lhs.accept(this);
+				Expr lhsExpr = tmpExpr;
+				Type lhsType = n.lhs.type().get();
+				if (!(lhsType instanceof RefType)) {
+					throw new SemanticError("Type error: attempt to dereference a non-reference type!", n);
+				}
+				RefType lhsRefType = (RefType) lhsType;
+				Optional<Field> optionField = lhsRefType.findField(n.fieldName);
+				if (!optionField.isPresent()) {
+					throw new SemanticError("Attempt to dereference an unknown field!", n);
+				}
+				Field field = optionField.get();
+				n.setType(field.dstType);
+				tmpExpr = new DerefExpr(lhsExpr, field);
+			}
+
+			public void visit(ASTAssign n) {
+				n.lhs.accept(this);
+				Expr lhsExpr = tmpExpr;
+				n.rhs.accept(this);
+				Expr rhsExpr = tmpExpr;
+				Type lhsType = n.lhs.type().get();
+				Type rhsType = n.lhs.type().get();
+
+				if (!(n.lhs instanceof ASTVarExpr || n.lhs instanceof ASTDerefExpr)) {
+					throw new SemanticError(
+							"Semantic error: left hand side of assignment is not an assignable expression!", n);
+				}
+
+				if (lhsType instanceof RefType && n.rhs == ASTNullExpr.v) {
+					// OK
+				} else if (n.rhs != ASTNullExpr.v && lhsType == rhsType) {
+					// OK
+				} else {
+					throw new SemanticError("Type error: attempt to assign between incompatible types!", n);
+				}
+				result = new AssignStmt(lhsExpr, rhsExpr);
+			}
+
+			public void visit(ASTSeq n) {
+				n.first.accept(this);
+				Stmt first = result;
+				n.second.accept(this);
+				Stmt second = result;
+				result = new SeqStmt(first, second);
+			}
+
+			public void visit(ASTIf n) {
+				n.cond.accept(this);
+				Type condType = n.cond.type().get();
+				if (condType != BoolType.v) {
+					throw new SemanticError("Type error: condition type is not boolean!", n);
+				}
+				Expr cond = tmpExpr;
+				n.thenStmt.accept(this);
+				Stmt thenStmt = result;
+				Stmt elseStmt = null;
+				if (n.elseStmt != null) {
+					n.elseStmt.accept(this);
+					elseStmt = result;
+				}
+				result = new IfStmt(cond, thenStmt, elseStmt);
+			}
+
+			public void visit(ASTWhile n) {
+				n.cond.accept(this);
+				Type condType = n.cond.type().get();
+				if (condType != BoolType.v) {
+					throw new SemanticError("Type error: condition type is not boolean!", n);
+				}
+				Expr cond = tmpExpr;
+				n.body.accept(this);
+				Stmt body = result;
+				result = new WhileStmt(cond, body);
+			}
+		}
+
+		/**
+		 * Builds a store from an AST.
 		 * 
 		 * @author romanm
 		 */

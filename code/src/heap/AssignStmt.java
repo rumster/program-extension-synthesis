@@ -1,6 +1,5 @@
 package heap;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import grammar.Node;
@@ -11,22 +10,11 @@ import grammar.Visitor;
  * 
  * @author romanm
  */
-public abstract class AssignStmt extends BasicStmt {
-	protected List<Node> args = new ArrayList<>(2);
-
+public class AssignStmt extends Stmt {
 	public AssignStmt(Node lhs, Node rhs) {
-		super(lhs.numOfNonterminals + rhs.numOfNonterminals);
-		args.add(lhs);
-		args.add(rhs);
-	}
-
-	protected AssignStmt(int numOfNonterminals) {
-		super(numOfNonterminals);
-	}
-
-	@Override
-	public List<Node> getArgs() {
-		return args;
+		super(lhs, rhs);
+		assert !(lhs instanceof Var);
+		assert !(rhs instanceof Var);
 	}
 
 	public Node getLhs() {
@@ -44,9 +32,13 @@ public abstract class AssignStmt extends BasicStmt {
 	}
 
 	protected AssignStmt(List<Node> args) {
-		super(countNonterminals(args));
-		assert args.size() == 2 : "Illegal number of arguments for " + getClass().getSimpleName() + ": " + args.size()
-				+ "!";
-		this.args = args;
+		super(args);
+		assertNumOfArgs(2);
+	}
+
+	@Override
+	public Node clone(List<Node> args) {
+		assertNumOfArgs(2);
+		return new AssignStmt(args);
 	}
 }

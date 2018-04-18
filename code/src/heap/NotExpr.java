@@ -1,9 +1,9 @@
 package heap;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import grammar.*;
+import grammar.Node;
+import grammar.Visitor;
 
 /**
  * The operator corresponding to a Boolean negation.
@@ -12,18 +12,7 @@ import grammar.*;
  * 
  * @author romanm
  */
-public class NotExpr extends Node implements Condition {
-	protected List<Node> args = new ArrayList<>(1);
-
-	protected NotExpr(int numOfNonterminals) {
-		super(numOfNonterminals);
-	}
-
-	@Override
-	public List<Node> getArgs() {
-		return args;
-	}
-
+public class NotExpr extends BoolExpr {
 	public Node getSub() {
 		return args.get(0);
 	}
@@ -32,15 +21,13 @@ public class NotExpr extends Node implements Condition {
 	 * Constructs the right-hand side of the conjunction rule.
 	 */
 	public NotExpr(Node sub) {
-		super(sub.numOfNonterminals);
+		super(sub);
 		args.add(sub);
 	}
 
 	protected NotExpr(List<Node> args) {
-		super(countNonterminals(args));
-		assert args.size() == 1 : "Illegal number of arguments for " + getClass().getSimpleName() + ": " + args.size()
-				+ "!";
-		this.args = args;
+		super(args);
+		assertNumOfArgs(1);
 	}
 
 	@Override
@@ -52,10 +39,5 @@ public class NotExpr extends Node implements Condition {
 	public void accept(Visitor v) {
 		PWhileVisitor whileVisitor = (PWhileVisitor) v;
 		whileVisitor.visit(this);
-	}
-
-	@Override
-	public boolean holds(Store s) {
-		return PWhileInterpreter.v.test(this, s);
 	}
 }

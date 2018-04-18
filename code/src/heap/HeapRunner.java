@@ -70,11 +70,11 @@ public abstract class HeapRunner {
 			debugger.printCodeFile("problem.txt", problem.toString(), "Specification");
 			debugger.printExamples(problem.examples);
 			synthesisTime.start();
-			Planner<Store, BasicStmt> planner = new AStar<Store, BasicStmt>(new BasicHeapTR(problem.domain));
-			CFGGeneralizer<Store, BasicStmt, Condition> generalizer = new TMTI<>(debugger);
-			NaiveSynthesizer<Store, BasicStmt, Condition> synthesizer = new NaiveSynthesizer<>(planner, generalizer,
-					logger, debugger);
-			CFG<Store, BasicStmt, Condition> result = new CFG<>();
+			Planner<Store, Stmt> planner = new AStar<Store, Stmt>(new BasicHeapTR(problem.domain));
+			CFGGeneralizer<Store, Stmt, BoolExpr> generalizer = new TMTI<Store, Stmt, BoolExpr>(debugger);
+			NaiveSynthesizer<Store, Stmt, BoolExpr> synthesizer = new NaiveSynthesizer<>(planner, generalizer, logger,
+					debugger);
+			CFG<Store, Stmt, BoolExpr> result = new CFG<>();
 			boolean ok = synthesizer.synthesize(problem, result);
 			if (!ok) {
 				logger.info("fail!");

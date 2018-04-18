@@ -3,6 +3,7 @@ package heap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 import gp.TR;
 
@@ -11,7 +12,7 @@ import gp.TR;
  * 
  * @author romanm
  */
-public class BasicHeapTR implements TR<Store, BasicStmt> {
+public class BasicHeapTR implements TR<Store, Stmt> {
 	public static final BasicHeapTR applier = new BasicHeapTR(
 			HeapDomain.fromVarsAndTypes(Collections.emptyList(), Collections.emptyList()));
 
@@ -22,9 +23,9 @@ public class BasicHeapTR implements TR<Store, BasicStmt> {
 	}
 
 	@Override
-	public Collection<BasicStmt> enabledActions(Store state) {
-		Collection<BasicStmt> result = new ArrayList<>(domain.actions.size());
-		for (BasicStmt s : domain.actions) {
+	public Collection<Stmt> enabledActions(Store state) {
+		Collection<Stmt> result = new ArrayList<>(domain.stmts.size());
+		for (Stmt s : domain.stmts) {
 			if (s.enabled(state)) {
 				result.add(s);
 			}
@@ -33,12 +34,13 @@ public class BasicHeapTR implements TR<Store, BasicStmt> {
 	}
 
 	@Override
-	public float transitionCost(Store src, BasicStmt action, Store dst) {
+	public float transitionCost(Store src, Stmt action, Store dst) {
 		return 1;
 	}
 
 	@Override
-	public Collection<Store> apply(Store state, BasicStmt stmt) {
-		return stmt.apply(state);
+	public Collection<Store> apply(Store state, Stmt stmt) {
+		Store result = stmt.apply(state);
+		return List.of(result);
 	}
 }

@@ -19,7 +19,7 @@ import gp.Plan;
  * 
  * @author romanm
  */
-public class HeapDebugger extends GPDebugger<Store, BasicStmt, Condition> {
+public class HeapDebugger extends GPDebugger<Store, Stmt, BoolExpr> {
 	public static String STATE_IMAGE_FILE_POSTFIX = "svg";
 
 	public boolean logDetailedExampleRendering = false;
@@ -30,14 +30,14 @@ public class HeapDebugger extends GPDebugger<Store, BasicStmt, Condition> {
 		super(logger, title, outputDirPath);
 	}
 
-	public boolean printExamples(List<Example<Store, BasicStmt>> examples) {
+	public boolean printExamples(List<Example<Store, Stmt>> examples) {
 		logger.info("Visualizing examples...");
 		Logger examplesLogger = logDetailedExampleRendering ? logger : null;
 		ST exampleListTemplate = heapTemplates.load("examples");
-		for (Example<Store, BasicStmt> example : examples) {
+		for (Example<Store, Stmt> example : examples) {
 			ST indexedExampleTemplate = heapTemplates.load("indexedExample");
 			for (int stepIndex = 0; stepIndex < example.size(); ++stepIndex) {
-				Union2<Store, BasicStmt> step = example.step(stepIndex);
+				Union2<Store, Stmt> step = example.step(stepIndex);
 				if (step.isT1()) {
 					Store stage = step.getT1();
 					String storeImageFileName = outputDirPath + File.separator + "example_" + example.id + "_"
@@ -63,9 +63,9 @@ public class HeapDebugger extends GPDebugger<Store, BasicStmt, Condition> {
 	}
 
 	@Override
-	public void printPlan(Plan<Store, BasicStmt> plan, int planIndex) {
-		if (plan.isEmpty())
-			throw new UnsupportedOperationException("Missing implementation for visualizing empty plans!");
+	public void printPlan(Plan<Store, Stmt> plan, int planIndex) {
+//		if (plan.isEmpty())
+//			throw new UnsupportedOperationException("Missing implementation for visualizing empty plans!");
 
 		logger.info("Visualizing plan..." + planIndex);
 		ST planTemplate = heapTemplates.load("plan");
@@ -81,7 +81,7 @@ public class HeapDebugger extends GPDebugger<Store, BasicStmt, Condition> {
 		for (int actionIndex = 0; actionIndex < plan.size() - 1; ++actionIndex) {
 			Store store = plan.stateAt(actionIndex + 1);
 			int storeIndex = actionIndex + 1;
-			BasicStmt action = plan.actionAt(actionIndex);
+			Stmt action = plan.actionAt(actionIndex);
 			String filename = outputDirPath + File.separator + "Plan" + planIndex + "_" + storeIndex + "."
 					+ STATE_IMAGE_FILE_POSTFIX;
 			StoreUtils.printStore(store, filename, logger);

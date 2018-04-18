@@ -23,9 +23,6 @@ public class PWhileVisitor implements Visitor {
 	public void visit(EqExpr n) {
 	}
 
-	public void visit(LeqExpr n) {
-	}
-
 	public void visit(LtExpr n) {
 	}
 
@@ -38,7 +35,7 @@ public class PWhileVisitor implements Visitor {
 	public void visit(NotExpr n) {
 	}
 
-	public void visit(SequenceStmt n) {
+	public void visit(SeqStmt n) {
 	}
 
 	public void visit(WhileStmt n) {
@@ -53,16 +50,16 @@ public class PWhileVisitor implements Visitor {
 	public void visit(IntVal n) {
 	}
 
-	public void visit(MinusExpr n) {
-	}
-
-	public void visit(PlusExpr n) {
+	public void visit(IntBinopExpr n) {
 	}
 
 	public void visit(RefField n) {
 	}
 
 	public void visit(IntField n) {
+	}
+
+	public void visit(VarExpr n) {
 	}
 
 	public void visit(RefVar n) {
@@ -72,6 +69,9 @@ public class PWhileVisitor implements Visitor {
 	}
 
 	public void visit(RefType n) {
+	}
+
+	public void visit(ValExpr n) {
 	}
 
 	public void visit(Nonterminal n) {

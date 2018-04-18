@@ -5,9 +5,6 @@ import java.util.List;
 import java.util.Optional;
 
 import gp.controlFlowGraph.CFG;
-import heap.BasicStmt;
-import heap.Condition;
-import heap.Store;
 
 /**
  * A specification consisting of a list of input-output examples.
@@ -41,7 +38,10 @@ public abstract class SynthesisProblem<StateType, ActionType, ConditionType> {
 		}
 	}
 
-	public abstract Domain<Store, BasicStmt, Condition> domain();
+	/**
+	 * Returns the problem domain for this synthesis problem.
+	 */
+	public abstract Domain<StateType, ActionType, ConditionType> domain();
 
 	public SynthesisProblem(String name) {
 		this.name = name;

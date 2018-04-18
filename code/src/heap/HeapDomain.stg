@@ -12,6 +12,8 @@ Actions = {
 }
 >>
 
+IntType() ::= <<int>>
+
 RefType(name, fields) ::= <<
 type $name$ {
   $fields; separator="\n"$
@@ -22,11 +24,7 @@ Field(name, dstType, ghost) ::= <<
 $if(ghost)$ghost $else$$endif$$name$ : $dstType$
 >>
 
-IntType() ::= <<int>>
-
-Copy(lhs, rhs) ::= <<
-$lhs$=$rhs$
->>
+IntField(name) ::= <<$name$>>
 
 IntVar(name, is_readonly) ::= <<
 $if(is_readonly)$$else$mut $endif$$name$
@@ -34,4 +32,34 @@ $if(is_readonly)$$else$mut $endif$$name$
 
 RefVar(name, is_readonly) ::= <<
 $if(is_readonly)$$else$mut $endif$$name$
+>>
+
+NullExpr() ::= <<null>>
+
+VarExpr(raw_var) ::= <<$raw_var.name$>>
+
+NewExpr(raw_type) ::= <<new $raw_type.name$()>>
+
+DerefExpr(lhs, field) ::= <<$lhs$.$field$>>
+
+
+AssignStmt(lhs, rhs) ::= <<$lhs$=$rhs$>>
+
+SeqStmt(first, second) ::= <<
+$first$; $second$
+>>
+
+IfStmt(cond, then, else) ::= <<
+if ($cond$) {
+  $then$
+}
+else {
+  $else$
+}
+>>
+
+WhileStmt(cond, body) ::= <<
+while ($cond$) {
+  $body$
+}
 >>

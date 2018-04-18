@@ -1,6 +1,8 @@
 package grammar;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -10,16 +12,45 @@ import java.util.List;
  */
 public abstract class Node {
 	/**
-	 * An indexed list of children nodes.
+	 * Returns the list of children nodes. The implementation uses reflection.
 	 */
-	public abstract List<Node> getArgs();
+	public List<Node> getArgs() {
+		ArrayList<Node> result = new ArrayList<>(2);
+		Field[] thisClassFields = Node.class.getFields();
+		for (Field field : getClass().getFields()) {
+			// Ignore any field declared in this class. We only care about subclass fields.
+			if (Arrays.binarySearch(thisClassFields, field) >= 0) {
+				continue;
+			}
+			Node arg;
+			try {
+				arg = (Node) field.get(this);
+				result.add(arg);
+			} catch (IllegalArgumentException | IllegalAccessException e) {
+				e.printStackTrace();
+			}
+		}
+		return result;
+	}
 
 	/**
 	 * The number of nonterminal leaves in the tree rooted by this node.
 	 */
-	public final int numOfNonterminals;
+	final int numOfNonterminals;
+	
+	public boolean concrete() {
+		return numOfNonterminals == 0;
+	}
 
-	public static int countNonterminals(List<Node> nodes) {
+	public static int countNonterminals(Iterable<Node> nodes) {
+		int result = 0;
+		for (Node n : nodes) {
+			result += n.numOfNonterminals;
+		}
+		return result;
+	}
+
+	public static int countNonterminals(Node... nodes) {
 		int result = 0;
 		for (Node n : nodes) {
 			result += n.numOfNonterminals;
@@ -118,15 +149,9 @@ public abstract class Node {
 	 */
 	public abstract Node clone(List<Node> args);
 
-	/**
-	 * Sums the number of nonterminals in all the given trees.
-	 */
-	protected static int sumNumOfNonterminals(List<Node> args) {
-		int result = 0;
-		for (Node n : args) {
-			result += n.numOfNonterminals;
-		}
-		return result;
+	public void assertNumOfArgs(int num) {
+		assert getArgs().size() == 2 : "Illegal number of arguments for " + getClass().getSimpleName() + ": "
+				+ getArgs().size() + "!";
 	}
 
 	/**
@@ -134,5 +159,12 @@ public abstract class Node {
 	 */
 	protected Node(int numOfNonterminals) {
 		this.numOfNonterminals = numOfNonterminals;
+	}
+
+	/**
+	 * Constructs a tree node with 0 leaves.
+	 */
+	protected Node() {
+		this(0);
 	}
 }

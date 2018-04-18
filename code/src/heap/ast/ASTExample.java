@@ -2,6 +2,11 @@ package heap.ast;
 
 import java.util.List;
 
+/**
+ * An example is a sequence of steps, the first of which must be a state.
+ * 
+ * @author romanm
+ */
 public class ASTExample extends AST {
 	public final List<ASTStep> steps;
 
@@ -14,7 +19,7 @@ public class ASTExample extends AST {
 	}
 
 	public ASTStore goal() {
-		return (ASTStore)  steps.get(steps.size() - 1);
+		return (ASTStore) steps.get(steps.size() - 1);
 	}
 
 	@Override

@@ -9,9 +9,12 @@ import java.util.List;
  * 
  * @author romanm
  */
-public class Nonterminal extends Node {
+public final class Nonterminal extends Node {
 	public final String name;
 
+	/**
+	 * The right-hand side trees for this nonterminal.
+	 */
 	protected final List<Node> productions = new ArrayList<>();
 
 	private static int instanceCounter;

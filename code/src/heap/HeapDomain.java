@@ -20,7 +20,7 @@ import heap.Var.VarRole;
  * 
  * @author romanm
  */
-public class HeapDomain implements Domain<Store, BasicStmt, Condition> {
+public class HeapDomain implements Domain<Store, Stmt, BoolExpr> {
 	public final Set<Field> fields = new LinkedHashSet<>();
 
 	public final Collection<Var> vars;
@@ -33,7 +33,7 @@ public class HeapDomain implements Domain<Store, BasicStmt, Condition> {
 
 	public final Rel2<Type, Var> typeToVar = new HashRel2<>();
 
-	protected Collection<BasicStmt> actions = new ArrayList<>();
+	protected Collection<Stmt> stmts = new ArrayList<>();
 
 	protected STGLoader templates = new STGLoader(HeapDomain.class);
 	protected STHierarchyRenderer renderer = new STHierarchyRenderer(templates);
@@ -44,8 +44,8 @@ public class HeapDomain implements Domain<Store, BasicStmt, Condition> {
 	}
 
 	@Override
-	public boolean test(Condition c, Store state) {
-		return c.holds(state);
+	public boolean test(BoolExpr c, Store state) {
+		throw new UnsupportedOperationException("unimplemented");
 	}
 
 	public static HeapDomain fromVarsAndTypes(Collection<Var> vars, Collection<RefType> refTypes) {
@@ -76,12 +76,12 @@ public class HeapDomain implements Domain<Store, BasicStmt, Condition> {
 			}
 		}
 
-		actions = generateActions(vars, fields);
+		stmts = generateActions(vars, fields);
 	}
 
 	// TODO: make this call explicit and add a flag for allocation statements.
-	public Collection<BasicStmt> generateActions(Collection<Var> vars, Collection<Field> fields) {
-		Collection<BasicStmt> result = new ArrayList<>();
+	public Collection<Stmt> generateActions(Collection<Var> vars, Collection<Field> fields) {
+		Collection<Stmt> result = new ArrayList<>();
 
 		// Generate variable-to-variable assignments.
 		for (Var lhs : vars) {
@@ -90,7 +90,7 @@ public class HeapDomain implements Domain<Store, BasicStmt, Condition> {
 			}
 			for (Var rhs : typeToVar.select1(lhs.getType())) {
 				if (lhs != rhs) {
-					Copy stmt = new Copy(lhs, rhs);
+					var stmt = new AssignStmt(new VarExpr(lhs), new VarExpr(rhs));
 					result.add(stmt);
 				}
 			}
@@ -99,19 +99,19 @@ public class HeapDomain implements Domain<Store, BasicStmt, Condition> {
 		for (RefVar lhs : refVars) {
 			if (!lhs.readonly) {
 				// lhs = new T()
-				result.add(new CopyNewExpr(lhs, lhs.getType()));
+				result.add(new AssignStmt(new VarExpr(lhs), new NewExpr(lhs.getType())));
 				// lhs = null
-				result.add(new CopyNullExpr(lhs));
+				result.add(new AssignStmt(new VarExpr(lhs), NullExpr.v));
 			}
 
 			for (Field f : lhs.getType().fields) {
 				if (f instanceof RefField) {
 					// lhs.f = null
-					result.add(new StoreFieldNullExpr(lhs, (RefField) f));
+					result.add(new AssignStmt(new DerefExpr(new VarExpr(lhs), (RefField) f), NullExpr.v));
 				}
 				for (Var rhs : typeToVar.select1(f.dstType)) {
 					// lhs.f = rhs
-					result.add(new StoreField(lhs, f, rhs));
+					result.add(new AssignStmt(new DerefExpr(new VarExpr(lhs), (RefField) f), new VarExpr(rhs)));
 				}
 			}
 
@@ -120,7 +120,7 @@ public class HeapDomain implements Domain<Store, BasicStmt, Condition> {
 					if (f.dstType == lhs.getType()) {
 						for (Var rhs : typeToVar.select1(f.srcType)) {
 							// lhs = rhs.f
-							result.add(new LoadField(lhs, (RefVar) rhs, f));
+							result.add(new AssignStmt(new VarExpr(lhs), new DerefExpr(new VarExpr(rhs), f)));
 						}
 					}
 				}
@@ -156,7 +156,11 @@ public class HeapDomain implements Domain<Store, BasicStmt, Condition> {
 			template.add("vars", renderer.render(v));
 		}
 		// template.add("vars", vars);
-		template.add("actions", actions);
+		for (Stmt stmt : stmts) {
+			String stmtStr = renderer.render(stmt);
+			template.add("actions", stmtStr);
+		}
+
 		return template.render();
 
 		// TODO: make the auto-renderer work.

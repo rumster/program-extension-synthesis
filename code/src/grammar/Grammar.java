@@ -11,6 +11,10 @@ import java.util.Set;
 public class Grammar {
 	public final Nonterminal start;
 
+	/**
+	 * A grammar is made of a set of nonterminals, each of which maintains its own
+	 * set of productions.
+	 */
 	protected final Set<Nonterminal> nonterminals = new LinkedHashSet<>();
 
 	public Grammar(Nonterminal start) {

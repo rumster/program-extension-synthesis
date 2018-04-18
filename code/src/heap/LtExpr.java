@@ -1,27 +1,16 @@
 package heap;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import grammar.*;
+import grammar.Node;
+import grammar.Visitor;
 
 /**
- * The operator corresponding to a comparison between two integers.
+ * The operator corresponding to a less-than comparison between two values.
  * 
  * @author romanm
  */
-public class LtExpr extends Node implements Condition {
-	protected List<Node> args = new ArrayList<>(2);
-
-	protected LtExpr(int numOfNonterminals) {
-		super(numOfNonterminals);
-	}
-
-	@Override
-	public List<Node> getArgs() {
-		return args;
-	}
-
+public class LtExpr extends BoolExpr {
 	public Node getLhs() {
 		return args.get(0);
 	}
@@ -40,25 +29,16 @@ public class LtExpr extends Node implements Condition {
 	 * Constructs the right-hand side of an equality comparison.
 	 */
 	public LtExpr(Node lhs, Node rhs) {
-		super(lhs.numOfNonterminals + rhs.numOfNonterminals);
-		args.add(lhs);
-		args.add(rhs);
+		super(lhs, rhs);
 	}
 
 	protected LtExpr(List<Node> args) {
-		super(countNonterminals(args));
-		assert args.size() == 2 : "Illegal number of arguments for " + getClass().getSimpleName() + ": " + args.size()
-				+ "!";
-		this.args = args;
+		super(args);
+		assertNumOfArgs(2);
 	}
 
 	@Override
 	public LtExpr clone(List<Node> args) {
 		return new LtExpr(args);
-	}
-	
-	@Override
-	public boolean holds(Store s) {
-		return PWhileInterpreter.v.test(this, s);
 	}
 }

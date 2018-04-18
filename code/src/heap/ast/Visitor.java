@@ -12,17 +12,17 @@ public abstract class Visitor {
 		}
 	}
 
-	public void visit(ASTField n) {
+	public void visit(ASTDeclField n) {
 	}
 
 	public void visit(ASTFun n) {
-		for (ASTVar var : n.inputArgs) {
+		for (ASTVarDecl var : n.inputArgs) {
 			var.accept(this);
 		}
-		for (ASTVar var : n.outputArgs) {
+		for (ASTVarDecl var : n.outputArgs) {
 			var.accept(this);
 		}
-		for (ASTVar var : n.temps) {
+		for (ASTVarDecl var : n.temps) {
 			var.accept(this);
 		}
 		for (ASTExample example : n.examples) {
@@ -43,7 +43,7 @@ public abstract class Visitor {
 	}
 
 	public void visit(ASTRefType n) {
-		for (ASTField field : n.fields) {
+		for (ASTDeclField field : n.fields) {
 			field.accept(this);
 		}
 	}
@@ -54,7 +54,7 @@ public abstract class Visitor {
 		}
 	}
 
-	public void visit(ASTVar n) {
+	public void visit(ASTVarDecl n) {
 	}
 
 	public void visit(ASTRefVarVal n) {
@@ -63,12 +63,34 @@ public abstract class Visitor {
 	public void visit(ASTIntVarVal n) {
 	}
 
-	public void visit(ASTCopy n) {
+	////////////////////////////////
+	// Statements and expressions //
+	////////////////////////////////
+
+	public void visit(ASTVarExpr n) {
 	}
 
-	public void visit(ASTLoadField astLoadField) {
+	public void visit(ASTNullExpr n) {
 	}
 
-	public void visit(ASTStoreField astStoreField) {
+	public void visit(ASTIntBinOpExpr n) {
+	}
+
+	public void visit(ASTIntValExpr n) {
+	}
+
+	public void visit(ASTDerefExpr n) {
+	}
+	
+	public void visit(ASTAssign n) {
+	}
+
+	public void visit(ASTSeq n) {
+	}
+
+	public void visit(ASTIf n) {
+	}
+
+	public void visit(ASTWhile n) {
 	}
 }

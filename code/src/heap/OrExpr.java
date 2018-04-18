@@ -1,27 +1,16 @@
 package heap;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import grammar.*;
+import grammar.Node;
+import grammar.Visitor;
 
 /**
- * The operator corresponding to disjunctive Boolean connective.
+ * The operator corresponding to a disjunctive Boolean connective.
  * 
  * @author romanm
  */
-public class OrExpr extends Node {
-	protected List<Node> args = new ArrayList<>(2);
-
-	protected OrExpr(int numOfNonterminals) {
-		super(numOfNonterminals);
-	}
-
-	@Override
-	public List<Node> getArgs() {
-		return args;
-	}
-
+public class OrExpr extends BoolExpr {
 	public Node getLhs() {
 		return args.get(0);
 	}
@@ -37,19 +26,17 @@ public class OrExpr extends Node {
 	}
 
 	/**
-	 * Constructs the right-hand side of the disjunction rule.
+	 * Constructs the right-hand side of the conjunction rule.
 	 */
 	public OrExpr(Node lhs, Node rhs) {
-		super(lhs.numOfNonterminals + rhs.numOfNonterminals);
+		super(lhs, rhs);
 		args.add(lhs);
 		args.add(rhs);
 	}
 
 	protected OrExpr(List<Node> args) {
-		super(countNonterminals(args));
-		assert args.size() == 2 : "Illegal number of arguments for " + getClass().getSimpleName() + ": " + args.size()
-				+ "!";
-		this.args = args;
+		super(args);
+		assertNumOfArgs(2);
 	}
 
 	@Override

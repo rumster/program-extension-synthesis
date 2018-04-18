@@ -2,6 +2,11 @@ package heap.ast;
 
 import java.util.List;
 
+/**
+ * A store node.
+ * 
+ * @author romanm
+ */
 public class ASTStore extends ASTStep {
 	public final List<ASTVal> vals;
 

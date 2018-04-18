@@ -1,26 +1,18 @@
 package heap;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import grammar.*;
+import grammar.Node;
+import grammar.Visitor;
 
 /**
  * The operator corresponding to an object field access.
  * 
  * @author romanm
  */
-public class DerefExpr extends Node {
-	protected List<Node> args = new ArrayList<>(2);
-
-	public DerefExpr(Node lhs, Field pfield) {
-		super(lhs.numOfNonterminals);
-		args.add(lhs);
-		args.add(pfield);
-	}
-
-	protected DerefExpr(int numOfNonterminals) {
-		super(numOfNonterminals);
+public class DerefExpr extends Expr {
+	public DerefExpr(Node base, Field field) {
+		super(base, field);
 	}
 
 	public int depth() {
@@ -35,11 +27,6 @@ public class DerefExpr extends Node {
 	public Type dstType() {
 		Field f = getField();
 		return f.dstType;
-	}
-
-	@Override
-	public List<Node> getArgs() {
-		return args;
 	}
 
 	public Node getLhs() {
@@ -57,10 +44,8 @@ public class DerefExpr extends Node {
 	}
 
 	protected DerefExpr(List<Node> args) {
-		super(countNonterminals(args));
-		assert args.size() == 2 : "Illegal number of arguments for " + getClass().getSimpleName() + ": " + args.size()
-				+ "!";
-		this.args = args;
+		super(args);
+		assertNumOfArgs(2);
 	}
 
 	@Override

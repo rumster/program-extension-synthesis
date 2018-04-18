@@ -5,6 +5,7 @@ import java.io.*;
 import java.util.*;
 
 import heap.ast.Token;
+import heap.IntBinOp;
 
 import java_cup.runtime.Symbol;
 
@@ -31,8 +32,10 @@ parser code {:
   }
 :}
 
-terminal TYPE, VAR, NULL, EXAMPLE, MUT, GHOST,
-         COMMA, DOT, EQ, ASSIGN, AND, COLON, ARROW, LP, RP, LCB, RCB;
+terminal TYPE, VAR, NULL, EXAMPLE, MUT, GHOST;
+terminal IF, WHILE, ELSE;
+terminal COMMA, SEMI, DOT, ASSIGN, COLON, ARROW, LP, RP, LCB, RCB;
+terminal EQ, LT, AND, OR, PLUS, MINUS, TIMES, DIVIDE;
 		
 terminal Integer INT_VAL; 
 terminal String ID;
@@ -44,27 +47,39 @@ nonterminal ASTProblem problem;
 nonterminal List elemList; // <AST>
 nonterminal AST elem;
 nonterminal ASTRefType typeDef;
-nonterminal List fields; // <ASTField>
-nonterminal List optionalFields; // <ASTField>
-nonterminal ASTField field;
+nonterminal List fields; // <ASTDeclField>
+nonterminal List optionalFields; // <ASTDeclField>
+nonterminal ASTDeclField field;
 nonterminal ASTFun funDef;
-nonterminal List inputArgs; // <ASTVar>
-nonterminal List outputArgs; // <ASTVar>
-nonterminal List optionalInputArgs; // <ASTVar>
-nonterminal List optionalOutputArgs; // <ASTVar>
+nonterminal List inputArgs; // <ASTVarDecl>
+nonterminal List outputArgs; // <ASTVarDecl>
+nonterminal List optionalInputArgs; // <ASTVarDecl>
+nonterminal List optionalOutputArgs; // <ASTVarDecl>
 nonterminal List temps; // <ASTVar>
-nonterminal List optionalTemps; // <ASTVar>
-nonterminal ASTVar temp;
-nonterminal ASTVar var;
+nonterminal List optionalTemps; // <ASTVarDecl>
+nonterminal ASTVarDecl temp;
+nonterminal ASTVarDecl var;
 nonterminal List examples; // <ASTExample>
 nonterminal List optionalExamples; // <ASTExample>
 nonterminal ASTExample example;
 nonterminal List exampleSteps; // <ASTStep>
 nonterminal ASTStep step;
+nonterminal ASTStmt stmt;
+nonterminal ASTExpr expr;
 nonterminal ASTStore store;
 nonterminal AST storeVal;
 nonterminal List heapElems; // <ASTfieldVal>
-nonterminal List optionalHeapElems; // <ASTfieldVal>
+
+precedence left SEMI;
+precedence left EQ;
+precedence left LT;
+precedence left OR;
+precedence left AND;
+precedence left MINUS;
+precedence left PLUS;
+precedence left TIMES;
+precedence left DIVIDE;
+precedence left DOT;
 
 ///////////////////////////////////////////////////
 // Productions
@@ -94,13 +109,13 @@ typeDef ::= TYPE ID:name LCB optionalFields:fields RCB
 ;
 
 optionalFields ::= 
-	{: RESULT = new ArrayList<ASTField>(); :}
+	{: RESULT = new ArrayList<ASTDeclField>(); :}
 	| fields:fields
 	{: RESULT = fields; :}
 ;
 
 fields ::= field:f
-	{: RESULT = new ArrayList<ASTField>();
+	{: RESULT = new ArrayList<ASTDeclField>();
 	   RESULT.add(f);
 	:}
 	| fields:prefix field:f
@@ -110,9 +125,9 @@ fields ::= field:f
 ;
 
 field ::= ID:name COLON ID:type
-	{: RESULT = new ASTField(name, type, false); :}
+	{: RESULT = new ASTDeclField(name, type, false); :}
 	| GHOST ID:name COLON ID:type
-	{: RESULT = new ASTField(name, type, true); :}
+	{: RESULT = new ASTDeclField(name, type, true); :}
 ;
 
 funDef ::= ID:name LP optionalInputArgs:inargs RP ARROW LP optionalOutputArgs:outargs RP LCB optionalTemps:temps optionalExamples:examples RCB
@@ -120,25 +135,25 @@ funDef ::= ID:name LP optionalInputArgs:inargs RP ARROW LP optionalOutputArgs:ou
 ;
 
 optionalInputArgs ::= 
-	{: RESULT = new ArrayList<ASTVar>(); :}
+	{: RESULT = new ArrayList<ASTVarDecl>(); :}
 	| inputArgs:args
 	{: RESULT = args; :}
 ;
 
 optionalOutputArgs ::= 
-	{: RESULT = new ArrayList<ASTVar>(); :}
+	{: RESULT = new ArrayList<ASTVarDecl>(); :}
 	| outputArgs:args
 	{: RESULT = args; :}
 ;
 
 inputArgs ::= var:a
 	{: a.readonly = true;
-	   RESULT = new ArrayList<ASTVar>();
+	   RESULT = new ArrayList<ASTVarDecl>();
 	   RESULT.add(a);
 	:}
 	| MUT var:a
 	{: a.readonly = false;
-	   RESULT = new ArrayList<ASTVar>();
+	   RESULT = new ArrayList<ASTVarDecl>();
 	   RESULT.add(a);
 	:}
 	| inputArgs:prefix COMMA var:a
@@ -149,7 +164,7 @@ inputArgs ::= var:a
 
 outputArgs ::= var:a
 	{: a.readonly = false;
-	   RESULT = new ArrayList<ASTVar>();
+	   RESULT = new ArrayList<ASTVarDecl>();
 	   RESULT.add(a);
 	:}
 	| outputArgs:prefix COMMA var:a
@@ -159,19 +174,19 @@ outputArgs ::= var:a
 ;
 
 var ::= ID:name COLON ID:type
-	{: RESULT = new ASTVar(name, type);
+	{: RESULT = new ASTVarDecl(name, type);
 	   RESULT.readonly = true;
 	:}
 ;
 
 optionalTemps ::=  
-	{: RESULT = new ArrayList<ASTVar>(); :}
+	{: RESULT = new ArrayList<ASTVarDecl>(); :}
 	| temps:temps
 	{: RESULT = temps; :}
 ;
 
 temps ::= temp:t
-	{: RESULT = new ArrayList<ASTVar>();
+	{: RESULT = new ArrayList<ASTVarDecl>();
 	   RESULT.add(t);
 	:}
 	| temps:prefix COMMA temp:t
@@ -216,24 +231,45 @@ exampleSteps ::= step:s
 	:} 
 ;
 
+// A step is either a store or some type of basic statement.
 step ::= store:s
 	{: RESULT = s;	:}
-	| ID:lhs ASSIGN ID:rhs
-	{: RESULT = new ASTCopy(lhs, rhs); :}
-	| ID:lhs ASSIGN ID:rhs DOT ID:field
-	{: RESULT = new ASTLoadField(lhs, rhs, field); :}
-	| ID:lhs DOT ID:field ASSIGN ID:rhs
-	{: RESULT = new ASTStoreField(lhs, field, rhs); :}
+	| stmt:s
+	{: RESULT = s; :}
 ;
 
-store ::= optionalHeapElems:elements
-	{: RESULT = new ASTStore(elements); :}
+stmt ::= expr:lhs ASSIGN expr:rhs
+	{: RESULT = new ASTAssign(lhs, rhs); :}
+	| IF LP expr:cond RP LCB stmt:thenStmt RCB
+	{: RESULT = new ASTIf(cond, thenStmt); :}
+	| IF LP expr:cond RP LCB stmt:thenStmt RCB ELSE LCB stmt:elseStmt RCB
+	{: RESULT = new ASTIf(cond, thenStmt, elseStmt); :}
+	| WHILE LP expr:cond RP LCB stmt:body RCB
+	{: RESULT = new ASTWhile(cond, body); :}
+	| stmt:first SEMI stmt:second
+	{: RESULT = new ASTSeq(first, second); :}	
 ;
 
-optionalHeapElems ::= 
-	{: RESULT = new ArrayList<ASTVal>(); :}
-	| heapElems:heapElems
-	{: RESULT = heapElems; :}
+expr ::= ID:varName
+	{: RESULT = new ASTVarExpr(varName); :}
+	| INT_VAL:val
+	{: RESULT = new ASTIntValExpr(val); :}
+	| NULL
+	{: RESULT = ASTNullExpr.v; :}
+	| expr:lhs PLUS expr:rhs
+	{: RESULT = new ASTIntBinOpExpr(IntBinOp.PLUS, lhs, rhs); :}
+	| expr:lhs MINUS expr:rhs
+	{: RESULT = new ASTIntBinOpExpr(IntBinOp.MINUS, lhs, rhs); :}
+	| expr:lhs TIMES expr:rhs
+	{: RESULT = new ASTIntBinOpExpr(IntBinOp.TIMES, lhs, rhs); :}
+	| expr:lhs DIVIDE expr:rhs
+	{: RESULT = new ASTIntBinOpExpr(IntBinOp.DIVIDE, lhs, rhs); :}
+	| expr:lhs DOT ID:field
+	{: RESULT = new ASTDerefExpr(lhs, field); :}
+;
+
+store ::= heapElems:elems
+	{: RESULT = new ASTStore(elems); :}
 ;
 
 heapElems ::= storeVal:v

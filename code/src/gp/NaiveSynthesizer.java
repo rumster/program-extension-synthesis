@@ -62,9 +62,9 @@ public class NaiveSynthesizer<StateType, ActionType, ConditionType> {
 
 			logger.info("Planning for example " + example.name + "...");
 			Plan<StateType, ActionType> plan = new ArrayListPlan<>();
-			for (int i = 1; i < example.stages.size(); ++i) {
+			for (int i = 1; i < example.steps.size(); ++i) {
 				boolean skipExample = false;
-				Union2<StateType, ActionType> step = example.stages.get(i);
+				Union2<StateType, ActionType> step = example.steps.get(i);
 				if (step.isT1()) {
 					StateType stateGoal = step.getT1();
 					final StateType finalCurrent = current;

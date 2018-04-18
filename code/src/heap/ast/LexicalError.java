@@ -19,16 +19,7 @@ public class LexicalError extends Exception {
 	}
 
 	public LexicalError(String message, int lineNumber) {
-		super(message);
+		super(String.format(ERROR_MESSAGE, lineNumber, message));
 		this.line = lineNumber;
-	}
-
-	/**
-	 * Returns an error message using <code>errorMessage</code> as a format
-	 * string and <code>line</code> and <code>ERROR_MESSAGE</code> as the line number
-	 * and detailed error message, respectively.
-	 */
-	public String formatErrorMessage() {
-		return String.format(ERROR_MESSAGE, line, getMessage());
 	}
 }

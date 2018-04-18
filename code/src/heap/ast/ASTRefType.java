@@ -4,9 +4,9 @@ import java.util.List;
 
 public class ASTRefType extends AST {
 	public final String name;
-	public final List<ASTField> fields;
+	public final List<ASTDeclField> fields;
 
-	public ASTRefType(String name, List<ASTField> fields) {
+	public ASTRefType(String name, List<ASTDeclField> fields) {
 		assert name != null && fields != null;
 		this.name = name;
 		this.fields = fields;

@@ -1,16 +1,18 @@
 package heap;
 
-import grammar.Token;
+import java.util.List;
+
+import grammar.Node;
 import grammar.Visitor;
 
 /**
- * A terminal representing the null value.
+ * The null value.
  * 
  * @author romanm
  */
-public class NullExpr extends Token {
+public class NullExpr extends Expr {
 	public static final NullExpr v = new NullExpr();
-	
+
 	@Override
 	public void accept(Visitor v) {
 		PWhileVisitor whileVisitor = (PWhileVisitor) v;
@@ -18,5 +20,11 @@ public class NullExpr extends Token {
 	}
 
 	private NullExpr() {
+	}
+
+	@Override
+	public Node clone(List<Node> args) {
+		assertNumOfArgs(0);
+		return this;
 	}
 }

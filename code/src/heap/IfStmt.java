@@ -1,6 +1,5 @@
 package heap;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import grammar.Node;
@@ -11,26 +10,10 @@ import grammar.Visitor;
  * 
  * @author romanm
  */
-public class IfStmt extends Node {
-	protected List<Node> args = new ArrayList<>(3);
-
+public class IfStmt extends Stmt {
 	public IfStmt(Node condNode, Node thenNode, Node elseNode) {
-		super(condNode.numOfNonterminals + thenNode.numOfNonterminals
-				+ (elseNode != null ? elseNode.numOfNonterminals : 0));
-		args.add(condNode);
-		args.add(thenNode);
-		args.add(elseNode);
+		super(condNode, thenNode, elseNode != null ? elseNode : SkipStmt.v);
 	}
-
-	protected IfStmt(int numOfNonterminals) {
-		super(numOfNonterminals);
-	}
-
-	@Override
-	public List<Node> getArgs() {
-		return args;
-	}
-
 	public Node getCond() {
 		return args.get(0);
 	}
@@ -39,7 +22,7 @@ public class IfStmt extends Node {
 		return args.get(1);
 	}
 
-	public Node getElseNode() {
+	public Node getElse() {
 		return args.get(2);
 	}
 
@@ -51,9 +34,7 @@ public class IfStmt extends Node {
 
 	protected IfStmt(List<Node> args) {
 		super(countNonterminals(args));
-		assert args.size() == 3 : "Illegal number of arguments for " + getClass().getSimpleName() + ": " + args.size()
-				+ "!";
-		this.args = args;
+		assertNumOfArgs(3);
 	}
 
 	@Override

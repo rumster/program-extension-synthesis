@@ -1,6 +1,5 @@
 package heap;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import grammar.Node;
@@ -11,22 +10,13 @@ import grammar.Visitor;
  * 
  * @author romanm
  */
-public class WhileStmt extends Node {
-	protected List<Node> args = new ArrayList<>(2);
-
+public class WhileStmt extends Stmt {
 	public WhileStmt(Node condNode, Node bodyNode) {
-		super(condNode.numOfNonterminals + bodyNode.numOfNonterminals);
-		args.add(condNode);
-		args.add(bodyNode);
+		super(condNode, bodyNode);
 	}
 
 	protected WhileStmt(int numOfNonterminals) {
 		super(numOfNonterminals);
-	}
-
-	@Override
-	public List<Node> getArgs() {
-		return args;
 	}
 
 	public Node getCond() {
@@ -38,10 +28,8 @@ public class WhileStmt extends Node {
 	}
 
 	protected WhileStmt(List<Node> args) {
-		super(countNonterminals(args));
-		assert args.size() == 2 : "Illegal number of arguments for " + getClass().getSimpleName() + ": " + args.size()
-				+ "!";
-		this.args = args;
+		super(args);
+		assertNumOfArgs(2);
 	}
 
 	@Override
