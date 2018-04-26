@@ -111,7 +111,7 @@ public class HeapDomain implements Domain<Store, Stmt, BoolExpr> {
 				}
 				for (Var rhs : typeToVar.select1(f.dstType)) {
 					// lhs.f = rhs
-					result.add(new AssignStmt(new DerefExpr(new VarExpr(lhs), (RefField) f), new VarExpr(rhs)));
+					result.add(new AssignStmt(new DerefExpr(new VarExpr(lhs), f), new VarExpr(rhs)));
 				}
 			}
 

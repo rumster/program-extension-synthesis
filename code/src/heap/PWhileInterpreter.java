@@ -124,12 +124,12 @@ public class PWhileInterpreter extends PWhileVisitor {
 		else {
 			assert lhs instanceof DerefExpr;
 			DerefExpr lhsDeref = (DerefExpr) lhs;
-			lhsDeref.accept(this);
+			lhsDeref.getLhs().accept(this);
 			Obj lobj = (Obj) resultVal;
 			if (state instanceof ErrorStore) {
 				return;
 			}
-			if (resultVal == Obj.NULL) {
+			if (lobj == Obj.NULL) {
 				state = Store.error("illegal dereference of " + n.getLhs());
 				return;
 			}

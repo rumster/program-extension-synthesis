@@ -77,7 +77,7 @@ public class Store {
 		this.env = env;
 		this.heap = heap;
 	}
-
+	
 	public Map<Var, Val> getEnvMap() {
 		return env;
 	}
@@ -413,7 +413,7 @@ public class Store {
 		public final String description;
 
 		protected ErrorStore(String description) {
-			super(null, null, null, null);
+			super();
 			this.description = description;
 		}
 
