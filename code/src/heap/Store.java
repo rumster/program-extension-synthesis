@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import org.stringtemplate.v4.ST;
@@ -39,7 +40,7 @@ public class Store {
 	 */
 	protected final Map<Obj, Map<Field, Val>> heap;
 
-	//public List<Boolean> predicates = new ArrayList<>();
+	// public List<Boolean> predicates = new ArrayList<>();
 
 	public static Store error(String description) {
 		return new ErrorStore(description);
@@ -77,7 +78,7 @@ public class Store {
 		this.env = env;
 		this.heap = heap;
 	}
-	
+
 	public Map<Var, Val> getEnvMap() {
 		return env;
 	}
@@ -98,6 +99,11 @@ public class Store {
 		return objects;
 	}
 
+	/**
+	 * Compares two stores.<br>
+	 * WARNING: the current implementation does not work correctly when object
+	 * allocation has been used, since that requires an isomorphism check.
+	 */
 	@Override
 	public boolean equals(Object o) {
 		if (o == null || !(o instanceof Store))
@@ -264,34 +270,20 @@ public class Store {
 	}
 
 	/**
-	 * Creates the state resulting from allocating a new object of the predefined
-	 * type and assigning it to the given variable.
+	 * Returns a free object of the given type, if there is one available and an
+	 * empty result otherwise.
+	 * 
+	 * @param type
+	 *            The type of the object to allocate.
 	 */
-	// public State assignNewObj(RefVar lvar) {
-	// Set<Obj> newStateObjects = new HashSet<>(this.objects);
-	// Map<Var, Val> newEnv = new HashMap<>(this.env);
-	// Obj newObj = new Obj(lvar.getType());
-	// newStateObjects.add(newObj);
-	// newEnv.put(lvar, newObj);
-	//
-	// State newState = new State(newStateObjects, newEnv, updateHeap(this.heap,
-	// lvar, newObj));
-	// return newState;
-	// }
-
-	/**
-	 * @param lvar
-	 * @param newObj
-	 * @returns the heap after assigning newObj to lvar
-	 */
-	static protected Map<Obj, Map<Field, Val>> updateHeap(Map<Obj, Map<Field, Val>> oldHeap, RefVar lvar, Obj newObj) {
-		Map<Obj, Map<Field, Val>> newHeap = new HashMap<>(oldHeap);
-		Map<Field, Val> newObjVals = new HashMap<>(lvar.getType().fields.size());
-		for (Field field : lvar.getType().fields) {
-			newObjVals.put(field, field.getDefaultVal());
+	public Optional<Obj> allocate(RefType type) {
+		for (Obj o : freeObjects) {
+			if (o.type == type) {
+				freeObjects.remove(o);
+				return Optional.of(o);
+			}
 		}
-		newHeap.put(newObj, newObjVals);
-		return newHeap;
+		return Optional.empty();
 	}
 
 	/**

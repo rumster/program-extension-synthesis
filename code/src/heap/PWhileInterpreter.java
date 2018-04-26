@@ -107,9 +107,8 @@ public class PWhileInterpreter extends PWhileVisitor {
 			state = Store.error("memory leak!");
 		}
 	}
-	
+
 	private void computeAssignStmt(AssignStmt n) {
-		//Node rhs = n.getRhs();
 		n.getRhs().accept(this);
 		if (state instanceof ErrorStore) {
 			return;
@@ -120,8 +119,7 @@ public class PWhileInterpreter extends PWhileVisitor {
 		if (lhs instanceof VarExpr) {
 			VarExpr lhsVar = (VarExpr) lhs;
 			state = state.assign(lhsVar.getVar(), rval);
-		}
-		else {
+		} else {
 			assert lhs instanceof DerefExpr;
 			DerefExpr lhsDeref = (DerefExpr) lhs;
 			lhsDeref.getLhs().accept(this);
@@ -133,7 +131,7 @@ public class PWhileInterpreter extends PWhileVisitor {
 				state = Store.error("illegal dereference of " + n.getLhs());
 				return;
 			}
-			state = state.assign(lobj, lhsDeref.getField(), rval);			
+			state = state.assign(lobj, lhsDeref.getField(), rval);
 		}
 	}
 
@@ -196,7 +194,12 @@ public class PWhileInterpreter extends PWhileVisitor {
 
 	@Override
 	public void visit(NewExpr n) {
-		assert false;
+		var allocResult = state.allocate(n.getType());
+		if (allocResult.isPresent()) {
+			resultVal = allocResult.get();
+		} else {
+			state = ErrorStore.error("Allocation error, out of " + n.getType().getName() + " objects!");
+		}
 	}
 
 	@Override

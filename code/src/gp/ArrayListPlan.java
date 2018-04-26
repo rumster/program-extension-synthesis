@@ -17,7 +17,8 @@ public class ArrayListPlan<StateType, ActionType> implements Plan<StateType, Act
 	public final ArrayList<StateType> states = new ArrayList<>();
 	public final ArrayList<ActionType> actions = new ArrayList<>();
 
-	public ArrayListPlan() {
+	public ArrayListPlan(StateType n) {
+		this.states.add(n);
 	}
 
 	public ArrayListPlan(Collection<StateType> states, Collection<ActionType> actions) {

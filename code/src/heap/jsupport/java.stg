@@ -16,10 +16,6 @@ if ($cond$) {
 $endif$
 >>
 
-Nonterminal(n) ::= <<
-[$n$]
->>
-
 WhileStmt(cond, body) ::= <<
 while ($cond$) {
   $body$

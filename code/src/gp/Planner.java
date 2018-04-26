@@ -33,7 +33,7 @@ public interface Planner<StateType, ActionType> extends Searcher<StateType, Acti
 
 	@Override
 	public default SearchResult<StateType> findState(StateType input, Predicate<StateType> goalTest) {
-		Plan<StateType, ActionType> plan = new ArrayListPlan<>();
+		Plan<StateType, ActionType> plan = new ArrayListPlan<>(input);
 		SearchResultType result = findPlan(input, goalTest, plan);
 		switch (result) {
 		case OK:

@@ -8,6 +8,7 @@ import bgu.cs.util.Union2;
 import gp.controlFlowGraph.CFG;
 import gp.controlFlowGraph.CFGGeneralizer;
 import gp.controlFlowGraph.CFGGeneralizer.Result;
+import heap.Store.ErrorStore;
 
 /**
  * Synthesizes a CFG from a list of input-output examples by using the given
@@ -61,7 +62,7 @@ public class NaiveSynthesizer<StateType, ActionType, ConditionType> {
 			}
 
 			logger.info("Planning for example " + example.name + "...");
-			Plan<StateType, ActionType> plan = new ArrayListPlan<>();
+			Plan<StateType, ActionType> plan = new ArrayListPlan<>(current);
 			for (int i = 1; i < example.steps.size(); ++i) {
 				boolean skipExample = false;
 				Union2<StateType, ActionType> step = example.steps.get(i);
@@ -91,7 +92,7 @@ public class NaiveSynthesizer<StateType, ActionType, ConditionType> {
 				} else {
 					ActionType action = step.getT2();
 					Optional<StateType> next = problem.apply(action, current);
-					if (next.isPresent()) {
+					if (next.isPresent() && !(next.get() instanceof ErrorStore)) {
 						current = next.get();
 						plan.append(action, current);
 					} else {
