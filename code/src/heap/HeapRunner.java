@@ -16,6 +16,7 @@ import gp.NaiveSynthesizer;
 import gp.Planner;
 import gp.controlFlowGraph.CFG;
 import gp.controlFlowGraph.CFGGeneralizer;
+import gp.controlFlowGraph.RPNIGeneralizer;
 import gp.controlFlowGraph.TMTI;
 
 /**
@@ -71,7 +72,7 @@ public abstract class HeapRunner {
 			debugger.printExamples(problem.examples);
 			synthesisTime.start();
 			Planner<Store, Stmt> planner = new AStar<Store, Stmt>(new BasicHeapTR(problem.domain));
-			CFGGeneralizer<Store, Stmt, BoolExpr> generalizer = new TMTI<Store, Stmt, BoolExpr>(debugger);
+			CFGGeneralizer<Store, Stmt, BoolExpr> generalizer = new RPNIGeneralizer(debugger, outputDirPath);
 			NaiveSynthesizer<Store, Stmt, BoolExpr> synthesizer = new NaiveSynthesizer<>(planner, generalizer, logger,
 					debugger);
 			CFG<Store, Stmt, BoolExpr> result = new CFG<>();

@@ -74,4 +74,9 @@ public class Example<StateType, ActionType> implements Iterable<Union2<StateType
 	public Iterator<Union2<StateType, ActionType>> iterator() {
 		return steps.iterator();
 	}
+
+	@Override
+	public String toString() {
+		return "Example []";
+	}
 }

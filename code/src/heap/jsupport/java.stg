@@ -30,7 +30,7 @@ SkipStmt() ::= <<
 // skip
 >>
 
-SequenceStmt(args) ::= <<
+Stmt(args) ::= <<
 $args; separator=" "$
 >>
 
@@ -88,6 +88,10 @@ $lhs$+$rhs$
 
 IntVar(name) ::= <<
 $name$
+>>
+
+VarExpr(var) ::= <<
+$var$
 >>
 
 RefVar(name) ::= <<

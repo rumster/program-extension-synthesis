@@ -41,7 +41,7 @@ public class Store {
 	 */
 	protected final Map<Obj, Map<Field, Val>> heap;
 
-	public List<Boolean> predicates = new ArrayList<>();
+	//public List<Boolean> predicates = new ArrayList<>();
 
 	public static Store error(String description) {
 		return new ErrorStore(description);

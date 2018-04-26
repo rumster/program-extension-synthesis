@@ -15,4 +15,6 @@ import java.util.List;
  */
 public abstract class ConditionInferencer<StateType, ConditionType> {
 	public abstract List<ConditionType> inferSeparators(List<Collection<StateType>> labelToStates);
+	
+	public abstract ConditionType inferSeparator(Collection<StateType> first, Collection<StateType> second);
 }

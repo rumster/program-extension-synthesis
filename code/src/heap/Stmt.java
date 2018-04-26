@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.List;
 
 import grammar.Node;
+import heap.jsupport.JavaRenderer;
 
 /**
  * A base class for PWhile statements.
@@ -49,5 +50,10 @@ public abstract class Stmt extends Node {
 	public Store apply(Store store) {
 		Store result = PWhileInterpreter.v.apply(this, store);
 		return result;
+	}
+	
+	@Override
+	public String toString() {
+		return JavaRenderer.render(this);
 	}
 }
