@@ -18,11 +18,11 @@ public class IfStmt extends Stmt {
 		return args.get(0);
 	}
 
-	public Node getThen() {
+	public Node getThenNode() {
 		return args.get(1);
 	}
 
-	public Node getElse() {
+	public Node getElseNode() {
 		return args.get(2);
 	}
 

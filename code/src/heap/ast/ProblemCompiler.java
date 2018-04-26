@@ -135,7 +135,7 @@ public class ProblemCompiler {
 			assert funAST == null : "Don't call this method twice!";
 			root.accept(this);
 			if (funAST == null) {
-				throw new SemanticError("Unable to find a function definition!");
+				throw new SemanticError("Unable to find a function definition", root);
 			}
 		}
 
@@ -172,19 +172,19 @@ public class ProblemCompiler {
 			Type type = nameToType.get(n.type);
 			if (type == IntType.v) {
 				IntVar var = new IntVar(n.name, role, out, n.readonly);
-				addVar(var);
+				addVar(var, n);
 			} else {
 				assert type instanceof RefType;
 				RefVar var = new RefVar(n.name, (RefType) type, role, out, n.readonly);
-				addVar(var);
+				addVar(var, n);
 			}
 		}
 
-		private void addVar(Var var) {
+		private void addVar(Var var, ASTVarDecl context) {
 			vars.add(var);
 			Var oldVar = nameToVar.put(var.name, var);
 			if (oldVar != null) {
-				throw new SemanticError("Variable " + var.name + " is defined in more than one context!");
+				throw new SemanticError("Variable " + var.name + " is defined in more than one context", context);
 			}
 		}
 	}
@@ -343,6 +343,9 @@ public class ProblemCompiler {
 			}
 
 			public void visit(ASTDerefExpr n) {
+				if (n.lhs == ASTNullExpr.v) {
+					throw new SemanticError("Semantic error: null cannot appear in a dereference expression!", n);
+				}
 				n.lhs.accept(this);
 				Expr lhsExpr = tmpExpr;
 				Type lhsType = n.lhs.type().get();
@@ -527,15 +530,15 @@ public class ProblemCompiler {
 				Var var = nameToVar.get(n.varName);
 				if (var == null) {
 					throw new SemanticError(
-							"Reference to undeclared variable " + n.varName + " as a reference to object " + n.val);
+							"Reference to undeclared variable " + n.varName + " as a reference to object " + n.val, n);
 				}
 				Type type = var.getType();
 				if (type instanceof RefType) {
 					RefType refType = (RefType) type;
-					updateType(n.val, refType);
+					updateType(n.val, refType, n);
 				} else {
 					throw new SemanticError("Non-reference variable " + var.name
-							+ " is used as a reference variable for object " + n.val);
+							+ " is used as a reference variable for object " + n.val, n);
 				}
 			}
 
@@ -545,20 +548,21 @@ public class ProblemCompiler {
 					Optional<Field> maybeField = objRefType.findField(n.fieldName);
 					if (!maybeField.isPresent()) {
 						throw new SemanticError(
-								"Field " + n.fieldName + " is not defined in type " + objRefType.getName());
+								"Field " + n.fieldName + " is not defined in type " + objRefType.getName(), n);
 					}
 					Field field = maybeField.get();
 					if (field instanceof RefField) {
 						RefField refField = (RefField) field;
-						updateType(n.val, refField.getDstType());
+						updateType(n.val, refField.getDstType(), n);
 
 					} else {
-						throw new SemanticError("Non-reference field " + n.fieldName + " is used as a reference field");
+						throw new SemanticError("Non-reference field " + n.fieldName + " is used as a reference field",
+								n);
 					}
 				}
 			}
 
-			private void updateType(String objName, RefType type) {
+			private void updateType(String objName, RefType type, AST context) {
 				if (objName == AST.NULL_VAL_NAME) {
 					return;
 				}
@@ -566,7 +570,7 @@ public class ProblemCompiler {
 				if (oldType == null) {
 					change = true;
 				} else if (oldType != type) {
-					throw new SemanticError("Attempt to re-define the type of object " + objName);
+					throw new SemanticError("Attempt to re-define the type of object " + objName, context);
 				}
 			}
 		}

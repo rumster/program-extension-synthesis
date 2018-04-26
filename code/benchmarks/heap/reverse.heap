@@ -7,7 +7,7 @@ reverse(mut head:SLL) -> (result:SLL) {
   var t:SLL
 
   example {
-    head==o0 && o0.n==o1 && o1.n==o2 && o2.n==null
+    [head==o0 && o0.n==o1 && o1.n==o2 && o2.n==null]
     -> result=null
     -> t=head.n    
     -> head.n=result
@@ -23,25 +23,22 @@ reverse(mut head:SLL) -> (result:SLL) {
     -> head=t
   }
 
-
- /*
   example {
-    head==o1 && o1.n==o2 && o2.n==null
-    -> result=null
+    [head==o1 && o1.n==o2 && o2.n==null]
+    -> result.n=null
     -> t=head.n 
   }
-  
+
   example {
-    head==o1 && o1.n==o2 && o2.n==null
-    -> o1.n==null
-    -> o2.n==o1 
-    -> result==o2 && o2.n==o1 && o1.n==null
+    [head==o1 && o1.n==o2 && o2.n==null]
+    -> [o1.n==null]
+    -> [o2.n==o1] 
+    -> [result==o2 && o2.n==o1 && o1.n==null]
   }
  
 
   example {
-    head==o1 && o1.n==o2 && o2.n==o3 && o3.n==o4 && o4.n==null
-    -> result==o4 && o4.n==o3 && o3.n==o2 && o2.n==o1 && o1.n==null
+    [head==o1 && o1.n==o2 && o2.n==o3 && o3.n==o4 && o4.n==null]
+    -> [result==o4 && o4.n==o3 && o3.n==o2 && o2.n==o1 && o1.n==null]
   }
-*/
 }

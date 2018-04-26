@@ -17,7 +17,6 @@ import gp.Planner;
 import gp.controlFlowGraph.CFG;
 import gp.controlFlowGraph.CFGGeneralizer;
 import gp.controlFlowGraph.RPNIGeneralizer;
-import gp.controlFlowGraph.TMTI;
 
 /**
  * Heap-manipulating program synthesis application.

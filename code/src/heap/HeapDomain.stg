@@ -49,12 +49,12 @@ SeqStmt(first, second) ::= <<
 $first$; $second$
 >>
 
-IfStmt(cond, then, else) ::= <<
+IfStmt(cond, thenStmt, elseStmt) ::= <<
 if ($cond$) {
-  $then$
+  $thenStmt$
 }
 else {
-  $else$
+  $elseStmt$
 }
 >>
 

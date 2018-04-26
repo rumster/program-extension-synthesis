@@ -137,58 +137,6 @@ public class PWhileInterpreter extends PWhileVisitor {
 		}
 	}
 
-	/**
-	 * Calculates and updates this store with the given assignment.
-	 */
-	private void oldComputeAssignStmt(AssignStmt n) {
-		Node lhs = n.getLhs();
-		Node rhs = n.getRhs();
-		if (lhs instanceof VarExpr) {
-			VarExpr lhsExpr = (VarExpr) lhs;
-			Var lhsVar = lhsExpr.getVar();
-			if (rhs instanceof Var) {
-				n.getRhs().accept(this);
-				if (state instanceof ErrorStore) {
-					return;
-				}
-				Val rval = resultVal;
-				state = state.assign(lhsVar, rval);
-			} else if (rhs instanceof DerefExpr) {
-				n.getRhs().accept(this);
-				if (state instanceof ErrorStore) {
-					return;
-				}
-				Val rval = resultVal;
-				state = state.assign(lhsVar, rval);
-			} else if (rhs instanceof NewExpr) {
-				throw new IllegalArgumentException("New expression is non-deterministic!");
-			} else if (rhs == NullExpr.v) {
-				state = state.assign(lhsVar, Obj.NULL);
-			} else {
-				assert false : "unexpected case!";
-			}
-		} else if (lhs instanceof DerefExpr) {
-			n.getRhs().accept(this);
-			if (state instanceof ErrorStore) {
-				return;
-			}
-			Val robj = resultVal;
-			DerefExpr accessPath = (DerefExpr) lhs;
-			accessPath.getLhs().accept(this);
-			Obj lobj = (Obj) resultVal;
-			if (state instanceof ErrorStore) {
-				return;
-			}
-			if (resultVal == Obj.NULL) {
-				state = Store.error("illegal dereference of " + n.getLhs());
-				return;
-			}
-			state = state.assign(lobj, accessPath.getField(), robj);
-		} else {
-			assert false : "unexpected case!";
-		}
-	}
-
 	@Override
 	public void visit(DerefExpr n) {
 		n.getLhs().accept(this);
@@ -241,9 +189,9 @@ public class PWhileInterpreter extends PWhileVisitor {
 			return;
 		}
 		if (resultCond)
-			n.getThen().accept(this);
-		else if (n.getElse() != null)
-			n.getElse().accept(this);
+			n.getThenNode().accept(this);
+		else if (n.getElseNode() != null)
+			n.getElseNode().accept(this);
 	}
 
 	@Override

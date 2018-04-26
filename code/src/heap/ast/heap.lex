@@ -12,6 +12,7 @@ package heap.ast;
 %public
 %type Token
 %line
+%column
 %scanerror LexicalError
 
 %{
@@ -54,7 +55,7 @@ TraditionalComment   = "/*" [^*] ~"*/" | "/*" "*"+ "/"
                     return new Token(HeapSym.INT_VAL, new Integer(yytext()), yyline, yycolumn);
                    }
                   catch (NumberFormatException e) {
-                    throw new LexicalError("Encountered an ill-formatted number: " + yytext() + " at " + yyline + ":" + yycolumn);
+                    throw new LexicalError("Encountered an ill-formatted number: " + yytext(), yyline, yycolumn);
                   } 
                 }
   ","  			{ return new Token(HeapSym.COMMA, yytext(), yyline, yycolumn); }
@@ -77,9 +78,11 @@ TraditionalComment   = "/*" [^*] ~"*/" | "/*" "*"+ "/"
   ")"  			{ return new Token(HeapSym.RP, yytext(), yyline, yycolumn); }
   "{"  			{ return new Token(HeapSym.LCB, yytext(), yyline, yycolumn); }
   "}"  			{ return new Token(HeapSym.RCB, yytext(), yyline, yycolumn); }
+  "["  			{ return new Token(HeapSym.LB, yytext(), yyline, yycolumn); }
+  "]"  			{ return new Token(HeapSym.RB, yytext(), yyline, yycolumn); }
 
   {EndOfLineComment}	{ }
   {TraditionalComment}	{ }
   [ \t\n\r] 	{ }
-  .   			{ throw new LexicalError("Encountered an illegal character: " + yytext() + " at " + yyline + ":" + yycolumn); }
+  .   			{ throw new LexicalError("Encountered an illegal character: " + yytext(), yyline, yycolumn); }
 }

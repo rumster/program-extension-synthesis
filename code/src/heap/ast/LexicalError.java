@@ -7,19 +7,19 @@ package heap.ast;
  */
 @SuppressWarnings("serial")
 public class LexicalError extends Exception {
-	protected int line;
-
 	/**
 	 * The format string of an error message.
 	 */
-	public static final String ERROR_MESSAGE = "Lexical error in line %d: %s!";
+	public static final String ERROR_MESSAGE = "Lexical error: %s at line %d:%d!";
 
-	public LexicalError(String message) {
-		super(message);
+	public LexicalError(String message, int line, int column) {
+		super(String.format(ERROR_MESSAGE, message, line + 1, column + 1));
 	}
 
-	public LexicalError(String message, int lineNumber) {
-		super(String.format(ERROR_MESSAGE, lineNumber, message));
-		this.line = lineNumber;
+	/**
+	 * This constructor is required to comply with JFlex.
+	 */
+	public LexicalError(String message) {
+		super(message);
 	}
 }

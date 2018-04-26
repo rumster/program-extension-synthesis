@@ -1,12 +1,5 @@
 package heap;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Random;
-
-import grammar.Grammar;
-import heap.Var.VarRole;
-
 /**
  * Used to Generate synthesis problems for singly-linked lists, now just
  * generates perfect traces for them.

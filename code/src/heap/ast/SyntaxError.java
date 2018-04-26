@@ -7,28 +7,16 @@ package heap.ast;
  */
 @SuppressWarnings("serial")
 public class SyntaxError extends Exception {
-	private int line;
-
 	/**
 	 * The format string of an error message.
 	 */
-	public static final String ERROR_MESSAGE = "Syntax error in line %d: %s!";
+	public static final String ERROR_MESSAGE = "Syntax error: %s at %d:%d!";
 
 	public SyntaxError(String message) {
 		super(message);
 	}
 
-	public SyntaxError(String message, int lineNumber) {
-		super(message);
-		this.line = lineNumber;
-	}
-
-	/**
-	 * Returns an error message using <code>ERROR_MESSAGE</code> as a format
-	 * string and <code>line</code> and <code>message</code> as the line number
-	 * and detailed error message, respectively.
-	 */
-	public String formatErrorMessage() {
-		return String.format(ERROR_MESSAGE, line, getMessage());
+	public SyntaxError(String message, int line, int column) {
+		super(String.format(ERROR_MESSAGE, message, line + 1, column + 1));
 	}
 }

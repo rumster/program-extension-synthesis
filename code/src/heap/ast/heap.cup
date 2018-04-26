@@ -28,13 +28,13 @@ parser code {:
   @Override	
   public void report_fatal_error(String message, Object info) throws SyntaxError {
     Token token = (Token) info;
-    throw new SyntaxError("Syntax error at " + token.line + ":" + token.column + " on " + token.text);
+    throw new SyntaxError("on " + token.text, token.line, token.column);
   }
 :}
 
 terminal TYPE, VAR, NULL, EXAMPLE, MUT, GHOST;
 terminal IF, WHILE, ELSE;
-terminal COMMA, SEMI, DOT, ASSIGN, COLON, ARROW, LP, RP, LCB, RCB;
+terminal COMMA, SEMI, DOT, ASSIGN, COLON, ARROW, LP, RP, LB, RB, LCB, RCB;
 terminal EQ, LT, AND, OR, PLUS, MINUS, TIMES, DIVIDE;
 		
 terminal Integer INT_VAL; 
@@ -268,7 +268,7 @@ expr ::= ID:varName
 	{: RESULT = new ASTDerefExpr(lhs, field); :}
 ;
 
-store ::= heapElems:elems
+store ::= LB heapElems:elems RB
 	{: RESULT = new ASTStore(elems); :}
 ;
 
