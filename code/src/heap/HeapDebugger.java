@@ -40,14 +40,18 @@ public class HeapDebugger extends GPDebugger<Store, Stmt> {
 				Union2<? extends Store, ? extends Stmt> step = example.step(stepIndex);
 				if (step.isT1()) {
 					Store stage = step.getT1();
-					String storeImageFileName = outputDirPath + File.separator + "example_" + example.id + "_"
+					String storeImageFileName = "example_" + example.id + "_"
 							+ stepIndex + "." + STATE_IMAGE_FILE_POSTFIX;
-					StoreUtils.printStore(stage, storeImageFileName, examplesLogger);
-					indexedExampleTemplate.add("imageFileNames", storeImageFileName);
-					String stepName = stepIndex + "";
-					indexedExampleTemplate.add("stageNames", stepName);
+					String storeImageAbsoluteFileName = outputDirPath + File.separator + storeImageFileName;
+					StoreUtils.printStore(stage, storeImageAbsoluteFileName, examplesLogger);
+					ST imageST = heapTemplates.load("image");
+					imageST.add("name", storeImageFileName);
+					indexedExampleTemplate.add("step", imageST.render());
 				} else {
-					// TODO: print statement.
+					Stmt stmt = step.getT2();
+					ST codeST = heapTemplates.load("code");
+					codeST.add("txt", Renderer.render(stmt));
+					indexedExampleTemplate.add("step", codeST.render());
 				}
 			}
 			indexedExampleTemplate.add("id", example.id);

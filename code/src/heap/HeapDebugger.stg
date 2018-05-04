@@ -1,15 +1,18 @@
-indexedExample(imageFileNames, stageNames, id) ::= <<
+indexedExample(step, id) ::= <<
 <div id="example$id$" style="display:none;">
 <table>
   <caption>Example $id$</caption>
-  <tr>
-    $stageNames:{it|<th>Stage $it$</th>}; separator="\n"$
-  </tr>
-  <tr>
-    $imageFileNames:{it|<td><img src="$it$"></td>}; separator="\n"$
-  </tr>
+  $step:{it|<tr><td>$it$</td></tr>}; separator="\n"$
 </table>
 </div>
+>>
+
+image(name) ::= <<
+<img src="$name$">
+>>
+
+code(txt) ::= <<
+<code>$txt$</code>
 >>
 
 examples(indexedExample, indices) ::= <<
@@ -114,7 +117,7 @@ td, tr {
 <TABLE>
 <TR>
 <TH>Plan</TH>
-<TH align="left">Store</TH>
+<TH align="center">Store</TH>
 </TR>
 <TR>
 <TD>
@@ -138,7 +141,7 @@ choose('store_0');
 >>
 
 indexedStoreDiv(filename, index) ::= <<
-<div id="store_$index$" style="display:none;">
+<div id="store_$index$" style="display:none; border:solid;">
 <img src="$filename$">
 </div>
 >>

@@ -99,7 +99,7 @@ public class StoreUtils {
 				template.add("refVarNodes", var.name);
 			} else {
 				if (store.isInitialized(var)) {
-					template.add("nonRefVarVals", new Pair<String, String>(var.name, var.name + "=" + store.eval(var)));
+					template.add("nonRefVarVals", new Pair<String, String>(var.name, var.name + "==" + store.eval(var)));
 				}
 			}
 		}

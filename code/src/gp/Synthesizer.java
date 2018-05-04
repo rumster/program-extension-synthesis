@@ -1,7 +1,6 @@
 package gp;
 
 import java.util.ArrayList;
-import java.util.Optional;
 import java.util.logging.Logger;
 
 import gp.Domain.Guard;
@@ -27,7 +26,7 @@ import gp.planning.Planner;
  * @param <Guard>
  *            The type of condition in the program.
  */
-public class IncrementalSynthesizer<ValueType extends Value, UpdateType extends Update, GuardType extends Guard> {
+public class Synthesizer<ValueType extends Value, UpdateType extends Update, GuardType extends Guard> {
 	private final Planner<ValueType, UpdateType> planner;
 
 	private final CFGGeneralizer<ValueType, UpdateType, GuardType> cfgGeneralizer;
@@ -36,7 +35,7 @@ public class IncrementalSynthesizer<ValueType extends Value, UpdateType extends 
 
 	private final Logger logger;
 
-	public IncrementalSynthesizer(Planner<ValueType, UpdateType> planner,
+	public Synthesizer(Planner<ValueType, UpdateType> planner,
 			CFGGeneralizer<ValueType, UpdateType, GuardType> cfgGeneralizer, Logger logger,
 			GPDebugger<ValueType, UpdateType> debugger) {
 		assert planner != null && cfgGeneralizer != null;
@@ -48,12 +47,11 @@ public class IncrementalSynthesizer<ValueType extends Value, UpdateType extends 
 
 	public boolean synthesize(SynthesisProblem<ValueType, UpdateType, GuardType> problem,
 			CFG<ValueType, UpdateType, GuardType> result) {
-		ArrayList<Plan<ValueType, UpdateType>> plans = new ArrayList<>();
+		var plans = new ArrayList<Plan<ValueType, UpdateType>>();
 		for (Example<ValueType, UpdateType> example : problem.examples) {
-			Optional<Plan<ValueType, UpdateType>> optPlan = PlanningUtils.exampleToPlan(problem.domain(), planner,
-					example, logger);
+			var optPlan = PlanningUtils.exampleToPlan(problem.domain(), planner, example, logger);
 			if (optPlan.isPresent()) {
-				Plan<ValueType, UpdateType> plan = optPlan.get();
+				var plan = optPlan.get();
 				debugger.printPlan(plan, example.id);
 				logger.info("Found a plan for example " + example.name);
 				plans.add(plan);
@@ -62,7 +60,7 @@ public class IncrementalSynthesizer<ValueType extends Value, UpdateType extends 
 			}
 		}
 		logger.info("Generalizing " + plans.size() + " plans...");
-		Result generalizationResult = cfgGeneralizer.generalize(plans, result);
+		var generalizationResult = cfgGeneralizer.generalize(plans, result);
 		switch (generalizationResult) {
 		case OK:
 			logger.info("Generalization succeeded!");

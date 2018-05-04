@@ -11,12 +11,10 @@ import org.apache.commons.configuration2.builder.fluent.Configurations;
 import org.apache.commons.configuration2.ex.ConfigurationException;
 
 import bgu.cs.util.Timer;
-import gp.IncrementalSynthesizer;
+import gp.Synthesizer;
 import gp.controlFlowGraph.CFG;
-import gp.controlFlowGraph.CFGGeneralizer;
 import gp.controlFlowGraph.RPNIGeneralizer;
 import gp.planning.AStar;
-import gp.planning.Planner;
 
 /**
  * Heap-manipulating program synthesis application.
@@ -47,11 +45,11 @@ public abstract class HeapRunner {
 	 * Starts the ball rolling.
 	 */
 	public void run() {
-		Configurations configs = new Configurations();
+		var configs = new Configurations();
 		try {
 			config = configs.properties(new File(PROPERTIES_FILE_NAME));
 			outputDirPath = config.getString(OUTPUT_DIR_KEY, "./");
-			File dir = new File(outputDirPath);
+			var dir = new File(outputDirPath);
 			outputDirPath = dir.getAbsolutePath();
 			dir.mkdirs();
 		} catch (ConfigurationException cex) {
@@ -64,16 +62,16 @@ public abstract class HeapRunner {
 		synthesisTime.reset();
 		planningTime.reset();
 		try {
-			HeapProblem problem = genProblem();
+			var problem = genProblem();
 			debugger = new HeapDebugger(logger, problem.name, outputDirPath);
 			debugger.printLink(logFilePath, "Events log");
 			debugger.printCodeFile("problem.txt", problem.toString(), "Specification");
 			debugger.printExamples(problem.examples);
 			synthesisTime.start();
-			Planner<Store, Stmt> planner = new AStar<Store, Stmt>(new BasicHeapTR(problem.domain));
-			CFGGeneralizer<Store, Stmt, BoolExpr> generalizer = new RPNIGeneralizer(debugger, outputDirPath);
-			var synthesizer = new IncrementalSynthesizer<Store, Stmt, BoolExpr>(planner, generalizer, logger, debugger);
-			CFG<Store, Stmt, BoolExpr> result = new CFG<>();
+			var planner = new AStar<Store, Stmt>(new BasicHeapTR(problem.domain));
+			var generalizer = new RPNIGeneralizer(debugger, outputDirPath);
+			var synthesizer = new Synthesizer<Store, Stmt, BoolExpr>(planner, generalizer, logger, debugger);
+			var result = new CFG<Store, Stmt, BoolExpr>();
 			boolean ok = synthesizer.synthesize(problem, result);
 			if (!ok) {
 				logger.info("fail!");
@@ -96,8 +94,8 @@ public abstract class HeapRunner {
 	}
 
 	private void setOutputDirectory() {
-		String outputDirProp = config.getString("outputDir", "output");
-		File outputDirFile = new File(outputDirProp);
+		var outputDirProp = config.getString("outputDir", "output");
+		var outputDirFile = new File(outputDirProp);
 		outputDirFile.mkdir();
 		String outputDirPath;
 		try {
