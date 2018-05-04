@@ -11,12 +11,12 @@ import org.apache.commons.configuration2.builder.fluent.Configurations;
 import org.apache.commons.configuration2.ex.ConfigurationException;
 
 import bgu.cs.util.Timer;
-import gp.AStar;
-import gp.NaiveSynthesizer;
-import gp.Planner;
+import gp.IncrementalSynthesizer;
 import gp.controlFlowGraph.CFG;
 import gp.controlFlowGraph.CFGGeneralizer;
 import gp.controlFlowGraph.RPNIGeneralizer;
+import gp.planning.AStar;
+import gp.planning.Planner;
 
 /**
  * Heap-manipulating program synthesis application.
@@ -72,8 +72,7 @@ public abstract class HeapRunner {
 			synthesisTime.start();
 			Planner<Store, Stmt> planner = new AStar<Store, Stmt>(new BasicHeapTR(problem.domain));
 			CFGGeneralizer<Store, Stmt, BoolExpr> generalizer = new RPNIGeneralizer(debugger, outputDirPath);
-			NaiveSynthesizer<Store, Stmt, BoolExpr> synthesizer = new NaiveSynthesizer<>(planner, generalizer, logger,
-					debugger);
+			var synthesizer = new IncrementalSynthesizer<Store, Stmt, BoolExpr>(planner, generalizer, logger, debugger);
 			CFG<Store, Stmt, BoolExpr> result = new CFG<>();
 			boolean ok = synthesizer.synthesize(problem, result);
 			if (!ok) {

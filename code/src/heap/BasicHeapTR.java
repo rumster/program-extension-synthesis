@@ -5,7 +5,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import gp.TR;
+import gp.planning.TR;
 
 /**
  * A transition relation for basic (3-address code) statements.
@@ -39,8 +39,8 @@ public class BasicHeapTR implements TR<Store, Stmt> {
 	}
 
 	@Override
-	public Collection<Store> apply(Store state, Stmt stmt) {
-		Store result = stmt.apply(state);
+	public Collection<Store> apply(Store store, Stmt stmt) {
+		Store result = PWhileInterpreter.v.apply(stmt, store);
 		return List.of(result);
 	}
 }

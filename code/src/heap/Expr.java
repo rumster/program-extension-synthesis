@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.List;
 
 import grammar.Node;
-import heap.jsupport.JavaRenderer;
 
 /**
  * The base class of PWhile expressions.
@@ -30,10 +29,5 @@ public abstract class Expr extends Node {
 		for (Node n : nodes) {
 			args.add(n);
 		}
-	}
-	
-	@Override
-	public String toString() {
-		return JavaRenderer.render(this);
 	}
 }

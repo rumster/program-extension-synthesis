@@ -8,6 +8,9 @@ import grammar.*;
  * @author romanm
  */
 public class PWhileVisitor implements Visitor {
+	public void visit(True n) {
+	}
+
 	public void visit(AndExpr n) {
 	}
 
@@ -50,7 +53,7 @@ public class PWhileVisitor implements Visitor {
 	public void visit(IntVal n) {
 	}
 
-	public void visit(IntBinopExpr n) {
+	public void visit(IntBinOpExpr n) {
 	}
 
 	public void visit(RefField n) {

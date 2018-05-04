@@ -4,15 +4,15 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import gp.Domain.Update;
 import grammar.Node;
-import heap.jsupport.JavaRenderer;
 
 /**
  * A base class for PWhile statements.
  * 
  * @author romanm
  */
-public abstract class Stmt extends Node {
+public abstract class Stmt extends Node implements Update {
 	protected final List<Node> args = new ArrayList<>(2);
 
 	@Override
@@ -44,16 +44,7 @@ public abstract class Stmt extends Node {
 	 * Tests whether this statement can be applied to the given state.
 	 */
 	public boolean enabled(Store store) {
-		return !(apply(store) instanceof Store.ErrorStore);
-	}
-
-	public Store apply(Store store) {
 		Store result = PWhileInterpreter.v.apply(this, store);
-		return result;
-	}
-	
-	@Override
-	public String toString() {
-		return JavaRenderer.render(this);
+		return !(result instanceof Store.ErrorStore);
 	}
 }

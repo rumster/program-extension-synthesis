@@ -1,4 +1,4 @@
-package gp;
+package gp.planning;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.function.Predicate;
 
 import bgu.cs.util.BucketHeap;
+import gp.ArrayListPlan;
+import gp.Plan;
 
 /**
  * An implementation of the A* search algorithm.

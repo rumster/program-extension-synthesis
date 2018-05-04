@@ -10,10 +10,10 @@ import grammar.Visitor;
  * 
  * @author romanm
  */
-public class IntBinopExpr extends Expr {
+public class IntBinOpExpr extends Expr {
 	public final IntBinOp op;
 	
-	public IntBinopExpr(IntBinOp op, Node lhs, Node rhs) {
+	public IntBinOpExpr(IntBinOp op, Node lhs, Node rhs) {
 		super(lhs, rhs);
 		this.op = op;
 	}
@@ -32,14 +32,14 @@ public class IntBinopExpr extends Expr {
 		whileVisitor.visit(this);
 	}
 
-	protected IntBinopExpr(IntBinOp op, List<Node> args) {
+	protected IntBinOpExpr(IntBinOp op, List<Node> args) {
 		super(args);
 		this.op = op;
 		assertNumOfArgs(2);
 	}
 
 	@Override
-	public IntBinopExpr clone(List<Node> args) {
-		return new IntBinopExpr(op, args);
+	public IntBinOpExpr clone(List<Node> args) {
+		return new IntBinOpExpr(op, args);
 	}
 }

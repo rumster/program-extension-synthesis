@@ -1,5 +1,7 @@
 package heap;
 
+import gp.Domain.Guard;
+
 import java.util.List;
 
 import grammar.Node;
@@ -9,14 +11,7 @@ import grammar.Node;
  * 
  * @author romanm
  */
-public abstract class BoolExpr extends Expr {
-	/**
-	 * Tests whether the condition holds for the given store.
-	 */
-	public boolean satisfies(Store s) {
-		throw new UnsupportedOperationException("Change this to a call to PWhileInterpreter!");
-	}
-
+public abstract class BoolExpr extends Expr implements Guard {
 	protected BoolExpr(List<Node> nodes) {
 		super(nodes);
 	}

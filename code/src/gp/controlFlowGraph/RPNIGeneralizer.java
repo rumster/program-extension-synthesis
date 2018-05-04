@@ -10,11 +10,11 @@ import java.util.TreeSet;
 
 import bgu.cs.util.graph.MultiGraph;
 import gp.GPDebugger;
-import gp.InterpolatingConditionInferencer;
 import gp.Plan;
 import gp.controlFlowGraph.CFG.ConditionalAction;
 import gp.controlFlowGraph.CFG.Node;
 import gp.separation.ConditionInferencer;
+import gp.separation.InterpolatingConditionInferencer;
 import grammar.CostBadConditions;
 import grammar.CostFun;
 import grammar.CostSize2;
@@ -25,14 +25,14 @@ import heap.Store;
 
 public class RPNIGeneralizer 
 		extends CFGGeneralizer<Store, Stmt, BoolExpr> {
-	protected final GPDebugger<Store, Stmt, BoolExpr> debugger;
+	protected final GPDebugger debugger;
 	
 	private CFG<Store, Stmt, BoolExpr> cfg;
 	private ConditionInferencer<Store, BoolExpr> conditionInferencer;
 	
 	private static CostFun cost = new CostSum(new CostBadConditions(), new CostSize2());
 	
-	public RPNIGeneralizer(GPDebugger<Store, Stmt, BoolExpr> debugger, String outputDir) {
+	public RPNIGeneralizer(GPDebugger debugger, String outputDir) {
 		this.debugger = debugger;
 		cfg = new CFG<>();
 		conditionInferencer = new InterpolatingConditionInferencer(outputDir);

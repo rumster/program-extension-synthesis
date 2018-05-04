@@ -18,7 +18,7 @@ import heap.Field;
 import heap.HeapDomain;
 import heap.HeapProblem;
 import heap.IfStmt;
-import heap.IntBinopExpr;
+import heap.IntBinOpExpr;
 import heap.IntField;
 import heap.IntType;
 import heap.IntVal;
@@ -334,7 +334,7 @@ public class ProblemCompiler {
 							"Type error: attempt to apply integer-typed operation to non-integer operands!", n);
 				}
 				n.setType(IntType.v);
-				tmpExpr = new IntBinopExpr(n.op, lhsExpr, rhsExpr);
+				tmpExpr = new IntBinOpExpr(n.op, lhsExpr, rhsExpr);
 			}
 
 			public void visit(ASTIntValExpr n) {

@@ -1,4 +1,4 @@
-package gp;
+package gp.separation;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import gp.separation.ConditionInferencer;
 import grammar.CachedLanguageIterator;
 import grammar.CostBadConditions;
 import grammar.CostFun;

@@ -1,6 +1,9 @@
-package gp;
+package gp.planning;
 
 import java.util.function.Predicate;
+
+import gp.ArrayListPlan;
+import gp.Plan;
 
 /**
  * An algorithm that finds a path of actions from the given input state to a

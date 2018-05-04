@@ -1,4 +1,4 @@
-package gp;
+package gp.planning;
 
 import java.util.ArrayList;
 import java.util.Collection;

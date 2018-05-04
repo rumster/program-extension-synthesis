@@ -10,8 +10,8 @@ import bgu.cs.util.FileUtils;
 import bgu.cs.util.Pair;
 import bgu.cs.util.STGLoader;
 import bgu.cs.util.Union2;
-import gp.GPDebugger;
 import gp.Example;
+import gp.GPDebugger;
 import gp.Plan;
 
 /**
@@ -19,7 +19,7 @@ import gp.Plan;
  * 
  * @author romanm
  */
-public class HeapDebugger extends GPDebugger<Store, Stmt, BoolExpr> {
+public class HeapDebugger extends GPDebugger<Store, Stmt> {
 	public static String STATE_IMAGE_FILE_POSTFIX = "svg";
 
 	public boolean logDetailedExampleRendering = false;
@@ -37,7 +37,7 @@ public class HeapDebugger extends GPDebugger<Store, Stmt, BoolExpr> {
 		for (Example<Store, Stmt> example : examples) {
 			ST indexedExampleTemplate = heapTemplates.load("indexedExample");
 			for (int stepIndex = 0; stepIndex < example.size(); ++stepIndex) {
-				Union2<Store, Stmt> step = example.step(stepIndex);
+				Union2<? extends Store, ? extends Stmt> step = example.step(stepIndex);
 				if (step.isT1()) {
 					Store stage = step.getT1();
 					String storeImageFileName = outputDirPath + File.separator + "example_" + example.id + "_"
@@ -46,8 +46,7 @@ public class HeapDebugger extends GPDebugger<Store, Stmt, BoolExpr> {
 					indexedExampleTemplate.add("imageFileNames", storeImageFileName);
 					String stepName = stepIndex + "";
 					indexedExampleTemplate.add("stageNames", stepName);
-				}
-				else {
+				} else {
 					// TODO: print statement.
 				}
 			}
@@ -64,8 +63,9 @@ public class HeapDebugger extends GPDebugger<Store, Stmt, BoolExpr> {
 
 	@Override
 	public void printPlan(Plan<Store, Stmt> plan, int planIndex) {
-//		if (plan.isEmpty())
-//			throw new UnsupportedOperationException("Missing implementation for visualizing empty plans!");
+		// if (plan.isEmpty())
+		// throw new UnsupportedOperationException("Missing implementation for
+		// visualizing empty plans!");
 
 		logger.info("Visualizing plan..." + planIndex);
 		ST planTemplate = heapTemplates.load("plan");
@@ -86,7 +86,8 @@ public class HeapDebugger extends GPDebugger<Store, Stmt, BoolExpr> {
 					+ STATE_IMAGE_FILE_POSTFIX;
 			StoreUtils.printStore(store, filename, logger);
 			planTemplate.add("indexedStore", new Pair<String, String>(filename, "" + storeIndex));
-			planTemplate.add("indexedAction", new Pair<String, String>(action.toString(), "" + storeIndex));
+			String actionStr = Renderer.render(action);
+			planTemplate.add("indexedAction", new Pair<String, String>(actionStr, "" + storeIndex));
 		}
 		String planFileName = outputDirPath + File.separator + "Plan" + planIndex + ".html";
 		FileUtils.stringToFile(planTemplate.render(), planFileName);

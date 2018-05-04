@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import org.stringtemplate.v4.ST;
@@ -44,8 +46,50 @@ public class HeapDomain implements Domain<Store, Stmt, BoolExpr> {
 	}
 
 	@Override
+	public Guard getTrue() {
+		return True.v;
+	}
+
+	@Override
 	public boolean test(BoolExpr c, Store state) {
-		throw new UnsupportedOperationException("unimplemented");
+		Boolean result = PWhileInterpreter.v.test(c, state);
+		return result != null && result.booleanValue();
+	}
+	
+
+	@Override
+	public boolean match(Store first, Store second) {
+		for (Map.Entry<Var, Val> entry : second.getEnvMap().entrySet()) {
+			Var var = entry.getKey();
+			Val val = entry.getValue();
+			if (!first.isInitialized(var) || !first.eval(var).equals(val)) {
+				return false;
+			}
+		}
+
+		for (Obj obj : second.getObjects()) {
+			for (Map.Entry<Field, Val> entry : second.geFields(obj).entrySet()) {
+				Field field = entry.getKey();
+				Val val = entry.getValue();
+				if (!first.isInitialized(obj, field) || !first.eval(obj, field).equals(val)) {
+					return false;
+				}
+			}
+		}
+
+		// TODO: handle free objects.
+		return true;
+	}	
+
+	@Override
+	public Optional<Store> apply(Stmt stmt, Store store) {
+		Collection<Store> succs = BasicHeapTR.applier.apply(store, stmt);
+		if (succs.size() == 1) {
+			Store next = succs.iterator().next();
+			return Optional.of(next);
+		} else {
+			return Optional.empty();
+		}
 	}
 
 	public static HeapDomain fromVarsAndTypes(Collection<Var> vars, Collection<RefType> refTypes) {

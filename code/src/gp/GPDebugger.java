@@ -3,11 +3,13 @@ package gp;
 import java.util.logging.Logger;
 
 import bgu.cs.util.HTMLPrinter;
+import gp.Domain.Update;
+import gp.Domain.Value;
 
 /**
  * A debugger for generalized planning.
  */
-public abstract class GPDebugger<StateType, ActionType, ConditionType> extends HTMLPrinter {
+public abstract class GPDebugger<ValueType extends Value, UpdateType extends Update> extends HTMLPrinter {
 	/**
 	 * Constructs a debugger for generalized planning tasks.
 	 * 
@@ -25,5 +27,5 @@ public abstract class GPDebugger<StateType, ActionType, ConditionType> extends H
 	/**
 	 * Prints a plan.
 	 */
-	public abstract void printPlan(Plan<StateType, ActionType> plan, int planIndex);
+	public abstract void printPlan(Plan<ValueType, UpdateType> plan, int planIndex);
 }

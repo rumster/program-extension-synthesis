@@ -1,4 +1,4 @@
-package gp;
+package gp.separation;
 
 import java.io.File;
 import java.util.ArrayList;

@@ -1,5 +1,7 @@
 package heap;
 
+import gp.Domain.Value;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -19,7 +21,7 @@ import grammar.Node;
  * 
  * @author romanm
  */
-public class Store {
+public class Store implements Value {
 	public static final STGLoader templates = new STGLoader(Store.class, "Store");
 
 	/**

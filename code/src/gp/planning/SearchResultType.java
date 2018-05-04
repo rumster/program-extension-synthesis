@@ -1,4 +1,4 @@
-package gp;
+package gp.planning;
 
 /**
  * A general indication on the result of a search.

@@ -2,8 +2,10 @@ package gp;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
+import gp.Domain.Guard;
+import gp.Domain.Update;
+import gp.Domain.Value;
 import gp.controlFlowGraph.CFG;
 
 /**
@@ -11,14 +13,14 @@ import gp.controlFlowGraph.CFG;
  * 
  * @author romanm
  *
- * @param <StateType>
+ * @param <Value>
  *            The type of states.
- * @param <ActionType>
+ * @param <Update>
  *            The type of actions.
- * @param <ConditionType>
+ * @param <Guard>
  *            The type of conditions.
  */
-public abstract class SynthesisProblem<StateType, ActionType, ConditionType> {
+public abstract class SynthesisProblem<ValueType extends Value, UpdateType extends Update, GuardType extends Guard> {
 	public final String name;
 
 	public static enum SpecTestResult {
@@ -41,36 +43,23 @@ public abstract class SynthesisProblem<StateType, ActionType, ConditionType> {
 	/**
 	 * Returns the problem domain for this synthesis problem.
 	 */
-	public abstract Domain<StateType, ActionType, ConditionType> domain();
+	public abstract Domain<ValueType, UpdateType, GuardType> domain();
 
 	public SynthesisProblem(String name) {
 		this.name = name;
 	}
 
-	/**
-	 * Tests whether the first state matches the second, where the second state may
-	 * be a partial state, serving as a (conjunctive) condition for the first state.
-	 */
-	public abstract boolean match(StateType first, StateType second);
+	public List<Example<ValueType, UpdateType>> examples = new ArrayList<>();
 
-	/**
-	 * Applies a deterministic action to a state and returns the result. If the
-	 * action is not applicable or there is no single result, an empty result is
-	 * returned.
-	 */
-	public abstract Optional<StateType> apply(ActionType action, StateType state);
-
-	public List<Example<StateType, ActionType>> examples = new ArrayList<>();
-
-	public void addExample(Example<StateType, ActionType> example) {
+	public void addExample(Example<ValueType, UpdateType> example) {
 		this.examples.add(example);
 	}
 
-	public void addExample(StateType input, StateType output) {
+	public void addExample(ValueType input, ValueType output) {
 		this.examples.add(new Example<>(input, output, examples.size()));
 	}
 
-	public boolean test(CFG<StateType, ActionType, ConditionType> prog) {
+	public boolean test(CFG<ValueType, UpdateType, GuardType> prog) {
 		throw new UnsupportedOperationException("unimplemented!");
 		// for (Pair<State, State> example : problem.examples) {
 		// State input = example.first;

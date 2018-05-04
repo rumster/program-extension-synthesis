@@ -74,6 +74,11 @@ public class PWhileInterpreter extends PWhileVisitor {
 			return;
 		state = null;
 	}
+	
+	@Override
+	public void visit(True n) {
+		resultCond = true;
+	}
 
 	@Override
 	public void visit(AndExpr n) {
@@ -262,7 +267,7 @@ public class PWhileInterpreter extends PWhileVisitor {
 	}
 
 	@Override
-	public void visit(IntBinopExpr n) {
+	public void visit(IntBinOpExpr n) {
 		n.getLhs().accept(this);
 		if (state instanceof ErrorStore)
 			return;

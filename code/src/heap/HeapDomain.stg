@@ -36,14 +36,25 @@ $if(is_readonly)$$else$mut $endif$$name$
 
 NullExpr() ::= <<null>>
 
+ValExpr(val) ::= <<$val$>>
+
+IntVal(num) ::= <<$num$>>
+
 VarExpr(raw_var) ::= <<$raw_var.name$>>
+
+Var(name) ::= <<$name$>>
 
 NewExpr(raw_type) ::= <<new $raw_type.name$()>>
 
 DerefExpr(lhs, field) ::= <<$lhs$.$field$>>
 
+IntBinOpExpr(lhs, op, rhs) ::= <<$lhs$ $op$ $rhs$>>
 
-AssignStmt(lhs, rhs) ::= <<$lhs$=$rhs$>>
+OrExpr(lhs, rhs) ::= <<$lhs$ || $rhs$>>
+AndExpr(lhs, rhs) ::= <<$lhs$ && $rhs$>>
+NotExpr(sub ::= <<!$sub$>>
+
+AssignStmt(lhs, rhs) ::= <<$lhs$ = $rhs$>>
 
 SeqStmt(first, second) ::= <<
 $first$; $second$

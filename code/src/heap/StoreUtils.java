@@ -59,8 +59,8 @@ public class StoreUtils {
 	/**
 	 * Renders the given store into an image file with the given base name.
 	 */
-	public static void printStore(Store state, String filename, Logger logger) {
-		String dotStr = storeToDOT(state);
+	public static void printStore(Store store, String filename, Logger logger) {
+		String dotStr = storeToDOT(store);
 		GraphizVisualizer.renderToFile(dotStr, FileUtils.base(filename), FileUtils.suffix(filename), logger);
 	}
 
@@ -68,22 +68,22 @@ public class StoreUtils {
 	 * Returns a representation of the given store in the DOT (graph language)
 	 * format.
 	 */
-	public static String storeToDOT(Store state) {
+	public static String storeToDOT(Store store) {
 		ST template = templates.load("StoreDOT");
 
 		// Assign objects names and render their non-reference values.
 		Map<Obj, String> objToDotNodeName = new HashMap<>();
 		objToDotNodeName.put(Obj.NULL, "null");
 		int i = 0;
-		for (Obj o : state.getObjects()) {
+		for (Obj o : store.getObjects()) {
 			String objName = getObjName(o);
 			String dotNodeName = "N" + i;
 			objToDotNodeName.put(o, dotNodeName);
 			ST objContent = templates.load("objectContent");
 			objContent.add("name", objName);
 			for (Field f : o.type.fields) {
-				if (state.isInitialized(o, f) && !(f instanceof RefField)) {
-					objContent.add("vals", f.name + "=" + state.eval(o, f).toString());
+				if (store.isInitialized(o, f) && !(f instanceof RefField)) {
+					objContent.add("vals", f.name + "=" + store.eval(o, f).toString());
 				}
 			}
 			template.add("objects", new Pair<String, String>(dotNodeName, objContent.render()));
@@ -92,21 +92,21 @@ public class StoreUtils {
 
 		// Assign a node to each variable.
 		Map<RefVar, String> refVarToDotNodeName = new HashMap<>();
-		for (Var var : state.getEnvMap().keySet()) {
+		for (Var var : store.getEnvMap().keySet()) {
 			if (var instanceof RefVar) {
 				RefVar refVar = (RefVar) var;
 				refVarToDotNodeName.put(refVar, var.name);
 				template.add("refVarNodes", var.name);
 			} else {
-				if (state.isInitialized(var)) {
-					template.add("nonRefVarVals", new Pair<String, String>(var.name, var.name + "=" + state.eval(var)));
+				if (store.isInitialized(var)) {
+					template.add("nonRefVarVals", new Pair<String, String>(var.name, var.name + "=" + store.eval(var)));
 				}
 			}
 		}
 
 		// Add arrows from reference variables to objects.
-		state.getEnvMap().forEach((var, val) -> {
-			if (state.isInitialized(var) && var instanceof RefVar) {
+		store.getEnvMap().forEach((var, val) -> {
+			if (store.isInitialized(var) && var instanceof RefVar) {
 				RefVar refVar = (RefVar) var;
 				Obj o = (Obj) val;
 				template.add("refVarVals",
@@ -115,12 +115,12 @@ public class StoreUtils {
 		});
 
 		// Add arrows for reference fields.
-		for (Obj src : state.getObjects()) {
+		for (Obj src : store.getObjects()) {
 			String srcName = objToDotNodeName.get(src);
 			for (Field f : src.type.fields) {
-				if (state.isInitialized(src, f) && f instanceof RefField) {
+				if (store.isInitialized(src, f) && f instanceof RefField) {
 					RefField refField = (RefField) f;
-					Obj dst = state.eval(src, refField);
+					Obj dst = store.eval(src, refField);
 					String dstName = objToDotNodeName.get(dst);
 					template.add("refFields", new Tuple3<String, String, String>(srcName, dstName, refField.name));
 				}

@@ -1,4 +1,4 @@
-package gp;
+package gp.planning;
 
 import java.util.Collection;
 import java.util.Iterator;
