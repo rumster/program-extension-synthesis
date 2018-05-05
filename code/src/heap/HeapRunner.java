@@ -11,10 +11,9 @@ import org.apache.commons.configuration2.builder.fluent.Configurations;
 import org.apache.commons.configuration2.ex.ConfigurationException;
 
 import bgu.cs.util.Timer;
-import gp.Synthesizer;
-import gp.controlFlowGraph.CFG;
-import gp.controlFlowGraph.RPNIGeneralizer;
+import gp.TMTISynthesizer;
 import gp.planning.AStar;
+import gp.separation.InterpolatingConditionInferencer;
 
 /**
  * Heap-manipulating program synthesis application.
@@ -69,18 +68,23 @@ public abstract class HeapRunner {
 			debugger.printExamples(problem.examples);
 			synthesisTime.start();
 			var planner = new AStar<Store, Stmt>(new BasicHeapTR(problem.domain));
-			var generalizer = new RPNIGeneralizer(debugger, outputDirPath);
-			var synthesizer = new Synthesizer<Store, Stmt, BoolExpr>(planner, generalizer, logger, debugger);
-			var result = new CFG<Store, Stmt, BoolExpr>();
-			boolean ok = synthesizer.synthesize(problem, result);
+			// var generalizer = new RPNIGeneralizer(debugger, outputDirPath);
+			// var synthesizer = new CFGSynthesizer<Store, Stmt, BoolExpr>(planner,
+			// generalizer, logger, debugger);
+			// var result = new CFG<Store, Stmt, BoolExpr>();
+			var synthesizer = new TMTISynthesizer<Store, Stmt, BoolExpr>(planner,
+					new InterpolatingConditionInferencer(outputDirPath), logger, debugger);
+			// boolean ok = synthesizer.synthesize(problem, result);
+			boolean ok = synthesizer.synthesize(problem);
 			if (!ok) {
 				logger.info("fail!");
 			} else {
 				logger.info("success!");
-				debugger.printCodeFile("synth-code.txt", result.toString(), "Synthesis result");
-				logger.info("Verifying synthesized program...");
-				boolean resultCorrect = problem.test(result);
-				logger.info(resultCorrect ? "ok" : "erroneous");
+				// debugger.printCodeFile("synth-code.txt", result.toString(), "Synthesis
+				// result");
+				// logger.info("Verifying synthesized program...");
+				// boolean resultCorrect = problem.test(result);
+				// logger.info(resultCorrect ? "ok" : "erroneous");
 			}
 		} catch (Throwable t) {
 			logger.severe(t.toString());

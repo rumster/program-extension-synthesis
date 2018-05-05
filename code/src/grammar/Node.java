@@ -37,7 +37,7 @@ public abstract class Node {
 	 * The number of nonterminal leaves in the tree rooted by this node.
 	 */
 	final int numOfNonterminals;
-	
+
 	public boolean concrete() {
 		return numOfNonterminals == 0;
 	}
@@ -133,10 +133,6 @@ public abstract class Node {
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
-		if (!super.equals(obj))
-			return false;
-		if (!(obj instanceof Node))
-			return false;
 		Node other = (Node) obj;
 		return getArgs().equals(other.getArgs());
 	}

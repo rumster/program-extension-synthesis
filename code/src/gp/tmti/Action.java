@@ -25,4 +25,21 @@ public class Action {
 	public void setGuarde(Guard guard) {
 		this.guard = guard;
 	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (o == null) {
+			return false;
+		}
+		if (o == this) {
+			return true;
+		}
+		Action other = (Action) o;
+		return this.guard.equals(other.guard) && this.update.equals(other.update);
+	}
+
+	@Override
+	public int hashCode() {
+		return update.hashCode() * 31 + guard.hashCode();
+	}
 }

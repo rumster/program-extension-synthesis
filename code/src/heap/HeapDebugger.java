@@ -10,6 +10,8 @@ import bgu.cs.util.FileUtils;
 import bgu.cs.util.Pair;
 import bgu.cs.util.STGLoader;
 import bgu.cs.util.Union2;
+import gp.Domain.Guard;
+import gp.Domain.Update;
 import gp.Example;
 import gp.GPDebugger;
 import gp.Plan;
@@ -19,7 +21,7 @@ import gp.Plan;
  * 
  * @author romanm
  */
-public class HeapDebugger extends GPDebugger<Store, Stmt> {
+public class HeapDebugger extends GPDebugger<Store, Stmt, BoolExpr> {
 	public static String STATE_IMAGE_FILE_POSTFIX = "svg";
 
 	public boolean logDetailedExampleRendering = false;
@@ -40,8 +42,8 @@ public class HeapDebugger extends GPDebugger<Store, Stmt> {
 				Union2<? extends Store, ? extends Stmt> step = example.step(stepIndex);
 				if (step.isT1()) {
 					Store stage = step.getT1();
-					String storeImageFileName = "example_" + example.id + "_"
-							+ stepIndex + "." + STATE_IMAGE_FILE_POSTFIX;
+					String storeImageFileName = "example_" + example.id + "_" + stepIndex + "."
+							+ STATE_IMAGE_FILE_POSTFIX;
 					String storeImageAbsoluteFileName = outputDirPath + File.separator + storeImageFileName;
 					StoreUtils.printStore(stage, storeImageAbsoluteFileName, examplesLogger);
 					ST imageST = heapTemplates.load("image");
@@ -96,5 +98,17 @@ public class HeapDebugger extends GPDebugger<Store, Stmt> {
 		String planFileName = outputDirPath + File.separator + "Plan" + planIndex + ".html";
 		FileUtils.stringToFile(planTemplate.render(), planFileName);
 		super.printLink(planFileName, "Plan " + planIndex);
+	}
+
+	@Override
+	public String renderUpdate(Update update) {
+		Stmt stmt = (Stmt) update;
+		return Renderer.render(stmt);
+	}
+
+	@Override
+	public String renderGuard(Guard guard) {
+		BoolExpr expr = (BoolExpr) guard;
+		return Renderer.render(expr);
 	}
 }

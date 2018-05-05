@@ -23,11 +23,11 @@ public class BasicHeapTR implements TR<Store, Stmt> {
 	}
 
 	@Override
-	public Collection<Stmt> enabledActions(Store state) {
+	public Collection<Stmt> enabledActions(Store store) {
 		Collection<Stmt> result = new ArrayList<>(domain.stmts.size());
-		for (Stmt s : domain.stmts) {
-			if (s.enabled(state)) {
-				result.add(s);
+		for (Stmt stmt : domain.stmts) {
+			if (stmt.enabled(store)) {
+				result.add(stmt);
 			}
 		}
 		return result;

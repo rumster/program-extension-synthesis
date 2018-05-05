@@ -26,18 +26,18 @@ import gp.planning.Planner;
  * @param <Guard>
  *            The type of condition in the program.
  */
-public class Synthesizer<ValueType extends Value, UpdateType extends Update, GuardType extends Guard> {
+public class CFGSynthesizer<ValueType extends Value, UpdateType extends Update, GuardType extends Guard> {
 	private final Planner<ValueType, UpdateType> planner;
 
 	private final CFGGeneralizer<ValueType, UpdateType, GuardType> cfgGeneralizer;
 
-	private final GPDebugger<ValueType, UpdateType> debugger;
+	private final GPDebugger<ValueType, UpdateType, GuardType> debugger;
 
 	private final Logger logger;
 
-	public Synthesizer(Planner<ValueType, UpdateType> planner,
+	public CFGSynthesizer(Planner<ValueType, UpdateType> planner,
 			CFGGeneralizer<ValueType, UpdateType, GuardType> cfgGeneralizer, Logger logger,
-			GPDebugger<ValueType, UpdateType> debugger) {
+			GPDebugger<ValueType, UpdateType, GuardType> debugger) {
 		assert planner != null && cfgGeneralizer != null;
 		this.planner = planner;
 		this.cfgGeneralizer = cfgGeneralizer;

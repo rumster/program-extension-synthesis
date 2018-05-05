@@ -28,6 +28,7 @@ import heap.Obj;
 import heap.RefField;
 import heap.RefType;
 import heap.RefVar;
+import heap.RetStmt;
 import heap.SeqStmt;
 import heap.Stmt;
 import heap.Store;
@@ -246,7 +247,7 @@ public class ProblemCompiler {
 			Set<Obj> freeInputObjs = new HashSet<>(goalObjs);
 			freeInputObjs.removeAll(inputObjs);
 
-			List<Union2<Store, Stmt>> stores = new ArrayList<>(exampleAST.steps.size());
+			List<Union2<Store, Stmt>> steps = new ArrayList<>(exampleAST.steps.size());
 			StmtBuilder stmtBuilder = new StmtBuilder();
 			for (ASTStep stepAST : exampleAST.steps) {
 				if (stepAST instanceof ASTStore) {
@@ -266,15 +267,16 @@ public class ProblemCompiler {
 						}
 					}
 					Store store = new StoreBuilder(storeObjs, freeInputObjs, storeAST).build();
-					stores.add(Union2.ofT1(store));
+					steps.add(Union2.ofT1(store));
 				} else {
 					assert stepAST instanceof ASTStmt;
 					ASTStmt stmtAST = (ASTStmt) stepAST;
 					Stmt stmt = stmtBuilder.build(stmtAST);
-					stores.add(Union2.ofT2(stmt));
+					steps.add(Union2.ofT2(stmt));
 				}
 			}
-			return new Example<Store, Stmt>(stores, exampleId);
+			steps.add(Union2.ofT2(RetStmt.v));
+			return new Example<Store, Stmt>(steps, exampleId);
 		}
 
 		private void inferObjectTypes() {

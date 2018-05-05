@@ -10,10 +10,10 @@ import gp.Domain.Value;
  * @author romanm
  */
 public class TracePoint {
-	public final Plan<Value, Update> plan;
+	public final Plan<? extends Value, ? extends Update> plan;
 	public final int pos;
 
-	public TracePoint(Plan<Value, Update> plan, int pos) {
+	public TracePoint(Plan<? extends Value, ? extends Update> plan, int pos) {
 		assert plan != null;
 		assert pos >= 0 && pos < plan.size();
 		this.plan = plan;

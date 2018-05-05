@@ -47,6 +47,9 @@ public class PWhileVisitor implements Visitor {
 	public void visit(SkipStmt n) {
 	}
 
+	public void visit(RetStmt n) {
+	}
+	
 	public void visit(NullExpr n) {
 	}
 

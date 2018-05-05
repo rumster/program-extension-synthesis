@@ -23,8 +23,8 @@ public class Automaton extends HashMultiGraph<State, Action> {
 	private State exit;
 
 	public Automaton() {
-		entry = new State();
-		exit = new State();
+		entry = new State("initial");
+		exit = new State("final");
 		addNode(entry);
 		addNode(exit);
 	}

@@ -40,6 +40,8 @@ ValExpr(val) ::= <<$val$>>
 
 IntVal(num) ::= <<$num$>>
 
+True() ::= <<true>>
+
 VarExpr(raw_var) ::= <<$raw_var.name$>>
 
 Var(name) ::= <<$name$>>
@@ -53,6 +55,8 @@ IntBinOpExpr(lhs, op, rhs) ::= <<$lhs$ $op$ $rhs$>>
 OrExpr(lhs, rhs) ::= <<$lhs$ || $rhs$>>
 AndExpr(lhs, rhs) ::= <<$lhs$ && $rhs$>>
 NotExpr(sub ::= <<!$sub$>>
+
+RetStmt() ::= <<return>>
 
 AssignStmt(lhs, rhs) ::= <<$lhs$ = $rhs$>>
 

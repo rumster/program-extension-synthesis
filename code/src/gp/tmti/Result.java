@@ -13,6 +13,11 @@ public class Result {
 		var result = new Result(ResultType.OK, m);
 		return result;
 	}
+	
+	public static Result failure(ResultType type) {
+		var result = new Result(type, null);
+		return result;
+	}
 
 	public Automaton get() {
 		assert type == ResultType.OK;

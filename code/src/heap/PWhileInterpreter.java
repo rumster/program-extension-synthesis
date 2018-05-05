@@ -74,7 +74,7 @@ public class PWhileInterpreter extends PWhileVisitor {
 			return;
 		state = null;
 	}
-	
+
 	@Override
 	public void visit(True n) {
 		resultCond = true;
@@ -254,6 +254,11 @@ public class PWhileInterpreter extends PWhileVisitor {
 
 	@Override
 	public void visit(SkipStmt n) {
+	}
+
+	@Override
+	public void visit(RetStmt n) {
+		// TODO: drop local variables and check for garbage.
 	}
 
 	@Override
