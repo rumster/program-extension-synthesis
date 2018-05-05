@@ -2,6 +2,7 @@ package gp;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import gp.Domain.Guard;
 import gp.Domain.Update;
@@ -60,7 +61,15 @@ public abstract class SynthesisProblem<ValueType extends Value, UpdateType exten
 	}
 
 	public boolean test(CFG<ValueType, UpdateType, GuardType> prog) {
-		throw new UnsupportedOperationException("unimplemented!");
+		for(Example<ValueType, UpdateType> example : this.examples) {
+			ValueType input = example.input();
+			ValueType goal = example.goal();
+			Optional<ValueType> finalState = prog.execute(input, 100000);
+			if(!finalState.isPresent() || !goal.equals(finalState.get())) {
+				return false;
+			}
+		}
+		return true;
 		// for (Pair<State, State> example : problem.examples) {
 		// State input = example.first;
 		// State expectedOutput = example.second;

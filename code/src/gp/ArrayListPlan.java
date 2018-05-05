@@ -97,4 +97,9 @@ public class ArrayListPlan<StateType, ActionType> implements Plan<StateType, Act
 	public Iterable<ActionType> actions() {
 		return actions;
 	}
+
+	@Override
+	public String toString() {
+		return actions.toString();
+	}
 }

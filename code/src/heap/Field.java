@@ -27,6 +27,7 @@ public abstract class Field extends Token {
 		final int prime = 31;
 		int result = super.hashCode();
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		result = prime * result + ((srcType == null) ? 0 : srcType.hashCode());
 		return result;
 	}
 

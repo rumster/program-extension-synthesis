@@ -124,18 +124,16 @@ public abstract class Node {
 	@Override
 	public int hashCode() {
 		final int prime = 31;
-		int result = super.hashCode();
+		int result = 1;
 		result = prime * result + ((getArgs() == null) ? 0 : getArgs().hashCode());
 		return result;
 	}
 
-	@Override
+	@Override	
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
-		if (!super.equals(obj))
-			return false;
-		if (!(obj instanceof Node))
+		if (getClass() != obj.getClass())
 			return false;
 		Node other = (Node) obj;
 		return getArgs().equals(other.getArgs());

@@ -380,7 +380,7 @@ public class Store implements Value {
 
 	@Override
 	public String toString() {
-		ST template = templates.load("State");
+		ST template = templates.load("Store");
 		template.add("vars", env.keySet());
 		template.add("refObjs", env.values());
 		for (Obj obj : StoreUtils.dfs(this)) {

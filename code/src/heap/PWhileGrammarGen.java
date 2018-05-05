@@ -50,7 +50,7 @@ public class PWhileGrammarGen {
 	 * @param refTypes
 	 *            A collection of object types.
 	 */
-	public Grammar gen(Collection<Var> vars, Collection<RefType> refTypes) {
+	public static Grammar gen(Collection<Var> vars, Collection<RefType> refTypes) {
 		Grammar result = new Grammar(nstmt);
 
 		Map<Type, Nonterminal> typeToAPathNonterminal = new HashMap<>();

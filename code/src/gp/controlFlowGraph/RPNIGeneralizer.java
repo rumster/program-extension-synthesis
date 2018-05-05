@@ -9,66 +9,70 @@ import java.util.Map;
 import java.util.TreeSet;
 
 import bgu.cs.util.graph.MultiGraph;
-import gp.GPDebugger;
+import gp.Domain;
 import gp.Plan;
 import gp.controlFlowGraph.CFG.ConditionalAction;
 import gp.controlFlowGraph.CFG.Node;
 import gp.separation.ConditionInferencer;
+import gp.separation.ConditionInferencer_debug;
 import gp.separation.InterpolatingConditionInferencer;
+import grammar.CachedLanguageIterator;
 import grammar.CostBadConditions;
 import grammar.CostFun;
+import grammar.CostSize;
 import grammar.CostSize2;
 import grammar.CostSum;
 import heap.BoolExpr;
+import heap.HeapDebugger;
+import heap.PWhileGrammarGen;
+import heap.SkipStmt;
 import heap.Stmt;
 import heap.Store;
 
 public class RPNIGeneralizer 
 		extends CFGGeneralizer<Store, Stmt, BoolExpr> {
-	protected final GPDebugger debugger;
+	protected final HeapDebugger debugger;
 	
-	private CFG<Store, Stmt, BoolExpr> cfg;
-	private ConditionInferencer<Store, BoolExpr> conditionInferencer;
+	//private CFG<Store, Stmt, BoolExpr> cfg;
+	private ConditionInferencer<Store, Stmt, BoolExpr> conditionInferencer;
 	
 	private static CostFun cost = new CostSum(new CostBadConditions(), new CostSize2());
 	
-	public RPNIGeneralizer(GPDebugger debugger, String outputDir) {
+	//TODO - remove @outputDir (env variables?)
+	public RPNIGeneralizer(Domain<Store, Stmt, BoolExpr> domain, HeapDebugger debugger, String outputDir) {
 		this.debugger = debugger;
-		cfg = new CFG<>();
-		conditionInferencer = new InterpolatingConditionInferencer(outputDir);
+		//cfg = new CFG<>();
+		
+		//limit dereference depth to 0 levels (x == y)
+		float threshold = 4;
+		CostFun cost = new CostSum(new CostBadConditions(), new CostSize());
+		conditionInferencer = 				
+				new ConditionInferencer_debug(domain);
+				/*
+				new InterpolatingConditionInferencer(domain,
+						new CachedLanguageIterator(PWhileGrammarGen.neq_arithm, cost, threshold),
+						outputDir);
+				*/
 	}
 
 	@Override
 	public Result generalize(Collection<Plan<Store, Stmt>> plans, CFG<Store, Stmt, BoolExpr> result) {
-
 		for(Plan<Store, Stmt> plan : plans) {
-			cfg.extendPTP(plan);
+			extendPTP(result, plan);
 		}		
 		
-		RPNI(cfg);
+		RPNI(result);
+		result.inferConditions(conditionInferencer);
+		float postCost = conditionsCost(result, cost);
+		if(postCost != CostFun.INFINITY_COST){
+			return Result.OK;
+		}
+		else {
+			return Result.CONDITION_INFERENCE_FAILURE;
+		}
 		
-		return Result.OK;
 	}
 
-//	public void addTrace(Trace trace) {		
-//		cfg.extendPTP(trace);
-//		//Globals.printer().printGraph(cfg, "Testme");
-//		
-//		CFG nextcfg = new CFG(cfg);	
-//		System.out.println(nextcfg);
-//		
-//		
-//		Globals.printer().printGraph(nextcfg, "RPNI before");
-//		System.out.println("-----------------------------------------");
-//		RPNI(nextcfg);
-//		conditionInferencer.inferConditions(nextcfg);
-//		System.out.println("-----------------------------------------");
-//		System.out.println(nextcfg);
-//		Globals.printer().printGraph(nextcfg, "RPNI after");	
-//	}
-	
-	
-	
 	// custom RPNI-style 
 	
 	// original RPNI
@@ -156,6 +160,7 @@ public class RPNIGeneralizer
 		Map<Stmt, List<Node<Store, Stmt>>> actionsToNode = new HashMap<>();
 		for(MultiGraph.Edge<Node<Store, Stmt>, ConditionalAction<Stmt, BoolExpr>> edge : cfg.succEdges(source)){
 			List<Node<Store, Stmt>> nodes = actionsToNode.get(edge.getLabel().action());
+			
 			if(nodes == null){
 				nodes = new ArrayList<>();
 			}
@@ -194,18 +199,18 @@ public class RPNIGeneralizer
 		return result;
 	}
 	
-	private class LexLenNameCFGNodeComparator implements Comparator<Node<Store, Stmt>>{
-		@Override
-		public int compare(Node<Store, Stmt> n1, Node<Store, Stmt> n2) {
-			int lenDiff = n1.getName().length() - n2.getName().length();
-			if(lenDiff == 0) {
-				return n1.getName().compareTo(n2.getName());
-			}
-			else {
-				return lenDiff;
-			}			
-		}		
-	}
+//	private class LexLenNameCFGNodeComparator implements Comparator<Node<Store, Stmt>>{
+//		@Override
+//		public int compare(Node<Store, Stmt> n1, Node<Store, Stmt> n2) {
+//			int lenDiff = n1.getName().length() - n2.getName().length();
+//			if(lenDiff == 0) {
+//				return n1.getName().compareTo(n2.getName());
+//			}
+//			else {
+//				return lenDiff;
+//			}			
+//		}		
+//	}
 	
 	private class LexLenPathCFGNodeComparator implements Comparator<Node<Store, Stmt>>{
 
@@ -229,6 +234,59 @@ public class RPNIGeneralizer
 			}			
 			return (int)Math.signum(result);
 		}		
+	}
+	
+	// CFG
+	public void extendPTP(CFG<Store, Stmt, BoolExpr> cfg, Plan<Store, Stmt> trace){
+		if (trace.isEmpty())
+			return;
+
+		Node<Store, Stmt> currentNode = cfg.entry();
+		currentNode.states.add(trace.firstState());
+		Store currentState = trace.firstState();
+		cfg.transitions.addNode(currentState);
+		
+		for (int i = 0; i < trace.size() - 1; ++i) {			
+			Store nextState = trace.stateAt(i + 1);
+			Stmt nextOp = trace.actionAt(i);
+			
+			Node<Store, Stmt> nextNode = null;
+			for (MultiGraph.Edge<Node<Store, Stmt>, ConditionalAction<Stmt, BoolExpr>> edge : cfg.succEdges(currentNode)) {
+				if(nextOp.equals(edge.getLabel().action())) {
+					nextNode = edge.getDst();
+					break;
+				}				
+			}
+			if(nextNode == null) {
+				nextNode = new Node<Store, Stmt>();
+				cfg.addNode(nextNode);
+				cfg.addEdge(currentNode, nextNode, new ConditionalAction<>(nextOp));
+				
+				List<Stmt> path = new ArrayList<>(currentNode.getPath());
+				path.add(nextOp);
+				nextNode.setPath(path);	
+			}
+			
+			CFG.Label<Stmt> nextLable = new CFG.Label<Stmt>(nextOp);			 
+			nextNode.states.add(nextState);
+			currentNode.addLable(nextLable);	
+
+			cfg.transitions.addNode(nextState);
+			cfg.transitions.addEdge(currentState, nextState, nextLable);
+			
+			currentState = nextState;
+			currentNode = nextNode;
+		}
+		
+		Stmt nextOp = SkipStmt.v;
+		CFG.Label<Stmt> nextLable = new CFG.Label<Stmt>(nextOp);		
+		currentNode.addLable(nextLable);
+		cfg.transitions.addNode(currentState);
+		cfg.transitions.addEdge(currentState, currentState, nextLable);
+		
+		cfg.exit().states.add(currentState);
+		
+		cfg.addEdge(currentNode, cfg.exit(), new ConditionalAction<>(nextOp));
 	}
 	
 	//condition inferencing

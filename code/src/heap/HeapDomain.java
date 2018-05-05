@@ -15,6 +15,8 @@ import bgu.cs.util.STHierarchyRenderer;
 import bgu.cs.util.rel.HashRel2;
 import bgu.cs.util.rel.Rel2;
 import gp.Domain;
+import grammar.Grammar;
+import heap.Store.ErrorStore;
 import heap.Var.VarRole;
 
 /**
@@ -34,6 +36,8 @@ public class HeapDomain implements Domain<Store, Stmt, BoolExpr> {
 	public final Collection<Type> types = new LinkedHashSet<>();
 
 	public final Rel2<Type, Var> typeToVar = new HashRel2<>();
+	
+	public final Grammar grammar;
 
 	protected Collection<Stmt> stmts = new ArrayList<>();
 
@@ -83,13 +87,15 @@ public class HeapDomain implements Domain<Store, Stmt, BoolExpr> {
 
 	@Override
 	public Optional<Store> apply(Stmt stmt, Store store) {
+		Optional<Store> result = Optional.empty();
 		Collection<Store> succs = BasicHeapTR.applier.apply(store, stmt);
 		if (succs.size() == 1) {
 			Store next = succs.iterator().next();
-			return Optional.of(next);
-		} else {
-			return Optional.empty();
+			if(!(next instanceof ErrorStore)) {
+				result = Optional.of(next);
+			}
 		}
+		return result;
 	}
 
 	public static HeapDomain fromVarsAndTypes(Collection<Var> vars, Collection<RefType> refTypes) {
@@ -121,6 +127,9 @@ public class HeapDomain implements Domain<Store, Stmt, BoolExpr> {
 		}
 
 		stmts = generateActions(vars, fields);
+		
+		//TODO - refactor PWhileGrammarGen to some non-static construction
+		grammar = PWhileGrammarGen.gen(vars, refTypes);
 	}
 
 	// TODO: make this call explicit and add a flag for allocation statements.
