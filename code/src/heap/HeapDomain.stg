@@ -27,11 +27,11 @@ $if(ghost)$ghost $else$$endif$$name$ : $dstType$
 IntField(name) ::= <<$name$>>
 
 IntVar(name, is_readonly) ::= <<
-$if(is_readonly)$$else$mut $endif$$name$
+$if(is_readonly)$immut $else$$endif$$name$
 >>
 
 RefVar(name, is_readonly) ::= <<
-$if(is_readonly)$$else$mut $endif$$name$
+$if(is_readonly)$immut $else$$endif$$name$
 >>
 
 NullExpr() ::= <<null>>
@@ -50,9 +50,11 @@ DerefExpr(lhs, field) ::= <<$lhs$.$field$>>
 
 IntBinOpExpr(lhs, op, rhs) ::= <<$lhs$ $op$ $rhs$>>
 
-OrExpr(lhs, rhs) ::= <<$lhs$ || $rhs$>>
-AndExpr(lhs, rhs) ::= <<$lhs$ && $rhs$>>
-NotExpr(sub ::= <<!$sub$>>
+OrExpr(lhs, rhs) ::= <<($lhs$) || ($rhs$)>>
+AndExpr(lhs, rhs) ::= <<($lhs$) && ($rhs$)>>
+NotExpr(sub) ::= <<!($sub$)>>
+
+EqExpr(lhs, rhs) ::= <<$lhs$ == $rhs$>>
 
 AssignStmt(lhs, rhs) ::= <<$lhs$ = $rhs$>>
 

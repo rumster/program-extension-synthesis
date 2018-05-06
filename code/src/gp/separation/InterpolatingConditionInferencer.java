@@ -105,11 +105,7 @@ public class InterpolatingConditionInferencer
 			if (citer.has(nextPredIndx)) {
 				//TODO: unsafe casting to BoolExpr - refactor
 				BoolExpr condition = (BoolExpr)citer.get(nextPredIndx);
-				test = PWhileInterpreter.v.test(condition, state);
-				//false, if predicate value is undefined for this state
-				if(test == null) {
-					test = false;
-				}
+				test = domain.test(condition, state);
 				statePredicates.add(test);
 				nextPredIndx++;
 			}
