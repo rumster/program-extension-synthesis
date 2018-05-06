@@ -53,7 +53,7 @@ public abstract class Field extends Token {
 			if (other.srcType != null) {
 				return false;
 			}
-		} else if (srcType != other.srcType) {
+		} else if (!srcType.equals(other.srcType)) {
 			return false;
 		}
 		return true;

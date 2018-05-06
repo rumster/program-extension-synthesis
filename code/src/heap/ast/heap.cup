@@ -160,6 +160,11 @@ inputArgs ::= var:a
 	{: prefix.add(a);
 	   RESULT = prefix;
 	:}
+	| inputArgs:prefix COMMA MUT var:a
+	{: a.readonly = false;
+	   prefix.add(a);
+	   RESULT = prefix;
+	:}
 ;
 
 outputArgs ::= var:a

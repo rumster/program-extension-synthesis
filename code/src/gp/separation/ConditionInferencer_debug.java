@@ -1,13 +1,19 @@
 package gp.separation;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 import gp.Domain;
+import heap.AndExpr;
+import heap.DerefExpr;
 import heap.BoolExpr;
 import heap.EqExpr;
+import heap.IntField;
+import heap.LtExpr;
 import heap.NotExpr;
 import heap.NullExpr;
+import heap.OrExpr;
 import heap.RefType;
 import heap.RefVar;
 import heap.Stmt;
@@ -24,24 +30,71 @@ public class ConditionInferencer_debug extends ConditionInferencer<Store, Stmt, 
 		super(domain);
 	}
 	
-	@Override
-	public BoolExpr inferSeparator(Collection<Store> first, Collection<Store> second) {
-		BoolExpr result = null;		
-		
+	// Conditions
+	// reverse
+	private List<BoolExpr> reverse_conds(){
+		List<BoolExpr> conditions = new ArrayList<>();
 		RefType sllType = new RefType("SLL");
 		RefVar head = new RefVar("head", sllType, VarRole.ARG, true, false);
 		
-		// head == NULL
-		BoolExpr condT = new EqExpr(head, NullExpr.v);
-		BoolExpr condF = new NotExpr(condT);
+		// head == null
+		BoolExpr cond = new EqExpr(head, NullExpr.v);
+		conditions.add(cond);
+		return conditions;
+	}
+	
+	//merge
+	private List<BoolExpr> merge_conds(){
+		List<BoolExpr> conditions = new ArrayList<>();			
 		
-		if(testCondition(condT, first, true) && testCondition(condF, second, true)) {
-			result = condT;
-		}
-		else if(testCondition(condF, first, true) && testCondition(condT, second, true)) {
-			result = condF;
-		}
-		return result;
+		RefType sllType = new RefType("SLL");
+		IntField val = new IntField("d", sllType, false);
+		RefVar first = new RefVar("first", sllType, VarRole.ARG, false, false);
+		RefVar second = new RefVar("second", sllType, VarRole.ARG, false, false);
+		
+		// 1) first != null || second != null
+		BoolExpr cond1 = new OrExpr(
+				new NotExpr(new EqExpr(first, NullExpr.v)),
+				new NotExpr(new EqExpr(second, NullExpr.v)));
+		conditions.add(cond1);
+		
+		
+		// 2) (first != null || second != null) && (second == null || first != null && first.d > second.d)
+		BoolExpr cond2 = new AndExpr(cond1,
+								new OrExpr(
+									new EqExpr(second, NullExpr.v),
+									new AndExpr(
+											new NotExpr(new EqExpr(first, NullExpr.v)),
+											new LtExpr(new DerefExpr(second, val), new DerefExpr(first, val)))));
+		conditions.add(cond2);
+		
+		// 3) (first != null || second != null) && !(second == null || first != null && first.d > second.d)
+		BoolExpr cond3 = new AndExpr(cond1,
+								new NotExpr(
+									new OrExpr(
+										new EqExpr(second, NullExpr.v),
+										new AndExpr(
+												new NotExpr(new EqExpr(first, NullExpr.v)),
+												new LtExpr(new DerefExpr(second, val), new DerefExpr(first, val))))));
+		conditions.add(cond3);
+		return conditions;
+	}
+	
+	@Override
+	public BoolExpr inferSeparator(Collection<Store> first, Collection<Store> second) {		
+		List<BoolExpr> conds = merge_conds();
+		
+		for(BoolExpr op : conds) {
+			BoolExpr conditionT = op;
+			BoolExpr conditionF = new NotExpr(conditionT);					
+			if (testCondition(conditionT, first, true) && testCondition(conditionT, second, false)) {
+				return conditionT;
+			}
+			else if(testCondition(conditionF, first, true) && testCondition(conditionF, second, false)) {
+				return conditionF;
+			}							
+		}		
+		return null;
 	}
 
 	private boolean testCondition(BoolExpr condition, Collection<Store> states, boolean expected) {

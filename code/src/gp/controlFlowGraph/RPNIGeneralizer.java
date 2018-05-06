@@ -47,13 +47,13 @@ public class RPNIGeneralizer
 		float threshold = 4;
 		CostFun cost = new CostSum(new CostBadConditions(), new CostSize());
 		conditionInferencer = 
-				/*
+				
 				new ConditionInferencer_debug(domain);
-				*/
+				/*
 				new InterpolatingConditionInferencer(domain,
 						new CachedLanguageIterator(PWhileGrammarGen.neq_arithm, cost, threshold),
 						outputDir);
-				
+				*/
 	}
 
 	@Override
