@@ -42,8 +42,6 @@ public class Store implements Value {
 	 */
 	protected final Map<Obj, Map<Field, Val>> heap;
 
-	// public List<Boolean> predicates = new ArrayList<>();
-
 	public static Store error(String description) {
 		return new ErrorStore(description);
 	}
@@ -380,7 +378,7 @@ public class Store implements Value {
 
 	@Override
 	public String toString() {
-		ST template = templates.load("State");
+		ST template = templates.load("Store");
 		template.add("vars", env.keySet());
 		template.add("refObjs", env.values());
 		for (Obj obj : StoreUtils.dfs(this)) {

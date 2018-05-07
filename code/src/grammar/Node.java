@@ -123,9 +123,7 @@ public abstract class Node {
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = super.hashCode();
-		result = prime * result + ((getArgs() == null) ? 0 : getArgs().hashCode());
+		final int result = (getArgs() == null ? 0 : getArgs().hashCode());
 		return result;
 	}
 
@@ -146,7 +144,7 @@ public abstract class Node {
 	public abstract Node clone(List<Node> args);
 
 	public void assertNumOfArgs(int num) {
-		assert getArgs().size() == 2 : "Illegal number of arguments for " + getClass().getSimpleName() + ": "
+		assert getArgs().size() == num : "Illegal number of arguments for " + getClass().getSimpleName() + ": "
 				+ getArgs().size() + "!";
 	}
 

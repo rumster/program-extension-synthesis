@@ -42,4 +42,10 @@ public class Action {
 	public int hashCode() {
 		return update.hashCode() * 31 + guard.hashCode();
 	}
+
+	@Override
+	public Action clone() {
+		var result = new Action(guard, update);
+		return result;
+	}
 }

@@ -3,7 +3,7 @@ package heap;
 import grammar.Visitor;
 
 /**
- * A terminal representing an integer type variable.
+ * An integer-valued variable.
  * 
  * @author romanm
  */
@@ -16,5 +16,10 @@ public class IntVar extends Var {
 	public void accept(Visitor v) {
 		PWhileVisitor whileVisitor = (PWhileVisitor) v;
 		whileVisitor.visit(this);
+	}
+
+	@Override
+	public int hashCode() {
+		return name.hashCode();
 	}
 }

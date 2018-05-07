@@ -30,8 +30,6 @@ public class OrExpr extends BoolExpr {
 	 */
 	public OrExpr(Node lhs, Node rhs) {
 		super(lhs, rhs);
-		args.add(lhs);
-		args.add(rhs);
 	}
 
 	protected OrExpr(List<Node> args) {
@@ -41,6 +39,7 @@ public class OrExpr extends BoolExpr {
 
 	@Override
 	public OrExpr clone(List<Node> args) {
+		assert args.size() == 2;
 		return new OrExpr(args);
 	}
 }

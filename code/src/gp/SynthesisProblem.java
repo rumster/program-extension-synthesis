@@ -2,11 +2,12 @@ package gp;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import gp.Domain.Guard;
 import gp.Domain.Update;
 import gp.Domain.Value;
-import gp.controlFlowGraph.CFG;
+import gp.controlFlowGraph.Interpreted;
 
 /**
  * A specification consisting of a list of input-output examples.
@@ -49,7 +50,7 @@ public abstract class SynthesisProblem<ValueType extends Value, UpdateType exten
 		this.name = name;
 	}
 
-	public List<Example<ValueType, UpdateType>> examples = new ArrayList<>();
+	public final List<Example<ValueType, UpdateType>> examples = new ArrayList<>();
 
 	public void addExample(Example<ValueType, UpdateType> example) {
 		this.examples.add(example);
@@ -59,8 +60,16 @@ public abstract class SynthesisProblem<ValueType extends Value, UpdateType exten
 		this.examples.add(new Example<>(input, output, examples.size()));
 	}
 
-	public boolean test(CFG<ValueType, UpdateType, GuardType> prog) {
-		throw new UnsupportedOperationException("unimplemented!");
+	public boolean test(Interpreted<ValueType, UpdateType, GuardType> prog) {
+		for (Example<ValueType, UpdateType> example : this.examples) {
+			ValueType input = example.input();
+			ValueType goal = example.goal();
+			Optional<ValueType> finalState = prog.execute(input, 100000);
+			if (!finalState.isPresent() || !goal.equals(finalState.get())) {
+				return false;
+			}
+		}
+		return true;
 		// for (Pair<State, State> example : problem.examples) {
 		// State input = example.first;
 		// State expectedOutput = example.second;

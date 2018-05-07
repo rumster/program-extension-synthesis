@@ -5,7 +5,7 @@ import heap.ast.HeapParser;
 import heap.ast.ProblemCompiler;
 
 /**
- * Synthesizes programs from a heap-formatted file.
+ * Synthesizes programs from a heap-format specification file.
  * 
  * @author romanm
  */
@@ -40,7 +40,6 @@ public class Main extends HeapRunner {
 		ProblemCompiler compiler = new ProblemCompiler(root);
 		HeapProblem problem = compiler.compile();
 		System.out.println("done");
-		System.out.print(problem.toString());
 		return problem;
 	}
 }

@@ -6,7 +6,8 @@ import heap.LtExpr;
 import heap.NotExpr;
 
 /**
- * A cost function that fines selected "bad" conditions by assigning a very high cost
+ * A cost function that fines selected "bad" conditions by assigning them a very
+ * high cost.
  * 
  * @author romanm
  */
@@ -47,17 +48,21 @@ public class CostBadConditions implements CostFun {
 	protected boolean trivialEq(Node op) {
 		if (op instanceof EqExpr) {
 			EqExpr oeq = (EqExpr) op;
-			if (Renderer.render(oeq.getLhs()).equals(Renderer.render(oeq.getRhs())))
-				return true;
+			if (!(oeq.getLhs() instanceof Nonterminal) && !(oeq.getRhs() instanceof Nonterminal)) {
+				if (Renderer.render(oeq.getLhs()).equals(Renderer.render(oeq.getRhs())))
+					return true;
+			}
 		}
 		return false;
 	}
-	
+
 	protected boolean trivialLt(Node op) {
 		if (op instanceof LtExpr) {
 			LtExpr oeq = (LtExpr) op;
-			if (Renderer.render(oeq.getLhs()).equals(Renderer.render(oeq.getRhs())))
-				return true;
+			if (!(oeq.getLhs() instanceof Nonterminal) && !(oeq.getRhs() instanceof Nonterminal)) {
+				if (Renderer.render(oeq.getLhs()).equals(Renderer.render(oeq.getRhs())))
+					return true;
+			}
 		}
 		return false;
 	}

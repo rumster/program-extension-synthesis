@@ -4,12 +4,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import bgu.cs.util.graph.HashMultiGraph;
 import bgu.cs.util.graph.MultiGraph;
 import bgu.cs.util.rel.HashRel2;
-import gp.Plan;
+import gp.Domain;
 import gp.separation.ConditionInferencer;
 
 /**
@@ -22,21 +23,11 @@ import gp.separation.ConditionInferencer;
  * @param <ConditionType>
  *            The type of conditions on branching nodes.
  */
-public class CFG<StateType, ActionType, ConditionType>
-		extends HashMultiGraph<CFG.Node<StateType, ActionType>, CFG.ConditionalAction<ActionType, ConditionType>> {
-//	public static final Node ENTRY = new Node() {
-//		@Override
-//		public String toString() {
-//			return "entry";
-//		}
-//	};
-//
-//	public static final Node EXIT = new Node() {
-//		@Override
-//		public String toString() {
-//			return "exit";
-//		}
-//	};
+public class CFG<StateType extends Domain.Value, ActionType extends Domain.Update, ConditionType extends Domain.Guard>
+		extends HashMultiGraph<CFG.Node<StateType, ActionType>, CFG.ConditionalAction<ActionType, ConditionType>> 
+		implements Interpreted <StateType, ActionType, ConditionType>{
+	
+	private Domain<StateType, ActionType, ConditionType> domain;
 	
 	private Node<StateType, ActionType> ENTRY;
 	private Node<StateType, ActionType> EXIT;
@@ -46,13 +37,18 @@ public class CFG<StateType, ActionType, ConditionType>
 	public HashMultiGraph<StateType, Label<ActionType>> transitions = new HashMultiGraph<>();	
 
 
-	public CFG() {
-		ENTRY = null;
-		EXIT = null;
+	public CFG(Domain<StateType, ActionType, ConditionType> domain) {
+		this.domain = domain;
+		
+		ENTRY = new Node<>("entry");
+		addNode(ENTRY);
+		
+		EXIT = new Node<>("exit");
+		addNode(EXIT);
 	}
 	
 	public CFG(CFG<StateType, ActionType, ConditionType> other){
-		this();	
+		this(other.getDomain());	
 		transitions = other.transitions;		//no need for deep copy, immutable once created
 	
 		for (Node<StateType, ActionType> node : other.getNodes()) {
@@ -87,66 +83,51 @@ public class CFG<StateType, ActionType, ConditionType>
 			}
 		}
 	}
-	
-
-//	public Rel2<Node, StateType> nodeToState = new HashRel2<>();
-//	public void setNodeStates(Node n, Collection<StateType> states) {
-//		nodeToState.remove(n);
-//		nodeToState.addAll(n, states);
+		
+//	public void extendPTP(Plan<StateType, ActionType> trace){
+//		if (trace.isEmpty())
+//			return;
+//		
+//		Node<StateType, ActionType> currentNode = ENTRY;
+//		currentNode.states.add(trace.firstState());
+//		StateType currentState = trace.firstState();
+//		transitions.addNode(currentState);
+//		
+//		for (int i = 0; i < trace.size() - 1; ++i) {			
+//			StateType nextState = trace.stateAt(i + 1);
+//			ActionType nextOp = trace.actionAt(i);
+//			
+//			Node<StateType, ActionType> nextNode = null;
+//			for (MultiGraph.Edge<Node<StateType, ActionType>, ConditionalAction<ActionType, ConditionType>> edge : this.succEdges(currentNode)) {
+//				if(nextOp.equals(edge.getLabel().action())) {
+//					nextNode = edge.getDst();
+//					break;
+//				}				
+//			}
+//			if(nextNode == null) {
+//				nextNode = new Node<StateType, ActionType>();
+//				addNode(nextNode);
+//				addEdge(currentNode, nextNode, new ConditionalAction<>(nextOp));
+//				
+//				List<ActionType> path = new ArrayList<>(currentNode.getPath());
+//				path.add(nextOp);
+//				nextNode.setPath(path);	
+//			}
+//			
+//			CFG.Label<ActionType> nextLable = new CFG.Label<ActionType>(nextOp);			 
+//			nextNode.states.add(nextState);
+//			currentNode.addLable(nextLable);	
+//
+//			transitions.addNode(nextState);
+//			transitions.addEdge(currentState, nextState, nextLable);
+//			
+//			currentState = nextState;
+//			currentNode = nextNode;
+//		}
+//		
+//		mergeNodes(currentNode, EXIT);
+//		commitMerges();
 //	}
-	
-	public void extendPTP(Plan<StateType, ActionType> trace){
-		if (trace.isEmpty())
-			return;
-		
-		if(ENTRY == null) {
-			ENTRY = new Node<StateType, ActionType>();
-			addNode(ENTRY);
-		}
-		Node<StateType, ActionType> currentNode = ENTRY;
-		currentNode.states.add(trace.firstState());
-		StateType currentState = trace.firstState();
-		transitions.addNode(currentState);
-		
-		for (int i = 0; i < trace.size() - 1; ++i) {			
-			StateType nextState = trace.stateAt(i + 1);
-			ActionType nextOp = trace.actionAt(i);
-			
-			Node<StateType, ActionType> nextNode = null;
-			for (MultiGraph.Edge<Node<StateType, ActionType>, ConditionalAction<ActionType, ConditionType>> edge : this.succEdges(currentNode)) {
-				if(nextOp.equals(edge.getLabel().action())) {
-					nextNode = edge.getDst();
-					break;
-				}				
-			}
-			if(nextNode == null) {
-				nextNode = new Node<StateType, ActionType>();
-				addNode(nextNode);
-				addEdge(currentNode, nextNode, new ConditionalAction<>(nextOp));
-				
-				List<ActionType> path = new ArrayList<>(currentNode.getPath());
-				path.add(nextOp);
-				nextNode.setPath(path);	
-			}
-			
-			CFG.Label<ActionType> nextLable = new CFG.Label<ActionType>(nextOp);			 
-			nextNode.states.add(nextState);
-			currentNode.addLable(nextLable);	
-
-			transitions.addNode(nextState);
-			transitions.addEdge(currentState, nextState, nextLable);
-			
-			currentState = nextState;
-			currentNode = nextNode;
-		}
-		
-		if(EXIT == null) {
-			EXIT = currentNode;
-		}
-		else {
-			mergeNodes(currentNode, EXIT);
-		}
-	}
 	
 	/*
 	 * Merge nodes n1 and n2 according to nodes order
@@ -165,8 +146,8 @@ public class CFG<StateType, ActionType, ConditionType>
 		
 		//1. deterministic merge: always merge "small" into "big" node, regardless arguments order
 		//2. prevent disappearing ENTRY/EXIT nodes by always setting them as a destination 
-		if((!directional && to.compareTo(from) < 0)){
-				//|| from.equals(ENTRY) || from.equals(EXIT)){
+		if((!directional && to.compareTo(from) < 0) || from.equals(EXIT)){
+				//|| from.equals(ENTRY) ){
 			Node<StateType, ActionType> tmp = to;
 			to = from;
 			from = tmp;
@@ -199,11 +180,6 @@ public class CFG<StateType, ActionType, ConditionType>
 			ENTRY = to;
 			
 			revert.setEntry();
-		}
-		else if(from.equals(EXIT)) {
-			EXIT = to;
-			
-			revert.setExit();
 		}
 		
 		revertStack.add(0, revert);
@@ -256,15 +232,15 @@ public class CFG<StateType, ActionType, ConditionType>
 			nodeToSplit.getSources().removeAll(origNode.getSources());
 			nodeToSplit.getLables().removeAll(origNode.getLables());
 			
-			if(revert.isExit) {
-				EXIT = origNode;
-			}
 			if(revert.isEntry) {
 				ENTRY = origNode;
 			}
 		}
 	}
 	
+	public Domain<StateType, ActionType, ConditionType> getDomain() {
+		return domain;
+	}
 	
 	public Node<StateType, ActionType> exit() {
 		return EXIT;
@@ -308,7 +284,7 @@ public class CFG<StateType, ActionType, ConditionType>
 	
 	//condition inferencing
 	
-	public boolean inferConditions(ConditionInferencer<StateType, ConditionType> conditionInferencer) {
+	public boolean inferConditions(ConditionInferencer<StateType, ActionType, ConditionType> conditionInferencer) {
 		//TODO - remove "cfg" after moving this
 		CFG<StateType, ActionType, ConditionType> cfg = this;
 		boolean foundConditions = true;
@@ -326,7 +302,7 @@ public class CFG<StateType, ActionType, ConditionType>
 	}
 	
 	
-	public boolean inferConditionsForNode(Node<StateType, ActionType> node, ConditionInferencer<StateType, ConditionType> conditionInferencer) {
+	public boolean inferConditionsForNode(Node<StateType, ActionType> node, ConditionInferencer<StateType, ActionType, ConditionType> conditionInferencer) {
 		//TODO - remove "cfg" after moving this
 		CFG<StateType, ActionType, ConditionType> cfg = this;
 		HashRel2<ActionType, StateType> operatorToStates = new HashRel2<>();
@@ -361,8 +337,9 @@ public class CFG<StateType, ActionType, ConditionType>
 					cur.addAll(otherEdgeStates);					
 				}	
 
-				ConditionType interpol = conditionInferencer.inferSeparator(thisTerm, othersTerm);
-				if(interpol != null) { //|| (cost2.apply(interpol, threshold2) == CostFun.INFINITY_COST)){					
+				var optGuard = conditionInferencer.infer(thisTerm, othersTerm);
+				if(optGuard.isPresent()) { //|| (cost2.apply(interpol, threshold2) == CostFun.INFINITY_COST)){
+					ConditionType interpol = optGuard.get();
 					action.setCondition(interpol);
 					//StringBuilder debugStr = new StringBuilder();
 					//debugStr.append("Found separator: " + interpol + "\n");
@@ -380,28 +357,54 @@ public class CFG<StateType, ActionType, ConditionType>
 		return true;
 	}
 	
+	@Override
+	public Optional<StateType> execute(StateType input, int maxSteps) {
+		Node<StateType, ActionType> current = ENTRY;
+		StateType result = input;
+		int time = 0;
+		while (current != EXIT) {
+			if (time > maxSteps) {
+				//result = result.invalidState("Timed out after " + maxSteps + " steps!");
+				//TODO return error state instance instead
+				return Optional.empty();
+			}
 	
-	public final ConditionalAction<ActionType, ConditionType> skipEdge = new ConditionalAction<ActionType, ConditionType>(
-			(ActionType)null) {
-		@Override
-		public ActionType action() {
-			throw new IllegalArgumentException("A skip edge has no action associated with it!");
-		}
+			Node<StateType, ActionType> next = null;
+			ConditionalAction<ActionType, ConditionType> nextAction = null;
+			int numOfSucc = outDegree(current);
+			assert numOfSucc > 0 : "Encountered non-EXIT node with out-degree 0: " + current.toString();
+			if (numOfSucc == 1) {
+				HashEdge succEdge = succEdges(current).iterator().next();
+				next = succEdge.dst;
+				nextAction = succEdge.label;
+			} else {
+				for (HashEdge outEdge : succEdges(current)) {
+					Node<StateType, ActionType> succNode = outEdge.dst;
+					nextAction = outEdge.label;
+					next = succNode;
+					boolean guardTest = false;
+					if (nextAction.condition != null)
+						guardTest = domain.test(nextAction.condition, result);
+					if (guardTest){
+						break;
+					}
+				}
+			}
 
-		public ConditionType condition() {
-			throw new IllegalArgumentException("A skip edge has no condition associated with it!");
+			assert next != null;
+			Optional<StateType> nextState = domain.apply(nextAction.action, result);
+			if (!nextState.isPresent()) {
+				break;
+			}
+			else {
+				result = nextState.get();
+			}
+			current = next;
+			time = time + 1;
 		}
+		return Optional.of(result);
+	}
 
-		public void setCondition(ConditionType condition) {
-			throw new IllegalArgumentException("A skip edge is immutable!");
-		}
-		
-		@Override
-		public String toString() {
-			return "skip";
-		}
-	};
-	
 	//inner clases section
 	
 	/**
@@ -558,6 +561,36 @@ public class CFG<StateType, ActionType, ConditionType>
 				return action.toString();
 			}
 		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((action == null) ? 0 : action.hashCode());
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj) {
+				return true;
+			}
+			if (obj == null) {
+				return false;
+			}
+			if (getClass() != obj.getClass()) {
+				return false;
+			}
+			ConditionalAction<?,?> other = (ConditionalAction<?,?>) obj;
+			if (action == null) {
+				if (other.action != null) {
+					return false;
+				}
+			} else if (!action.equals(other.action)) {
+				return false;
+			}
+			return true;
+		}
 	}
 	
 	public static class Label<T>{
@@ -587,7 +620,6 @@ public class CFG<StateType, ActionType, ConditionType>
 		private Set<MultiGraph.Edge<Node<StateType, ActionType>, ConditionalAction<ActionType, ConditionType>>> edgesToRemove;
 		private Set<MultiGraph.Edge<Node<StateType, ActionType>, ConditionalAction<ActionType, ConditionType>>> edgesToAdd;
 		
-		private boolean isExit;
 		private boolean isEntry;
 		
 		public Revert(Node<StateType, ActionType> nodeToSplit, Node<StateType, ActionType> origNode) {
@@ -596,7 +628,6 @@ public class CFG<StateType, ActionType, ConditionType>
 			this.edgesToRemove = new HashSet<>();;
 			this.edgesToAdd = new HashSet<>();;
 			this.isEntry = false;
-			this.isExit = false;
 		}
 		
 		
@@ -623,17 +654,6 @@ public class CFG<StateType, ActionType, ConditionType>
 		public void addEdgeToToAdd(MultiGraph.Edge<Node<StateType, ActionType>, ConditionalAction<ActionType, ConditionType>> edgeToAdd) {
 			this.edgesToAdd.add(edgeToAdd);
 		}
-
-
-		public boolean isExit() {
-			return isExit;
-		}
-
-
-		public void setExit() {
-			this.isExit = true;
-		}
-
 
 		public boolean isEntry() {
 			return isEntry;

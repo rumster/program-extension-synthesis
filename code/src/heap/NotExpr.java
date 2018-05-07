@@ -22,7 +22,6 @@ public class NotExpr extends BoolExpr {
 	 */
 	public NotExpr(Node sub) {
 		super(sub);
-		args.add(sub);
 	}
 
 	protected NotExpr(List<Node> args) {

@@ -1,13 +1,16 @@
 package gp;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.logging.Logger;
+
+import org.stringtemplate.v4.ST;
 
 import gp.Domain.Guard;
 import gp.Domain.Update;
 import gp.Domain.Value;
 import gp.planning.Planner;
-import gp.separation.ConditionInferencer;
+import gp.separation.LinearInferencer;
 import gp.tmti.TMTI;
 
 /**
@@ -18,24 +21,22 @@ import gp.tmti.TMTI;
  * 
  * @author romanm
  *
- * @param <Value>
+ * @param <ValueType>
  *            The type of program configurations.
- * @param <Update>
+ * @param <UpdateType>
  *            The type of program actions.
- * @param <Guard>
+ * @param <GuardType>
  *            The type of condition in the program.
  */
 public class TMTISynthesizer<ValueType extends Value, UpdateType extends Update, GuardType extends Guard> {
 	private final Planner<ValueType, UpdateType> planner;
-	private final ConditionInferencer<ValueType, GuardType> separator;
 	private final GPDebugger<ValueType, UpdateType, GuardType> debugger;
 	private final Logger logger;
 
-	public TMTISynthesizer(Planner<ValueType, UpdateType> planner, ConditionInferencer<ValueType, GuardType> separator,
-			Logger logger, GPDebugger<ValueType, UpdateType, GuardType> debugger) {
-		assert planner != null && separator != null;
+	public TMTISynthesizer(Planner<ValueType, UpdateType> planner, Logger logger,
+			GPDebugger<ValueType, UpdateType, GuardType> debugger) {
+		assert planner != null;
 		this.planner = planner;
-		this.separator = separator;
 		this.logger = logger;
 		this.debugger = debugger;
 	}
@@ -53,9 +54,23 @@ public class TMTISynthesizer<ValueType extends Value, UpdateType extends Update,
 				continue;
 			}
 		}
+		final var guards = problem.domain().generateGuards(plans);
+		debugPrintGuards(guards);
+		final var separator = new LinearInferencer<ValueType, UpdateType, GuardType>(problem.domain(), guards);
+
 		logger.info("Generalizing " + plans.size() + " plans...");
-		var learner = new TMTI<ValueType, UpdateType, GuardType>(debugger, problem.domain(), separator);
-		learner.infer(plans);
-		return true;
+		var learner = new TMTI<ValueType, UpdateType, GuardType>(problem.domain(), separator, debugger, logger);
+		var learningResult = learner.infer(plans);
+		logger.info("Learning result = " + learningResult.type);
+		return learningResult.success();
+	}
+
+	protected void debugPrintGuards(Collection<GuardType> guards) {
+		var guardsST = new ST("#guards=<num>\n=============\n<guard:{it|<it>\n}>");
+		guardsST.add("num", guards.size());
+		for (var guard : guards) {
+			guardsST.add("guard", guard);
+		}
+		debugger.printCodeFile("guards.txt", guardsST.render(), "Available guards");
 	}
 }

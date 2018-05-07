@@ -2,6 +2,7 @@ package heap;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import grammar.Node;
@@ -12,7 +13,7 @@ import grammar.Node;
  * @author romanm
  */
 public abstract class Expr extends Node {
-	protected final List<Node> args = new ArrayList<>(2);
+	protected final List<Node> args;
 
 	@Override
 	public final List<Node> getArgs() {
@@ -21,13 +22,20 @@ public abstract class Expr extends Node {
 
 	protected Expr(Collection<Node> nodes) {
 		super(countNonterminals(nodes));
-		args.addAll(nodes);
+		args = Collections.unmodifiableList(new ArrayList<>(nodes));
+	}
+	
+	@Override
+	public String toString() {
+		return Renderer.render(this);
 	}
 
 	protected Expr(Node... nodes) {
 		super(countNonterminals(nodes));
+		var argList = new ArrayList<Node>(nodes.length);
 		for (Node n : nodes) {
-			args.add(n);
+			argList.add(n);
 		}
+		args = Collections.unmodifiableList(argList);
 	}
 }

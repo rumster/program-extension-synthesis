@@ -1,5 +1,11 @@
 package gp;
 
+import gp.Domain.Update;
+import gp.Domain.Guard;
+import gp.Domain.Value;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -14,7 +20,7 @@ import java.util.Optional;
  * @param <GuardType>
  *            The type of predicates on domain values.
  */
-public interface Domain<ValueType extends Domain.Value, UpdateType extends Domain.Update, GuardType extends Domain.Guard> {
+public interface Domain<ValueType extends Value, UpdateType extends Update, GuardType extends Guard> {
 	/**
 	 * The name of this domain.
 	 */
@@ -27,14 +33,18 @@ public interface Domain<ValueType extends Domain.Value, UpdateType extends Domai
 
 	/**
 	 * Tests whether the given predicate holds for the given state.
+	 * 
+	 * @param val
+	 *            A value of type {@link ValueType}. Cast down should be safe for
+	 *            the instantiating domain.
 	 */
-	public boolean test(GuardType c, ValueType state);
-	
+	public boolean test(GuardType guard, Value val);
+
 	/**
 	 * Tests whether the first state matches the second, where the second state may
 	 * be a partial state, serving as a (conjunctive) condition for the first state.
 	 */
-	public boolean match(ValueType first, ValueType second);	
+	public boolean match(ValueType first, ValueType second);
 
 	/**
 	 * Attempts to apply the given update to the given value.
@@ -47,6 +57,16 @@ public interface Domain<ValueType extends Domain.Value, UpdateType extends Domai
 	 *         and empty otherwise.
 	 */
 	public abstract Optional<ValueType> apply(UpdateType update, ValueType value);
+
+	/**
+	 * Returns a list of likely predicates for the given plans.
+	 */
+	public List<GuardType> generateGuards(ArrayList<Plan<ValueType, UpdateType>> plans);
+
+	/**
+	 * Returns a list of likely atomic predicates for the given plans.
+	 */
+	public List<GuardType> generateBasicGuards(ArrayList<Plan<ValueType, UpdateType>> plans);
 
 	/**
 	 * An interface marking domain values.

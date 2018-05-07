@@ -5,6 +5,35 @@ type SLL {
 
 reverse(mut head:SLL) -> (result:SLL) {
   var t:SLL
+/*
+  example {
+    [head==null]
+    -> result=null
+  }
+
+  example {
+    [head==o0 && o0.n==null]
+    -> result=null
+    -> t=head.n    
+    -> head.n=result
+    -> result=head
+    -> head=t
+  }
+*/
+
+  // The only example that is really needed.
+  example {
+    [head==o0 && o0.n==o1 && o1.n==null]
+    -> result=null
+    -> t=head.n    
+    -> head.n=result
+    -> result=head
+    -> head=t
+    -> t=head.n
+    -> head.n=result
+    -> result=head
+    -> head=t
+  }
 
   example {
     [head==o0 && o0.n==o1 && o1.n==o2 && o2.n==null]
@@ -23,12 +52,7 @@ reverse(mut head:SLL) -> (result:SLL) {
     -> head=t
   }
 
-  example {
-    [head==o1 && o1.n==o2 && o2.n==null]
-    -> result.n=null
-    -> t=head.n 
-  }
-
+/* planning-driven examples:
   example {
     [head==o1 && o1.n==o2 && o2.n==null]
     -> [o1.n==null]
@@ -41,4 +65,5 @@ reverse(mut head:SLL) -> (result:SLL) {
     [head==o1 && o1.n==o2 && o2.n==o3 && o3.n==o4 && o4.n==null]
     -> [result==o4 && o4.n==o3 && o3.n==o2 && o2.n==o1 && o1.n==null]
   }
+  */
 }

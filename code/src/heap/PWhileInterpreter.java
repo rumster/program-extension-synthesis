@@ -165,7 +165,7 @@ public class PWhileInterpreter extends PWhileVisitor {
 			return;
 		Val rval = resultVal;
 
-		resultCond = lval == rval;
+		resultCond = lval != null && rval != null && lval == rval;
 	}
 
 	@Override
@@ -180,7 +180,7 @@ public class PWhileInterpreter extends PWhileVisitor {
 			return;
 		IntVal rval = (IntVal) resultVal;
 
-		resultCond = lval.num < rval.num;
+		resultCond = lval != null && rval != null && lval.num < rval.num;
 	}
 
 	@Override
@@ -293,10 +293,10 @@ public class PWhileInterpreter extends PWhileVisitor {
 				resultVal = new IntVal(lhsVal + rhsVal);
 				break;
 			case MINUS:
-				resultVal = new IntVal(lhsVal + rhsVal);
+				resultVal = new IntVal(lhsVal - rhsVal);
 				break;
 			case TIMES:
-				resultVal = new IntVal(lhsVal + rhsVal);
+				resultVal = new IntVal(lhsVal * rhsVal);
 				break;
 			case DIVIDE:
 				if (rhsVal == 0) {

@@ -14,22 +14,19 @@ import grammar.Nonterminal;
  */
 public class PWhileGrammarGen {
 	public static final Nonterminal ncond = new Nonterminal("NCond");
-	
+
 	/**
-	 * a view of the grammar (not a component): A op B
-	 * A - nonterminal
-	 * B - nonterminal, null
-	 * op - ==/<=/<
+	 * a view of the grammar (not a component): A op B A - nonterminal B -
+	 * nonterminal, null op - ==/<=/<
 	 */
 	public static final Nonterminal neq_arithm = new Nonterminal("NSimple");
-	
+
 	/**
-	 * a view of the grammar (not a component): A op B
-	 * A - nonterminal
-	 * B - nonterminal, null
+	 * a view of the grammar (not a component): A op B A - nonterminal B -
+	 * nonterminal, null
 	 */
 	public static final Nonterminal neq = new Nonterminal("NSimple");
-	
+
 	/**
 	 * A nonterminal for a single disjunct.
 	 */
@@ -38,19 +35,16 @@ public class PWhileGrammarGen {
 	private static final Nonterminal naccpath = new Nonterminal("NAccPath");
 
 	/**
-	 * Constructs a PWhile grammar for the given nonterminal, variables, fields,
-	 * and types.
+	 * Constructs a PWhile grammar for the given variables and types.
 	 * 
 	 * TODO: missing allocation statements.
 	 * 
-	 * @param start
-	 *            The start nonterminal.
 	 * @param vars
 	 *            A collection of variables.
 	 * @param refTypes
 	 *            A collection of object types.
 	 */
-	public Grammar gen(Collection<Var> vars, Collection<RefType> refTypes) {
+	public static Grammar gen(Collection<Var> vars, Collection<RefType> refTypes) {
 		Grammar result = new Grammar(nstmt);
 
 		Map<Type, Nonterminal> typeToAPathNonterminal = new HashMap<>();
@@ -75,11 +69,11 @@ public class PWhileGrammarGen {
 		SeqStmt opSeq = new SeqStmt(nstmt, nstmt);
 		nstmt.add(opSeq);
 
-//		TODO
-//		AssignStmt opAssgn1 = new AssignStmt(naccpath, naccpath);
-//		AssignStmt opAssgn2 = new AssignStmt(naccpath, NullExpr.v);
-//		nstmt.add(opAssgn1);
-//		nstmt.add(opAssgn2);
+		// TODO
+		// AssignStmt opAssgn1 = new AssignStmt(naccpath, naccpath);
+		// AssignStmt opAssgn2 = new AssignStmt(naccpath, NullExpr.v);
+		// nstmt.add(opAssgn1);
+		// nstmt.add(opAssgn2);
 
 		OrExpr opOr = new OrExpr(ncond, ncond);
 		ncond.add(opOr);
@@ -100,8 +94,8 @@ public class PWhileGrammarGen {
 
 		AndExpr opAnd = new AndExpr(nbasic, nbasic);
 		nbasic.add(opAnd);
-		
-		/////////		
+
+		/////////
 		neq_arithm.add(opEq1);
 		neq_arithm.add(opEq2);
 		neq_arithm.add(opEqInt);
@@ -115,9 +109,9 @@ public class PWhileGrammarGen {
 			if (var instanceof RefVar) {
 				RefType type = ((RefVar) var).getType();
 				Nonterminal nonterminal = typeToAPathNonterminal.get(type);
-				nonterminal.add(var);
+				nonterminal.add(new VarExpr(var));
 			} else if (var instanceof IntVar) {
-				intNonterminal.add(var);
+				intNonterminal.add(new VarExpr(var));
 			} else {
 				assert false : "encountered unexpected type of variables!";
 			}

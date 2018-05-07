@@ -50,6 +50,7 @@ public class DerefExpr extends Expr {
 
 	@Override
 	public DerefExpr clone(List<Node> args) {
+		assert args.size() == 2;
 		return new DerefExpr(args);
 	}
 }

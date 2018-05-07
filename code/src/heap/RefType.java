@@ -45,30 +45,13 @@ public class RefType extends Type {
 
 	@Override
 	public int hashCode() {
-		mutable = false;
-		final int prime = 31;
-		int result = super.hashCode();
-		result = prime * result + ((fields == null) ? 0 : fields.hashCode());
-		return result;
+		return name.hashCode();
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		mutable = false;
-		if (this == obj)
-			return true;
-		if (!super.equals(obj))
-			return false;
-		if (!(obj instanceof RefType))
-			return false;
-		RefType other = (RefType) obj;
-		if (fields == null) {
-			if (other.fields != null) {
-				return false;
-			}
-		} else if (!fields.equals(other.fields))
-			return false;
-		return true;
+	public boolean equals(Object o) {
+		RefType other = (RefType) o;
+		return this.name.equals(other.name);
 	}
 
 	@Override
@@ -77,7 +60,7 @@ public class RefType extends Type {
 		PWhileVisitor whileVisitor = (PWhileVisitor) v;
 		whileVisitor.visit(this);
 	}
-	
+
 	@Override
 	public String toString() {
 		return name;

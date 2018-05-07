@@ -2,6 +2,7 @@ package gp.controlFlowGraph;
 
 import java.util.Collection;
 
+import gp.Domain;
 import gp.Plan;
 
 /**
@@ -16,7 +17,7 @@ import gp.Plan;
  * @param <ConditionType>
  *            The type of conditions on CFG branches.
  */
-public abstract class CFGGeneralizer<StateType, ActionType, ConditionType> {
+public abstract class CFGGeneralizer<StateType extends Domain.Value, ActionType extends Domain.Update, ConditionType extends Domain.Guard> {
 	/**
 	 * The possible results of a generalization algorithm.
 	 * 

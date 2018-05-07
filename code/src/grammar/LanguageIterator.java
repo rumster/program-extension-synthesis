@@ -104,6 +104,7 @@ public class LanguageIterator implements Iterator<Node> {
 				if (costUpperBound < 0 || succCost > costUpperBound) {
 					continue;
 				}
+				assert succ.getArgs().size() <= 2;
 				frontier.put(succCost, succ);
 			}
 		}

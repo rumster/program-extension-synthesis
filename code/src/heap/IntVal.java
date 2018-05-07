@@ -18,14 +18,6 @@ public class IntVal extends Val {
 	}
 
 	@Override
-	public boolean equals(Object o) {
-		if (o == null || !(o instanceof IntVal))
-			return false;
-		IntVal other = (IntVal) o;
-		return this.num == other.num;
-	}
-
-	@Override
 	public String toString() {
 		return "" + num;
 	}
@@ -40,10 +32,13 @@ public class IntVal extends Val {
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = super.hashCode();
-		result = prime * result + num;
-		return result;
+		return num;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		IntVal other = (IntVal) o;
+		return this.num == other.num;
 	}
 
 	@Override

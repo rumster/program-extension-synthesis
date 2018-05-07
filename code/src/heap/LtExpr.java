@@ -39,6 +39,7 @@ public class LtExpr extends BoolExpr {
 
 	@Override
 	public LtExpr clone(List<Node> args) {
+		assert args.size() == 2;
 		return new LtExpr(args);
 	}
 }

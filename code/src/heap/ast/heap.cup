@@ -51,6 +51,7 @@ nonterminal List fields; // <ASTDeclField>
 nonterminal List optionalFields; // <ASTDeclField>
 nonterminal ASTDeclField field;
 nonterminal ASTFun funDef;
+nonterminal ASTVarDecl inputArg;
 nonterminal List inputArgs; // <ASTVarDecl>
 nonterminal List outputArgs; // <ASTVarDecl>
 nonterminal List optionalInputArgs; // <ASTVarDecl>
@@ -146,17 +147,21 @@ optionalOutputArgs ::=
 	{: RESULT = args; :}
 ;
 
-inputArgs ::= var:a
+inputArg ::= var:a
 	{: a.readonly = true;
-	   RESULT = new ArrayList<ASTVarDecl>();
-	   RESULT.add(a);
+	   RESULT = a;
 	:}
 	| MUT var:a
 	{: a.readonly = false;
-	   RESULT = new ArrayList<ASTVarDecl>();
+	   RESULT = a;
+	:}
+;
+
+inputArgs ::= inputArg:a
+	{: RESULT = new ArrayList<ASTVarDecl>();
 	   RESULT.add(a);
 	:}
-	| inputArgs:prefix COMMA var:a
+	| inputArgs:prefix COMMA inputArg:a
 	{: prefix.add(a);
 	   RESULT = prefix;
 	:}

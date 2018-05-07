@@ -19,6 +19,10 @@ public class VarExpr extends Expr {
 		return (Var) args.get(0);
 	}
 	
+	public String varName() {
+		return getVar().name;
+	}
+	
 	@Override
 	public void accept(Visitor v) {
 		PWhileVisitor whileVisitor = (PWhileVisitor) v;
@@ -26,11 +30,13 @@ public class VarExpr extends Expr {
 	}
 
 	protected VarExpr(List<Node> args) {
+		super(args);
 		assertNumOfArgs(1);
 	}
 
 	@Override
 	public VarExpr clone(List<Node> args) {
+		assert args.size() == 1;
 		return new VarExpr(args);
 	}
 }

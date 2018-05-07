@@ -38,15 +38,24 @@ public abstract class GPDebugger<ValueType extends Value, UpdateType extends Upd
 	 */
 	public abstract void printPlan(Plan<ValueType, UpdateType> plan, int planIndex);
 
+	/**
+	 * Prints the given automaton with the given description.
+	 */
 	public void printAutomaton(Automaton automaton, String description) {
 		var automatonProps = new GraphicProperties<State, Action>();
 		for (State state : automaton.getNodes()) {
-			NodeProperties stateProps = new NodeProperties(state.id);
+			var stateProps = new NodeProperties(state.id);
+			if (state == automaton.getFinal()) {
+				stateProps.style = "peripheries=2";
+			}
 			automatonProps.setProp(state, stateProps);
 			for (Edge<State, Action> edge : automaton.succEdges(state)) {
 				Action action = edge.getLabel();
-				String actionStr = renderGuard(action.guard()) + "/" + renderUpdate(action.update);
-				EdgeDataProperties edProps = new EdgeDataProperties(actionStr);
+				// Avoid printing trivial guards.
+				var trivialGuard = automaton.outDegree(state) == 1 || action.guard().toString().equals("true");
+				String guardStr = trivialGuard ? "" : renderGuard(action.guard()) + "/\n";
+				String actionStr = guardStr + renderUpdate(action.update);
+				var edProps = new EdgeDataProperties(actionStr);
 				automatonProps.setProp(action, edProps);
 			}
 		}

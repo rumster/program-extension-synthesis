@@ -26,11 +26,13 @@ public class ValExpr extends Expr {
 	}
 
 	protected ValExpr(List<Node> args) {
+		super(args);
 		assertNumOfArgs(1);
 	}
 
 	@Override
 	public ValExpr clone(List<Node> args) {
+		assert args.size() == 1;
 		return new ValExpr(args);
 	}
 }

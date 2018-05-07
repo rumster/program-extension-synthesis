@@ -114,6 +114,9 @@ public class ProblemCompiler {
 					throw new SemanticError("Field " + fieldAST.name + " of type " + n.name
 							+ " refers to undefined type " + fieldAST.typeName, fieldAST);
 				}
+				if (type.findField(fieldAST.name).isPresent()) {
+					throw new SemanticError("Field " + fieldAST.name + " already exists in type ", fieldAST);
+				}
 				if (fieldType == IntType.v) {
 					IntField field = new IntField(fieldAST.name, type, fieldAST.ghost);
 					type.add(field);

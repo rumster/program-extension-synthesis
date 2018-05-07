@@ -30,8 +30,6 @@ public class AndExpr extends BoolExpr {
 	 */
 	public AndExpr(Node lhs, Node rhs) {
 		super(lhs, rhs);
-		args.add(lhs);
-		args.add(rhs);
 	}
 
 	protected AndExpr(List<Node> args) {
@@ -41,6 +39,7 @@ public class AndExpr extends BoolExpr {
 
 	@Override
 	public AndExpr clone(List<Node> args) {
+		assert args.size() == 2;
 		return new AndExpr(args);
 	}
 }

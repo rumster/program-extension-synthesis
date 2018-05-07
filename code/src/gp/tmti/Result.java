@@ -23,6 +23,10 @@ public class Result {
 		assert type == ResultType.OK;
 		return m;
 	}
+	
+	public boolean success() {
+		return type == ResultType.OK;
+	}
 
 	protected Result(ResultType type, Automaton m) {
 		this.type = type;

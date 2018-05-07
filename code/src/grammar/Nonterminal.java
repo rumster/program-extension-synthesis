@@ -91,6 +91,6 @@ public final class Nonterminal extends Node {
 
 	@Override
 	public Node substituteLeftmostNonterminal(Node op) {
-		return this;
+		return op;
 	}
 }

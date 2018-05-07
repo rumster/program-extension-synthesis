@@ -5,7 +5,7 @@ import gp.Domain.Update;
 import gp.Domain.Value;
 
 /**
- * A point along a trace.
+ * A point along a trace. Trace points are immutable.
  * 
  * @author romanm
  */

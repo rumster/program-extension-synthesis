@@ -142,6 +142,7 @@ choose('store_0');
 
 indexedStoreDiv(filename, index) ::= <<
 <div id="store_$index$" style="display:none; border:solid;">
+<!-- <object data="$filename$" type="image/svg+xml"/> -->
 <img src="$filename$">
 </div>
 >>

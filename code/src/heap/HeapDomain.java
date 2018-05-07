@@ -2,6 +2,8 @@ package heap;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +17,9 @@ import bgu.cs.util.STHierarchyRenderer;
 import bgu.cs.util.rel.HashRel2;
 import bgu.cs.util.rel.Rel2;
 import gp.Domain;
+import gp.Plan;
+import grammar.CostSize;
+import heap.Store.ErrorStore;
 import heap.Var.VarRole;
 
 /**
@@ -25,7 +30,14 @@ import heap.Var.VarRole;
 public class HeapDomain implements Domain<Store, Stmt, BoolExpr> {
 	public final Set<Field> fields = new LinkedHashSet<>();
 
+	/**
+	 * The set of all variables (of all types).
+	 */
 	public final Collection<Var> vars;
+
+	/**
+	 * The subset of reference-typed variables.
+	 */
 	public final List<RefVar> refVars = new ArrayList<>();
 	public final List<RefVar> refTemps = new ArrayList<>();
 	public final List<RefVar> refArgs = new ArrayList<>();
@@ -51,11 +63,11 @@ public class HeapDomain implements Domain<Store, Stmt, BoolExpr> {
 	}
 
 	@Override
-	public boolean test(BoolExpr c, Store state) {
+	public boolean test(BoolExpr c, Value val) {
+		Store state = (Store) val;
 		Boolean result = PWhileInterpreter.v.test(c, state);
 		return result != null && result.booleanValue();
 	}
-	
 
 	@Override
 	public boolean match(Store first, Store second) {
@@ -79,17 +91,19 @@ public class HeapDomain implements Domain<Store, Stmt, BoolExpr> {
 
 		// TODO: handle free objects.
 		return true;
-	}	
+	}
 
 	@Override
 	public Optional<Store> apply(Stmt stmt, Store store) {
+		Optional<Store> result = Optional.empty();
 		Collection<Store> succs = BasicHeapTR.applier.apply(store, stmt);
 		if (succs.size() == 1) {
 			Store next = succs.iterator().next();
-			return Optional.of(next);
-		} else {
-			return Optional.empty();
+			if (!(next instanceof ErrorStore)) {
+				result = Optional.of(next);
+			}
 		}
+		return result;
 	}
 
 	public static HeapDomain fromVarsAndTypes(Collection<Var> vars, Collection<RefType> refTypes) {
@@ -174,6 +188,198 @@ public class HeapDomain implements Domain<Store, Stmt, BoolExpr> {
 		return result;
 	}
 
+	/**
+	 * TODO: refine the sorting of the guards by accounting for (as feww as
+	 * possible) constants.
+	 */
+	@Override
+	public List<BoolExpr> generateGuards(ArrayList<Plan<Store, Stmt>> plans) {
+		var posLiterals = generateBasicGuards(plans);
+		var negLiterals = new ArrayList<BoolExpr>();
+		for (var e : posLiterals) {
+			negLiterals.add(new NotExpr(e));
+		}
+
+		final var result = new ArrayList<BoolExpr>();
+		result.addAll(posLiterals);
+		result.addAll(negLiterals);
+		final var doubleCubes = getDoubleCubes(posLiterals);
+		result.addAll(doubleCubes);
+		// final var doubleOr = getOr2(posLiterals, doubleCubes);
+		final var doubleOrPosPos = getOr2(posLiterals, posLiterals);
+		result.addAll(doubleOrPosPos);
+		final var doubleOrPosNeg = getOr2(posLiterals, negLiterals);
+		result.addAll(doubleOrPosNeg);
+
+		var sizeFun = new CostSize();
+		Collections.sort(result, (e1, e2) -> {
+			var diff = sizeFun.apply(e1) - sizeFun.apply(e2);
+			return (int) diff;
+		});
+		return result;
+	}
+
+	public List<BoolExpr> getOr2(List<BoolExpr> exprs1, List<BoolExpr> exprs2) {
+		final var result = new ArrayList<BoolExpr>();
+		for (var e1 : exprs1) {
+			for (var e2 : exprs2) {
+				result.add(new OrExpr(e1, e2));
+			}
+		}
+		return result;
+	}
+
+	public List<BoolExpr> getDoubleCubes(List<BoolExpr> posLiterals) {
+		final var result = new ArrayList<BoolExpr>();
+		for (var e1 : posLiterals) {
+			for (var e2 : posLiterals) {
+				if (e1 == e2) {
+					continue;
+				}
+				result.add(new AndExpr(e1, e2));
+				result.add(new AndExpr(e1, new NotExpr(e2)));
+				result.add(new AndExpr(new NotExpr(e1), e2));
+				result.add(new AndExpr(new NotExpr(e1), new NotExpr(e2)));
+			}
+		}
+		return result;
+	}
+
+	protected void addBasicIntGuards(ArrayList<Plan<Store, Stmt>> plans, List<BoolExpr> result) {
+		// Collect all of the integers constants into a single set.
+		final var intVals = new HashSet<IntVal>();
+		for (final var plan : plans) {
+			for (final Store store : plan.states()) {
+				for (final Val v : store.env.values()) {
+					if (v instanceof IntVal) {
+						intVals.add((IntVal) v);
+					}
+				}
+				for (final Obj o : store.objects) {
+					for (final Field field : o.type.fields) {
+						if (field.dstType == IntType.v) {
+							Val v = store.eval(o, field);
+							if (v != null) {
+								IntVal iv = (IntVal) v;
+								intVals.add(iv);
+							}
+						}
+					}
+				}
+			}
+		}
+
+		// No use generating guards, since they will not be able to separate
+		// stores that have no integer values.
+		if (intVals.isEmpty()) {
+			return;
+		}
+
+		final var intExprs = new ArrayList<Expr>();
+		// Add variables and variable-field-dereference expressions as basic
+		// expressions.
+		for (final var domVar : vars) {
+			if (domVar instanceof IntVar) {
+				intExprs.add(new VarExpr(domVar));
+			} else {
+				assert domVar instanceof RefVar;
+				RefVar refVar = (RefVar) domVar;
+				RefType refType = refVar.getType();
+				for (var field : refType.fields) {
+					if (field instanceof IntField) {
+						intExprs.add(new DerefExpr(new VarExpr(domVar), field));
+					}
+				}
+			}
+		}
+
+		// Add less-than and equality guards from the integer-valued expressions.
+		for (int i = 0; i < intExprs.size(); ++i) {
+			var e1 = intExprs.get(i);
+			// Break symmetry. This prunes out symmetric guards (x==y and y==x)
+			// and guards than can be achieved by combinations of equality and less-than.
+			for (int j = i + 1; j < intExprs.size(); ++j) {
+				var e2 = intExprs.get(j);
+				final var lt = new LtExpr(e1, e2);
+				result.add(lt);
+				final var eq = new EqExpr(e1, e2);
+				result.add(eq);
+			}
+			for (final var iv : intVals) {
+				final var lt = new LtExpr(e1, new ValExpr(iv));
+				result.add(lt);
+				final var eq = new EqExpr(e1, new ValExpr(iv));
+				result.add(eq);
+			}
+		}
+	}
+
+	/**
+	 * TODO: prune out incorrectly-typed expressions.
+	 */
+	protected void addBasicRefGuards(ArrayList<Plan<Store, Stmt>> plans, List<BoolExpr> result) {
+		final var refExprs = new ArrayList<Expr>();
+		boolean storesWithObjects = false;
+		for (var plan : plans) {
+			for (var store : plan.states()) {
+				if (!store.getObjects().isEmpty()) {
+					storesWithObjects = true;
+					break;
+				}
+			}
+			if (storesWithObjects) {
+				break;
+			}
+		}
+
+		// No use generating reference-related guards, since they will not be able to
+		// separate stores without objects.
+		if (!storesWithObjects) {
+			return;
+		}
+
+		// Add variables and variable-field-dereference expressions as basic
+		// expressions.
+		for (final var domVar : vars) {
+			if (domVar instanceof RefVar) {
+				assert domVar instanceof RefVar;
+				var varExpr = new VarExpr(domVar);
+				refExprs.add(varExpr);
+
+				RefVar refVar = (RefVar) domVar;
+				RefType refType = refVar.getType();
+				for (var field : refType.fields) {
+					if (field instanceof RefField) {
+						assert field instanceof RefField;
+						refExprs.add(new DerefExpr(varExpr, field));
+					}
+				}
+			}
+		}
+		refExprs.add(NullExpr.v);
+
+		// Add equality guards for reference-valued expressions.
+		for (int i = 0; i < refExprs.size(); ++i) {
+			final var e1 = refExprs.get(i);
+			for (int j = i + 1; j < refExprs.size(); ++j) {
+				final var e2 = refExprs.get(j);
+				final var eq = new EqExpr(e1, e2);
+				result.add(eq);
+			}
+		}
+	}
+
+	@Override
+	public List<BoolExpr> generateBasicGuards(ArrayList<Plan<Store, Stmt>> plans) {
+		final var result = new ArrayList<BoolExpr>();
+		addBasicIntGuards(plans, result);
+		addBasicRefGuards(plans, result);
+		return result;
+	}
+
+	/**
+	 * TODO: make the auto-renderer work.
+	 */
 	@Override
 	public String toString() {
 		ST template = templates.load("HeapDomain");
@@ -206,10 +412,5 @@ public class HeapDomain implements Domain<Store, Stmt, BoolExpr> {
 		}
 
 		return template.render();
-
-		// TODO: make the auto-renderer work.
-		// STHierarchyRenderer renderer = new STHierarchyRenderer(HeapDomain.class,
-		// "HeapDomain");
-		// return renderer.render(this);
 	}
 }

@@ -13,7 +13,6 @@ import org.apache.commons.configuration2.ex.ConfigurationException;
 import bgu.cs.util.Timer;
 import gp.TMTISynthesizer;
 import gp.planning.AStar;
-import gp.separation.InterpolatingConditionInferencer;
 
 /**
  * Heap-manipulating program synthesis application.
@@ -72,9 +71,8 @@ public abstract class HeapRunner {
 			// var synthesizer = new CFGSynthesizer<Store, Stmt, BoolExpr>(planner,
 			// generalizer, logger, debugger);
 			// var result = new CFG<Store, Stmt, BoolExpr>();
-			var synthesizer = new TMTISynthesizer<Store, Stmt, BoolExpr>(planner,
-					new InterpolatingConditionInferencer(outputDirPath), logger, debugger);
-			// boolean ok = synthesizer.synthesize(problem, result);
+			// boolean ok = synthesizer.synthesize(problem, result);			
+			var synthesizer = new TMTISynthesizer<Store, Stmt, BoolExpr>(planner, logger, debugger);
 			boolean ok = synthesizer.synthesize(problem);
 			if (!ok) {
 				logger.info("fail!");
