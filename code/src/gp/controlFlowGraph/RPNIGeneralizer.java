@@ -15,8 +15,6 @@ import gp.controlFlowGraph.CFG.ConditionalAction;
 import gp.controlFlowGraph.CFG.Node;
 import gp.separation.ConditionInferencer;
 import gp.separation.ConditionInferencer_debug;
-import gp.separation.InterpolatingConditionInferencer;
-import grammar.CachedLanguageIterator;
 import grammar.CostBadConditions;
 import grammar.CostFun;
 import grammar.CostSize;
@@ -24,7 +22,6 @@ import grammar.CostSize2;
 import grammar.CostSum;
 import heap.BoolExpr;
 import heap.HeapDebugger;
-import heap.PWhileGrammarGen;
 import heap.SkipStmt;
 import heap.Stmt;
 import heap.Store;
@@ -44,9 +41,12 @@ public class RPNIGeneralizer
 		//cfg = new CFG<>();
 		
 		//limit dereference depth to 0 levels (x == y)
+		@SuppressWarnings("unused")
 		float threshold = 4;
+		@SuppressWarnings("unused")
 		CostFun cost = new CostSum(new CostBadConditions(), new CostSize());
-		conditionInferencer = 				
+		conditionInferencer = 
+				
 				new ConditionInferencer_debug(domain);
 				/*
 				new InterpolatingConditionInferencer(domain,

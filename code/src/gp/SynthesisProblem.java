@@ -65,26 +65,10 @@ public abstract class SynthesisProblem<ValueType extends Value, UpdateType exten
 			ValueType input = example.input();
 			ValueType goal = example.goal();
 			Optional<ValueType> finalState = prog.execute(input, 100000);
-			if (!finalState.isPresent() || !goal.equals(finalState.get())) {
+			if (!finalState.isPresent() || !domain().match(finalState.get(), goal)) {
 				return false;
 			}
 		}
 		return true;
-		// for (Pair<State, State> example : problem.examples) {
-		// State input = example.first;
-		// State expectedOutput = example.second;
-		// expectedOutput = expectedOutput.clean(problem.getDeadOutVars());
-		// State progOutput = prog.execute(input, 100000);
-		// progOutput = progOutput.clean(problem.getDeadOutVars());
-		// if (progOutput instanceof ErrorState)
-		// return SpecTestResult.ILLEGAL;
-		// if (progOutput instanceof TopState)
-		// return SpecTestResult.TOP;
-		// if (!progOutput.equals(expectedOutput))
-		// return SpecTestResult.SPEC_FAIL;
-		// // Yey, the program satisfies this example.
-		// }
-		// // Yey, the program satisfies all examples.
-		// return SpecTestResult.SPEC_SATISFIED;
 	}
 }

@@ -12,7 +12,6 @@ import gp.Domain;
 import gp.Domain.Value;
 import grammar.CachedLanguageIterator;
 import heap.BoolExpr;
-import heap.PWhileInterpreter;
 import heap.Stmt;
 import heap.Store;
 
@@ -47,7 +46,7 @@ public class InterpolatingConditionInferencer extends ConditionInferencer<Store,
 		int maxPredicateIndx = 0;
 		for (Collection<? extends Value> states : Arrays.asList(first, second)) {
 			initStatePredicates(states);
-			for (Value v : states) {
+			for (var v : states) {
 				Store state = (Store) v;
 				if (maxPredicateIndx < this.predicates.get(state).size()) {
 					maxPredicateIndx = this.predicates.get(state).size();
@@ -59,12 +58,12 @@ public class InterpolatingConditionInferencer extends ConditionInferencer<Store,
 			List<List<Boolean>> thisTerm = new ArrayList<>();
 			List<List<Boolean>> othersTerm = new ArrayList<>();
 
-			for (Value v1 : first) {
-				Store state = (Store) v1;
+			for (var v : first) {
+				Store state = (Store) v;
 				thisTerm.add(predicates.get(state));
 			}
-			for (Value v2 : second) {
-				Store state = (Store) v2;
+			for (var v : second) {
+				Store state = (Store) v;
 				othersTerm.add(predicates.get(state));
 			}
 
@@ -77,7 +76,7 @@ public class InterpolatingConditionInferencer extends ConditionInferencer<Store,
 				boolean updateall = true;
 				while (updateall) {
 					for (Collection<? extends Value> states : Arrays.asList(first, second)) {
-						for (Value v : states) {
+						for (var v : states) {
 							Store state = (Store) v;
 							int nextPredIndx = this.predicates.get(state).size();
 							if (nextPredIndx < maxPredicateIndx) {
@@ -110,11 +109,7 @@ public class InterpolatingConditionInferencer extends ConditionInferencer<Store,
 			if (citer.has(nextPredIndx)) {
 				// TODO: unsafe casting to BoolExpr - refactor
 				BoolExpr condition = (BoolExpr) citer.get(nextPredIndx);
-				test = PWhileInterpreter.v.test(condition, state);
-				// false, if predicate value is undefined for this state
-				if (test == null) {
-					test = false;
-				}
+				test = domain.test(condition, state);
 				statePredicates.add(test);
 				nextPredIndx++;
 			} else {
@@ -125,7 +120,7 @@ public class InterpolatingConditionInferencer extends ConditionInferencer<Store,
 	}
 
 	private void initStatePredicates(Collection<? extends Value> states) {
-		for (Value v : states) {
+		for (var v : states) {
 			Store state = (Store) v;
 			Boolean initialized = false;
 			List<Boolean> preds = this.predicates.get(state);

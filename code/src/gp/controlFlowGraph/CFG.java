@@ -364,8 +364,6 @@ public class CFG<StateType extends Domain.Value, ActionType extends Domain.Updat
 		int time = 0;
 		while (current != EXIT) {
 			if (time > maxSteps) {
-				//result = result.invalidState("Timed out after " + maxSteps + " steps!");
-				//TODO return error state instance instead
 				return Optional.empty();
 			}
 	
