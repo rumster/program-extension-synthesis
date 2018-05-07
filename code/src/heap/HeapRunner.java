@@ -62,7 +62,7 @@ public abstract class HeapRunner {
 		try {
 			var problem = genProblem();
 			debugger = new HeapDebugger(logger, problem.name, outputDirPath);
-			debugger.printLink(logFilePath, "Events log");
+			debugger.printLink(logFile.getName(), "Events log");
 			debugger.printCodeFile("problem.txt", problem.toString(), "Specification");
 			debugger.printExamples(problem.examples);
 			synthesisTime.start();
@@ -71,7 +71,7 @@ public abstract class HeapRunner {
 			// var synthesizer = new CFGSynthesizer<Store, Stmt, BoolExpr>(planner,
 			// generalizer, logger, debugger);
 			// var result = new CFG<Store, Stmt, BoolExpr>();
-			// boolean ok = synthesizer.synthesize(problem, result);			
+			// boolean ok = synthesizer.synthesize(problem, result);
 			var synthesizer = new TMTISynthesizer<Store, Stmt, BoolExpr>(planner, logger, debugger);
 			boolean ok = synthesizer.synthesize(problem);
 			if (!ok) {
@@ -112,7 +112,7 @@ public abstract class HeapRunner {
 
 	private void setOutLogFile() {
 		try {
-			logFile = new File(outputDirPath + "/log.txt");
+			logFile = new File(outputDirPath + File.separator + "log.txt");
 			logFilePath = logFile.getCanonicalPath();
 			FileHandler logFileHandler = new FileHandler(logFilePath);
 			logFileHandler.setFormatter(new SimpleFormatter());

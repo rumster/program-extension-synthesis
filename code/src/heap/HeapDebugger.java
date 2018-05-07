@@ -60,8 +60,9 @@ public class HeapDebugger extends GPDebugger<Store, Stmt, BoolExpr> {
 			exampleListTemplate.add("indexedExample", indexedExampleTemplate.render());
 			exampleListTemplate.add("indices", example.id);
 		}
-		String exampleListFileName = outputDirPath + File.separator + "examples.html";
-		FileUtils.stringToFile(exampleListTemplate.render(), exampleListFileName);
+		String exampleListFileName = "examples.html";
+		String exampleListPath = outputDirPath + File.separator + exampleListFileName;
+		FileUtils.stringToFile(exampleListTemplate.render(), exampleListPath);
 		super.printLink(exampleListFileName, "Examples");
 		logger.info("Done visualizing examples.");
 		return refresh();
@@ -78,9 +79,9 @@ public class HeapDebugger extends GPDebugger<Store, Stmt, BoolExpr> {
 		planTemplate.add("planIndex", planIndex);
 		{
 			Store store = plan.stateAt(0);
-			String filename = outputDirPath + File.separator + "Plan" + planIndex + "_" + 0 + "."
-					+ STATE_IMAGE_FILE_POSTFIX;
-			StoreUtils.printStore(store, filename, logger);
+			String filename = "Plan" + planIndex + "_" + 0 + "." + STATE_IMAGE_FILE_POSTFIX;
+			String filePath = outputDirPath + File.separator + filename;
+			StoreUtils.printStore(store, filePath, logger);
 			planTemplate.add("indexedStore", new Pair<String, String>(filename, "" + 0));
 			planTemplate.add("indexedAction", new Pair<String, String>("initial", "" + 0));
 		}
@@ -88,15 +89,16 @@ public class HeapDebugger extends GPDebugger<Store, Stmt, BoolExpr> {
 			Store store = plan.stateAt(actionIndex + 1);
 			int storeIndex = actionIndex + 1;
 			Stmt action = plan.actionAt(actionIndex);
-			String filename = outputDirPath + File.separator + "Plan" + planIndex + "_" + storeIndex + "."
-					+ STATE_IMAGE_FILE_POSTFIX;
-			StoreUtils.printStore(store, filename, logger);
+			String filename = "Plan" + planIndex + "_" + storeIndex + "." + STATE_IMAGE_FILE_POSTFIX;
+			String filePath = outputDirPath + File.separator + filename;
+			StoreUtils.printStore(store, filePath, logger);
 			planTemplate.add("indexedStore", new Pair<String, String>(filename, "" + storeIndex));
 			String actionStr = Renderer.render(action);
 			planTemplate.add("indexedAction", new Pair<String, String>(actionStr, "" + storeIndex));
 		}
-		String planFileName = outputDirPath + File.separator + "Plan" + planIndex + ".html";
-		FileUtils.stringToFile(planTemplate.render(), planFileName);
+		String planFileName = "Plan" + planIndex + ".html";
+		String planFilePath = outputDirPath + File.separator + planFileName;
+		FileUtils.stringToFile(planTemplate.render(), planFilePath);
 		super.printLink(planFileName, "Plan " + planIndex);
 	}
 
