@@ -1,0 +1,39 @@
+/* Computes the integer square root of x.
+ * That is, the square root, rounded down.
+ */ 
+sqrt(x:int) -> (res:int) {
+  var t:int
+  var tn:int
+  
+  example {
+    [x==1]
+    -> res = 1
+    -> t = res*res
+    -> tn = (res+1)*(res+1)
+  }
+
+  example {
+    [x==5]
+    -> res = 1
+    -> t = res*res
+    -> tn = (res+1)*(res+1)
+    -> res = res+1
+    -> t = res*res
+    -> tn = (res+1)*(res+1)
+  }
+
+/*
+  example {
+    [x==9]
+    -> res = 1
+    -> t = res*res
+    -> tn = (res+1)*(res+1)
+    -> res = res+1
+    -> t = res*res
+    -> tn = (res+1)*(res+1)
+    -> res = res+1
+    -> t = res*res
+    -> tn = (res+1)*(res+1)
+  }
+*/
+}

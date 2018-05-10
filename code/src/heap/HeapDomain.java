@@ -203,12 +203,12 @@ public class HeapDomain implements Domain<Store, Stmt, BoolExpr> {
 		final var result = new ArrayList<BoolExpr>();
 		result.addAll(posLiterals);
 		result.addAll(negLiterals);
-		final var doubleCubes = getDoubleCubes(posLiterals);
+		final var doubleCubes = genPairCubes(posLiterals);
 		result.addAll(doubleCubes);
 		// final var doubleOr = getOr2(posLiterals, doubleCubes);
-		final var doubleOrPosPos = getOr2(posLiterals, posLiterals);
+		final var doubleOrPosPos = genOr2(posLiterals, posLiterals);
 		result.addAll(doubleOrPosPos);
-		final var doubleOrPosNeg = getOr2(posLiterals, negLiterals);
+		final var doubleOrPosNeg = genOr2(posLiterals, negLiterals);
 		result.addAll(doubleOrPosNeg);
 
 		var sizeFun = new CostSize();
@@ -219,7 +219,11 @@ public class HeapDomain implements Domain<Store, Stmt, BoolExpr> {
 		return result;
 	}
 
-	public List<BoolExpr> getOr2(List<BoolExpr> exprs1, List<BoolExpr> exprs2) {
+	/**
+	 * Generates disjunctive expressions from the Cartesian product of the
+	 * expressions in the first list and the expressions in the second list.
+	 */
+	public List<BoolExpr> genOr2(List<BoolExpr> exprs1, List<BoolExpr> exprs2) {
 		final var result = new ArrayList<BoolExpr>();
 		for (var e1 : exprs1) {
 			for (var e2 : exprs2) {
@@ -229,10 +233,14 @@ public class HeapDomain implements Domain<Store, Stmt, BoolExpr> {
 		return result;
 	}
 
-	public List<BoolExpr> getDoubleCubes(List<BoolExpr> posLiterals) {
+	/**
+	 * Generates all cubes of size 2, from the given expressions and their
+	 * negations.
+	 */
+	public List<BoolExpr> genPairCubes(List<BoolExpr> exprs) {
 		final var result = new ArrayList<BoolExpr>();
-		for (var e1 : posLiterals) {
-			for (var e2 : posLiterals) {
+		for (var e1 : exprs) {
+			for (var e2 : exprs) {
 				if (e1 == e2) {
 					continue;
 				}
@@ -296,18 +304,27 @@ public class HeapDomain implements Domain<Store, Stmt, BoolExpr> {
 		// Add less-than and equality guards from the integer-valued expressions.
 		for (int i = 0; i < intExprs.size(); ++i) {
 			var e1 = intExprs.get(i);
-			// Break symmetry. This prunes out symmetric guards (x==y and y==x)
-			// and guards than can be achieved by combinations of equality and less-than.
-			for (int j = i + 1; j < intExprs.size(); ++j) {
+			for (int j = 0; j < intExprs.size(); ++j) {
+				if (i == j) {
+					continue;
+				}
 				var e2 = intExprs.get(j);
-				final var lt = new LtExpr(e1, e2);
-				result.add(lt);
-				final var eq = new EqExpr(e1, e2);
-				result.add(eq);
+				final var lt1 = new LtExpr(e1, e2);
+				result.add(lt1);
+				final var lt2 = new LtExpr(e2, e1);
+				result.add(lt2);
+				// Since equality is symmetric, prune out useless
+				// guards.
+				if (i < j) {
+					final var eq = new EqExpr(e1, e2);
+					result.add(eq);
+				}
 			}
 			for (final var iv : intVals) {
-				final var lt = new LtExpr(e1, new ValExpr(iv));
-				result.add(lt);
+				final var lt1 = new LtExpr(e1, new ValExpr(iv));
+				result.add(lt1);
+				final var lt2 = new LtExpr(new ValExpr(iv), e1);
+				result.add(lt2);
 				final var eq = new EqExpr(e1, new ValExpr(iv));
 				result.add(eq);
 			}

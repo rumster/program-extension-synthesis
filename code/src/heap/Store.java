@@ -237,7 +237,7 @@ public class Store implements Value {
 	 */
 	public Val eval(Obj obj, Field field) {
 		Map<Field, Val> objFields = heap.get(obj);
-		return objFields.get(field);
+		return objFields != null ? objFields.get(field) : null;
 	}
 
 	public Val eval(RefVar var, Field field) {
@@ -354,12 +354,14 @@ public class Store implements Value {
 				if (obj == Obj.NULL)
 					continue;
 				Map<Field, Val> objFields = heap.get(obj);
-				for (Val fieldVal : objFields.values()) {
-					if (!(fieldVal instanceof Obj))
-						continue;
-					Obj succObj = (Obj) fieldVal;
-					if (!reachable.contains(succObj)) {
-						nextFrontier.add(succObj);
+				if (objFields != null) {
+					for (Val fieldVal : objFields.values()) {
+						if (!(fieldVal instanceof Obj))
+							continue;
+						Obj succObj = (Obj) fieldVal;
+						if (!reachable.contains(succObj)) {
+							nextFrontier.add(succObj);
+						}
 					}
 				}
 			}

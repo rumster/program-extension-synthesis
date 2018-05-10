@@ -194,7 +194,7 @@ temps ::= temp:t
 	{: RESULT = new ArrayList<ASTVarDecl>();
 	   RESULT.add(t);
 	:}
-	| temps:prefix COMMA temp:t
+	| temps:prefix temp:t
 	{: prefix.add(t);
 	   RESULT = prefix;
 	:}
@@ -271,6 +271,8 @@ expr ::= ID:varName
 	{: RESULT = new ASTIntBinOpExpr(IntBinOp.DIVIDE, lhs, rhs); :}
 	| expr:lhs DOT ID:field
 	{: RESULT = new ASTDerefExpr(lhs, field); :}
+	| LP expr:e RP
+	{: RESULT = e; :}
 ;
 
 store ::= LB heapElems:elems RB
