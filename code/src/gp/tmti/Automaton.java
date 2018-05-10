@@ -129,26 +129,34 @@ public class Automaton extends HashMultiGraph<State, Action> {
 	 * up to states that are already update-deterministic.
 	 */
 	public void fold(State state) {
-		var change = makeUpdateDeterministic(state);
-		if (!change) {
+		System.err.println("Attempting to fold " + state.id);
+		if (state == getFinal()) {
 			return;
 		}
-		var succStates = new ArrayList<State>();
-		for (Edge<State, Action> transition : this.succEdges(state)) {
-			var succState = transition.getDst();
-			if (succState != state) {
-				succStates.add(succState);
-			}
+		var affected = makeUpdateDeterministic(state);
+		if (affected.isEmpty()) {
+			return;
 		}
-		for (var succState : succStates) {
-			fold(succState);
+		for (var affectedState : affected) {
+			fold(affectedState);
+		}
+		if (containsNode(state)) {
+			removeDuplicateUpdates(state);
 		}
 	}
 
-	public boolean makeUpdateDeterministic(State state) {
+	/**
+	 * Merges states in order to ensure that the transitions outgoing from the given
+	 * state are update-deterministic.
+	 * 
+	 * @return The states possibly affected by this transformation.
+	 */
+	public Collection<State> makeUpdateDeterministic(State state) {
 		if (!containsNode(state) || isUpdateDeterministic(state)) {
-			return false;
+			return Collections.emptyList();
 		}
+		var result = new ArrayList<State>();
+
 		var updateToTargetState = new HashRel2<Update, State>();
 		for (Edge<State, Action> transition : this.succEdges(state)) {
 			var transitionAction = transition.getLabel();
@@ -156,10 +164,16 @@ public class Automaton extends HashMultiGraph<State, Action> {
 		}
 		for (var update : updateToTargetState.all1()) {
 			var statesToFold = updateToTargetState.select1(update);
-			mergeStates(statesToFold);
+			var optMergedState = mergeStates(statesToFold);
+			if (optMergedState.isPresent()) {
+				result.add(optMergedState.get());
+			}
 		}
 
-		// Maintain a single edge per update.
+		return result;
+	}
+
+	public void removeDuplicateUpdates(State state) {
 		var updateToAction = new HashRel2<Update, Edge<State, Action>>();
 		for (var transition : this.succEdges(state)) {
 			var transitionAction = transition.getLabel();
@@ -176,7 +190,6 @@ public class Automaton extends HashMultiGraph<State, Action> {
 				}
 			}
 		}
-		return true;
 	}
 
 	/**

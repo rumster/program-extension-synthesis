@@ -112,7 +112,7 @@ public class TMTI<ValueType extends Value, UpdateType extends Update, GuardType 
 			}
 		}
 
-		// Phase 2: Merge states whose signatures are containg in those of other states.
+		// Phase 2: Merge states whose signatures are subsumed by those of other states.
 		stateToSignature = Signature.getSignatures(automaton, lookaheadLength);
 		// var maxSignaturesPhase2 = filterMaxSignatures(stateToSignature.all2());
 		change = true;

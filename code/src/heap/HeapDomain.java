@@ -282,6 +282,23 @@ public class HeapDomain implements Domain<Store, Stmt, BoolExpr> {
 		if (intVals.isEmpty()) {
 			return;
 		}
+		
+		// Leave only the maximal and minimal numbers.
+		var min = intVals.iterator().next();
+		var max = intVals.iterator().next();
+		for (var val: intVals) {
+			if (val.num < min.num) {
+				min = val;
+			}
+			if (val.num > max.num) {
+				max = val;
+			}
+		}
+		intVals.clear();
+		intVals.add(min);
+		intVals.add(max);
+		intVals.add(new IntVal(0));
+		intVals.add(new IntVal(1));
 
 		final var intExprs = new ArrayList<Expr>();
 		// Add variables and variable-field-dereference expressions as basic
@@ -335,7 +352,6 @@ public class HeapDomain implements Domain<Store, Stmt, BoolExpr> {
 	 * TODO: prune out incorrectly-typed expressions.
 	 */
 	protected void addBasicRefGuards(ArrayList<Plan<Store, Stmt>> plans, List<BoolExpr> result) {
-		final var refExprs = new ArrayList<Expr>();
 		boolean storesWithObjects = false;
 		for (var plan : plans) {
 			for (var store : plan.states()) {
@@ -355,6 +371,7 @@ public class HeapDomain implements Domain<Store, Stmt, BoolExpr> {
 			return;
 		}
 
+		final var refExprs = new ArrayList<Expr>();
 		// Add variables and variable-field-dereference expressions as basic
 		// expressions.
 		for (final var domVar : vars) {

@@ -146,10 +146,13 @@ public class PWhileInterpreter extends PWhileVisitor {
 		if (state instanceof ErrorStore)
 			return;
 		if (resultVal == Obj.NULL) {
-			state = Store.error("illegal dereference of " + n.getLhs());
+			state = Store.error("null dereference of " + n.getLhs());
 		} else {
 			Obj lobj = (Obj) resultVal;
 			resultVal = state.eval(lobj, n.getField());
+			if (resultVal == null) {
+				state = Store.error("dereference of " + n.getLhs() + " is undefined!");
+			}
 		}
 	}
 

@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.logging.Logger;
 
-import org.stringtemplate.v4.ST;
-
 import gp.Domain.Guard;
 import gp.Domain.Update;
 import gp.Domain.Value;
@@ -54,7 +52,9 @@ public class TMTISynthesizer<ValueType extends Value, UpdateType extends Update,
 				continue;
 			}
 		}
+		logger.info("Generating guards...");
 		final var guards = problem.domain().generateGuards(plans);
+		logger.info("done");
 		debugPrintGuards(guards);
 		final var separator = new LinearInferencer<ValueType, UpdateType, GuardType>(problem.domain(), guards);
 
@@ -66,11 +66,12 @@ public class TMTISynthesizer<ValueType extends Value, UpdateType extends Update,
 	}
 
 	protected void debugPrintGuards(Collection<GuardType> guards) {
-		var guardsST = new ST("#guards=<num>\n=============\n<guard:{it|<it>\n}>");
-		guardsST.add("num", guards.size());
+		var txt = new StringBuilder();
+		txt.append("#guards=" + guards.size());
+		txt.append("=============");
 		for (var guard : guards) {
-			guardsST.add("guard", guard);
+			txt.append(guard + "\n");
 		}
-		debugger.printCodeFile("guards.txt", guardsST.render(), "Available guards");
+		debugger.printCodeFile("guards.txt", txt.toString(), "Available guards");
 	}
 }

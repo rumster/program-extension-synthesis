@@ -34,7 +34,7 @@ Id 			= ({Letter}|_)({Letter}|_|{Digit})*
 Int			= 0|{PosDigit}{Digit}*|-{PosDigit}{Digit}*
 
 EndOfLineComment     = "//" {InputCharacter}* {LineTerminator}?
-TraditionalComment   = "/*" [^*] ~"*/" | "/*" "*"+ "/"
+TraditionalComment   = "/*" ~"*/" | "/*" "*"+ "/"
 
 %%
 
