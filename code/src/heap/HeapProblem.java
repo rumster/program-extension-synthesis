@@ -1,5 +1,7 @@
 package heap;
 
+import java.util.Optional;
+
 import gp.Domain;
 import gp.SynthesisProblem;
 
@@ -10,10 +12,12 @@ import gp.SynthesisProblem;
  */
 public class HeapProblem extends SynthesisProblem<Store, Stmt, BoolExpr> {
 	public final HeapDomain domain;
+	public final Optional<Stmt> optProg;
 
-	public HeapProblem(String name, HeapDomain domain) {
+	public HeapProblem(String name, HeapDomain domain, Optional<Stmt> optProg) {
 		super(name);
 		this.domain = domain;
+		this.optProg = optProg;
 	}
 
 	@Override

@@ -13,17 +13,17 @@ merge(mut first:SLL, mut second:SLL) -> (result:SLL) {
      b0.d==2
     ]
     
-    -> result=null
+    -> result=null;
     
-    -> t=result
-    -> result=first
-    -> first=first.n
-    -> result.n=t
+    -> t=result;
+    -> result=first;
+    -> first=first.n;
+    -> result.n=t;
 
-    -> t=result
-    -> result=second
-    -> second=second.n
-    -> result.n=t
+    -> t=result;
+    -> result=second;
+    -> second=second.n;
+    -> result.n=t;
   }
 
   example {
@@ -33,17 +33,17 @@ merge(mut first:SLL, mut second:SLL) -> (result:SLL) {
      b0.d==1
     ]
     
-    -> result=null
+    -> result=null;
     
-    -> t=result
-    -> result=second
-    -> second=second.n
-    -> result.n=t
+    -> t=result;
+    -> result=second;
+    -> second=second.n;
+    -> result.n=t;
     
-    -> t=result
-    -> result=first
-    -> first=first.n
-    -> result.n=t    
+    -> t=result;
+    -> result=first;
+    -> first=first.n;
+    -> result.n=t;    
   }
 
 /*
@@ -54,27 +54,27 @@ merge(mut first:SLL, mut second:SLL) -> (result:SLL) {
      b0.d==2 && b1.d==4
     ]
     
-    -> result=null
+    -> result=null;
     
-    -> t=result
-    -> result=first
-    -> first=first.n
-    -> result.n=t
+    -> t=result;
+    -> result=first;
+    -> first=first.n;
+    -> result.n=t;
 
-    -> t=result
-    -> result=second
-    -> second=second.n
-    -> result.n=t
+    -> t=result;
+    -> result=second;
+    -> second=second.n;
+    -> result.n=t;
 
-    -> t=result
-    -> result=first
-    -> first=first.n
-    -> result.n=t
+    -> t=result;
+    -> result=first;
+    -> first=first.n;
+    -> result.n=t;
 
-    -> t=result
-    -> result=second
-    -> second=second.n
-    -> result.n=t
+    -> t=result;
+    -> result=second;
+    -> second=second.n;
+    -> result.n=t;
   }
 */ 
 
@@ -85,26 +85,26 @@ merge(mut first:SLL, mut second:SLL) -> (result:SLL) {
      b0.d==1 && b1.d==3
     ]
     
-    -> result=null
+    -> result=null;
     
-    -> t=result
-    -> result=second
-    -> second=second.n
-    -> result.n=t
+    -> t=result;
+    -> result=second;
+    -> second=second.n;
+    -> result.n=t;
 
-    -> t=result
-    -> result=first
-    -> first=first.n
-    -> result.n=t
+    -> t=result;
+    -> result=first;
+    -> first=first.n;
+    -> result.n=t;
 
-    -> t=result
-    -> result=second
-    -> second=second.n
-    -> result.n=t
+    -> t=result;
+    -> result=second;
+    -> second=second.n;
+    -> result.n=t;
 
-    -> t=result
-    -> result=first
-    -> first=first.n
-    -> result.n=t
+    -> t=result;
+    -> result=first;
+    -> first=first.n;
+    -> result.n=t;
   }
 }

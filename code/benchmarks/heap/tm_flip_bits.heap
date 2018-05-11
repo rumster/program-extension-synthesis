@@ -20,10 +20,10 @@ flip(start:Cell) -> () {
      o6.c==-1 &&
      o2.l==o1 &&
      o1.r==o2 && o2.r==o3 && o3.r==o4 && o4.r==o5 && o5.r==o6]
-    -> head = start
-    -> head.c=1; head=head.r
-    -> head.c=0; head=head.r
-    -> head.c=0; head=head.r
-    -> head.c=1; head=head.r
+    -> head = start;
+    -> head.c=1; head=head.r;
+    -> head.c=0; head=head.r;
+    -> head.c=0; head=head.r;
+    -> head.c=1; head=head.r;
   }
 }

@@ -5,14 +5,15 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.logging.Logger;
 
 import bgu.cs.util.ReflectionUtils;
 import heap.*;
 
 /**
- * Generates a {@link HeapProblem} from a Java {@link Method} and an
- * object where the fields correspond to the method arguments.
+ * Generates a {@link HeapProblem} from a Java {@link Method} and an object
+ * where the fields correspond to the method arguments.
  * 
  * @author romanm
  */
@@ -37,7 +38,7 @@ public class JavaProblemGenerator {
 		Class<? extends JavaEnv> envType = inputs.get(0).getClass();
 		heapWalker = new JavaHeapWalker(m, envType, logger);
 		HeapDomain domain = HeapDomain.fromVarsAndTypes(heapWalker.getVars(), heapWalker.getRefTypes());
-		HeapProblem result = new HeapProblem(m.getName(), domain);
+		HeapProblem result = new HeapProblem(m.getName(), domain, Optional.empty());
 
 		for (JavaEnv input : inputs) {
 			try {
@@ -66,8 +67,8 @@ public class JavaProblemGenerator {
 				freeObjects.addAll(outputState.getObjects());
 				freeObjects.removeAll(inputState.getObjects());
 				inputState.addFreeObjects(freeObjects);
-				
-				//outputState = outputState.clean(heapWalker.getDeadOutVars());
+
+				// outputState = outputState.clean(heapWalker.getDeadOutVars());
 				result.addExample(inputState, outputState);
 			} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 				e.printStackTrace();

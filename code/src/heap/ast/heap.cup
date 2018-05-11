@@ -35,10 +35,13 @@ parser code {:
 terminal TYPE, VAR, NULL, EXAMPLE, MUT, GHOST;
 terminal IF, WHILE, ELSE;
 terminal COMMA, SEMI, DOT, ASSIGN, COLON, ARROW, LP, RP, LB, RB, LCB, RCB;
-terminal EQ, LT, AND, OR, PLUS, MINUS, TIMES, DIVIDE;
+terminal EQ, NEQ, LT, LEQ, GT, GEQ, AND, OR, NOT, PLUS, MINUS, TIMES, DIVIDE;
 		
 terminal Integer INT_VAL; 
 terminal String ID;
+
+// Provides a list of statements the highest precedence.
+terminal STMT_LIST;
 
 // Unfortunately, CUP doesn't recognize generic types.
 // Therefore, all lists are untyped.
@@ -74,6 +77,7 @@ nonterminal List heapElems; // <ASTfieldVal>
 precedence left SEMI;
 precedence left EQ;
 precedence left LT;
+precedence nonassoc NOT;
 precedence left OR;
 precedence left AND;
 precedence left MINUS;
@@ -81,6 +85,14 @@ precedence left PLUS;
 precedence left TIMES;
 precedence left DIVIDE;
 precedence left DOT;
+precedence nonassoc NEQ;
+precedence nonassoc GT;
+precedence nonassoc GEQ;
+precedence nonassoc LT;
+precedence nonassoc LEQ;
+precedence right SEMI;
+
+precedence right STMT_LIST;
 
 ///////////////////////////////////////////////////
 // Productions
@@ -131,8 +143,20 @@ field ::= ID:name COLON ID:type
 	{: RESULT = new ASTDeclField(name, type, true); :}
 ;
 
-funDef ::= ID:name LP optionalInputArgs:inargs RP ARROW LP optionalOutputArgs:outargs RP LCB optionalTemps:temps optionalExamples:examples RCB
-	{: RESULT = new ASTFun(name, inargs, outargs, temps, examples); :}
+funDef ::= ID:name LP optionalInputArgs:inargs RP ARROW 
+           LP optionalOutputArgs:outargs RP LCB
+           optionalTemps:temps
+           optionalExamples:examples
+           RCB
+	{: RESULT = new ASTFun(name, inargs, outargs, temps, null, examples); :}
+	| ID:name LP optionalInputArgs:inargs RP ARROW 
+           LP optionalOutputArgs:outargs RP LCB
+           optionalTemps:temps
+           stmt:prog 
+           optionalExamples:examples
+           RCB
+	{: RESULT = new ASTFun(name, inargs, outargs, temps, prog, examples); :}
+	
 ;
 
 optionalInputArgs ::= 
@@ -243,7 +267,7 @@ step ::= store:s
 	{: RESULT = s; :}
 ;
 
-stmt ::= expr:lhs ASSIGN expr:rhs
+stmt ::= expr:lhs ASSIGN expr:rhs SEMI
 	{: RESULT = new ASTAssign(lhs, rhs); :}
 	| IF LP expr:cond RP LCB stmt:thenStmt RCB
 	{: RESULT = new ASTIf(cond, thenStmt); :}
@@ -251,8 +275,9 @@ stmt ::= expr:lhs ASSIGN expr:rhs
 	{: RESULT = new ASTIf(cond, thenStmt, elseStmt); :}
 	| WHILE LP expr:cond RP LCB stmt:body RCB
 	{: RESULT = new ASTWhile(cond, body); :}
-	| stmt:first SEMI stmt:second
-	{: RESULT = new ASTSeq(first, second); :}	
+	| stmt:first stmt:second
+	{: RESULT = new ASTSeq(first, second); :}
+	%prec STMT_LIST	
 ;
 
 expr ::= ID:varName
@@ -271,6 +296,24 @@ expr ::= ID:varName
 	{: RESULT = new ASTIntBinOpExpr(IntBinOp.DIVIDE, lhs, rhs); :}
 	| expr:lhs DOT ID:field
 	{: RESULT = new ASTDerefExpr(lhs, field); :}
+	| expr:lhs EQ expr:rhs
+	{: RESULT = new ASTIntBinOpExpr(IntBinOp.EQ, lhs, rhs); :}
+	| expr:lhs NEQ expr:rhs
+	{: RESULT = new ASTIntBinOpExpr(IntBinOp.NEQ, lhs, rhs); :}
+	| expr:lhs LT expr:rhs
+	{: RESULT = new ASTIntBinOpExpr(IntBinOp.LT, lhs, rhs); :}
+	| expr:lhs LEQ expr:rhs
+	{: RESULT = new ASTIntBinOpExpr(IntBinOp.LEQ, lhs, rhs); :}
+	| expr:lhs GT expr:rhs
+	{: RESULT = new ASTIntBinOpExpr(IntBinOp.GT, lhs, rhs); :}
+	| expr:lhs GEQ expr:rhs
+	{: RESULT = new ASTIntBinOpExpr(IntBinOp.GEQ, lhs, rhs); :}
+	| expr:lhs AND expr:rhs
+	{: RESULT = new ASTAndExpr(lhs, rhs); :}
+	| expr:lhs OR expr:rhs
+	{: RESULT = new ASTOrExpr(lhs, rhs); :}
+	| NOT expr:sub
+	{: RESULT = new ASTNotExpr(sub); :}
 	| LP expr:e RP
 	{: RESULT = e; :}
 ;

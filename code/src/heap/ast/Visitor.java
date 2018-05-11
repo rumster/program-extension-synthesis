@@ -81,7 +81,7 @@ public abstract class Visitor {
 
 	public void visit(ASTDerefExpr n) {
 	}
-	
+
 	public void visit(ASTAssign n) {
 	}
 
@@ -92,5 +92,14 @@ public abstract class Visitor {
 	}
 
 	public void visit(ASTWhile n) {
+	}
+
+	public void visit(ASTAndExpr n) {
+	}
+
+	public void visit(ASTOrExpr n) {
+	}
+
+	public void visit(ASTNotExpr n) {
 	}
 }

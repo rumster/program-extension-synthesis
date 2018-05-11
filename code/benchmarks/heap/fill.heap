@@ -9,17 +9,17 @@ fill(head:SLL, val:int) -> () {
 /*
   example {
     [head==null && val==42]
-    -> t = head
+    -> t = head;
   }
 */
 
   example {
     [head==o1 && o1.n==o2 && o2.n==null && val==42]
-    -> t = head
-    -> t.d = val
-    -> t = t.n
-    -> t.d = val
-    -> t = t.n
+    -> t = head;
+    -> t.d = val;
+    -> t = t.n;
+    -> t.d = val;
+    -> t = t.n;
   }
 
 /* planning-driven examples:

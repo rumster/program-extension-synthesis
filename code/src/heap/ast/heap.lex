@@ -62,11 +62,16 @@ TraditionalComment   = "/*" ~"*/" | "/*" "*"+ "/"
   ";"  			{ return new Token(HeapSym.SEMI, yytext(), yyline, yycolumn); }
   "."  			{ return new Token(HeapSym.DOT, yytext(), yyline, yycolumn); }
   "==" 			{ return new Token(HeapSym.EQ, yytext(), yyline, yycolumn); }
+  "!=" 			{ return new Token(HeapSym.NEQ, yytext(), yyline, yycolumn); }
   "<" 			{ return new Token(HeapSym.LT, yytext(), yyline, yycolumn); }
+  "<=" 			{ return new Token(HeapSym.LEQ, yytext(), yyline, yycolumn); }
+  ">" 			{ return new Token(HeapSym.GT, yytext(), yyline, yycolumn); }
+  ">=" 			{ return new Token(HeapSym.GEQ, yytext(), yyline, yycolumn); }
   "=" 			{ return new Token(HeapSym.ASSIGN, yytext(), yyline, yycolumn); }
   
   "&&" 			{ return new Token(HeapSym.AND, yytext(), yyline, yycolumn); }
   "||" 			{ return new Token(HeapSym.OR, yytext(), yyline, yycolumn); }
+  "!" 			{ return new Token(HeapSym.NOT, yytext(), yyline, yycolumn); }  
   "+" 			{ return new Token(HeapSym.PLUS, yytext(), yyline, yycolumn); }
   "-" 			{ return new Token(HeapSym.MINUS, yytext(), yyline, yycolumn); }
   "*" 			{ return new Token(HeapSym.TIMES, yytext(), yyline, yycolumn); }

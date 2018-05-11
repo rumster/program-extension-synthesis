@@ -205,7 +205,6 @@ public class HeapDomain implements Domain<Store, Stmt, BoolExpr> {
 		result.addAll(negLiterals);
 		final var doubleCubes = genPairCubes(posLiterals);
 		result.addAll(doubleCubes);
-		// final var doubleOr = getOr2(posLiterals, doubleCubes);
 		final var doubleOrPosPos = genOr2(posLiterals, posLiterals);
 		result.addAll(doubleOrPosPos);
 		final var doubleOrPosNeg = genOr2(posLiterals, negLiterals);

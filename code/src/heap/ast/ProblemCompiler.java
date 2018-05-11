@@ -10,6 +10,7 @@ import java.util.Set;
 
 import bgu.cs.util.Union2;
 import gp.Example;
+import heap.AndExpr;
 import heap.AssignStmt;
 import heap.BoolType;
 import heap.DerefExpr;
@@ -23,8 +24,10 @@ import heap.IntField;
 import heap.IntType;
 import heap.IntVal;
 import heap.IntVar;
+import heap.NotExpr;
 import heap.NullExpr;
 import heap.Obj;
+import heap.OrExpr;
 import heap.RefField;
 import heap.RefType;
 import heap.RefVar;
@@ -66,7 +69,19 @@ public class ProblemCompiler {
 		new TypedVarBuilder(VarRole.TEMP, false).build(funAST.temps);
 		HeapDomain domain = HeapDomain.fromVarsAndTypes(vars, nameToRefType.values());
 
-		HeapProblem result = new HeapProblem(funAST.name, domain);
+		Optional<Stmt> optProg;
+		if (funAST.optProg != null) {
+			var prog = funAST.optProg;
+			var stmtBuilder = new StmtBuilder();
+			var stmt = stmtBuilder.build(prog);
+			optProg = Optional.of(stmt);
+		}
+		else {
+			optProg = Optional.empty();
+		}
+
+		HeapProblem result = new HeapProblem(funAST.name, domain, optProg);
+
 		int exampleId = 0;
 		for (ASTExample exampleAST : funAST.examples) {
 			Example<Store, Stmt> example = new ExampleBuilder(exampleAST, exampleId).build();
@@ -194,6 +209,177 @@ public class ProblemCompiler {
 	}
 
 	/**
+	 * Builds a statement from an AST while ensuring type-safety.
+	 * 
+	 * @author romanm
+	 */
+	public class StmtBuilder extends Visitor {
+		private Stmt result;
+		private Expr tmpExpr;
+
+		public StmtBuilder() {
+		}
+
+		public Stmt build(ASTStmt stmtAST) {
+			result = null;
+			stmtAST.accept(this);
+			return result;
+		}
+
+		public void visit(ASTVarExpr n) {
+			Var v = nameToVar.get(n.varName);
+			if (v == null) {
+				throw new SemanticError("Unknown variable", n);
+			}
+			tmpExpr = new VarExpr(v);
+			n.setType(v.getType());
+		}
+
+		public void visit(ASTNullExpr n) {
+			tmpExpr = NullExpr.v;
+		}
+
+		public void visit(ASTIntBinOpExpr n) {
+			n.lhs.accept(this);
+			Expr lhsExpr = tmpExpr;
+			n.rhs.accept(this);
+			Expr rhsExpr = tmpExpr;
+			Type lhsType = n.lhs.type().get();
+			Type rhsType = n.lhs.type().get();
+			if (lhsType != IntType.v || rhsType != IntType.v) {
+				throw new SemanticError("Type error: attempt to apply integer-typed operation to non-integer operands!",
+						n);
+			}
+			n.setType(IntType.v);
+			tmpExpr = new IntBinOpExpr(n.op, lhsExpr, rhsExpr);
+		}
+
+		public void visit(ASTAndExpr n) {
+			n.lhs.accept(this);
+			Expr lhsExpr = tmpExpr;
+			n.rhs.accept(this);
+			Expr rhsExpr = tmpExpr;
+			Type lhsType = n.lhs.type().get();
+			Type rhsType = n.lhs.type().get();
+			if (lhsType != BoolType.v || rhsType != BoolType.v) {
+				throw new SemanticError("Type error: attempt to apply && operator to non-Boolean operands!", n);
+			}
+			n.setType(BoolType.v);
+			tmpExpr = new AndExpr(lhsExpr, rhsExpr);
+		}
+
+		public void visit(ASTOrExpr n) {
+			n.lhs.accept(this);
+			Expr lhsExpr = tmpExpr;
+			n.rhs.accept(this);
+			Expr rhsExpr = tmpExpr;
+			Type lhsType = n.lhs.type().get();
+			Type rhsType = n.lhs.type().get();
+			if (lhsType != BoolType.v || rhsType != BoolType.v) {
+				throw new SemanticError("Type error: attempt to apply || operator to non-Boolean operands!", n);
+			}
+			n.setType(BoolType.v);
+			tmpExpr = new OrExpr(lhsExpr, rhsExpr);
+		}
+
+		public void visit(ASTNotExpr n) {
+			n.sub.accept(this);
+			Expr subExpr = tmpExpr;
+			Type subType = n.sub.type().get();
+			if (subType != BoolType.v) {
+				throw new SemanticError("Type error: attempt to apply ! operator to a non-Boolean operand!", n);
+			}
+			n.setType(BoolType.v);
+			tmpExpr = new NotExpr(subExpr);
+		}
+
+		public void visit(ASTIntValExpr n) {
+			n.setType(IntType.v);
+			tmpExpr = new ValExpr(new IntVal(n.val));
+		}
+
+		public void visit(ASTDerefExpr n) {
+			if (n.lhs == ASTNullExpr.v) {
+				throw new SemanticError("Semantic error: null cannot appear in a dereference expression!", n);
+			}
+			n.lhs.accept(this);
+			Expr lhsExpr = tmpExpr;
+			Type lhsType = n.lhs.type().get();
+			if (!(lhsType instanceof RefType)) {
+				throw new SemanticError("Type error: attempt to dereference a non-reference type!", n);
+			}
+			RefType lhsRefType = (RefType) lhsType;
+			Optional<Field> optionField = lhsRefType.findField(n.fieldName);
+			if (!optionField.isPresent()) {
+				throw new SemanticError("Attempt to dereference an unknown field!", n);
+			}
+			Field field = optionField.get();
+			n.setType(field.dstType);
+			tmpExpr = new DerefExpr(lhsExpr, field);
+		}
+
+		public void visit(ASTAssign n) {
+			n.lhs.accept(this);
+			Expr lhsExpr = tmpExpr;
+			n.rhs.accept(this);
+			Expr rhsExpr = tmpExpr;
+			Type lhsType = n.lhs.type().get();
+			Type rhsType = n.lhs.type().get();
+
+			if (!(n.lhs instanceof ASTVarExpr || n.lhs instanceof ASTDerefExpr)) {
+				throw new SemanticError("Semantic error: left hand side of assignment is not an assignable expression!",
+						n);
+			}
+
+			if (lhsType instanceof RefType && n.rhs == ASTNullExpr.v) {
+				// OK
+			} else if (n.rhs != ASTNullExpr.v && lhsType == rhsType) {
+				// OK
+			} else {
+				throw new SemanticError("Type error: attempt to assign between incompatible types!", n);
+			}
+			result = new AssignStmt(lhsExpr, rhsExpr);
+		}
+
+		public void visit(ASTSeq n) {
+			n.first.accept(this);
+			Stmt first = result;
+			n.second.accept(this);
+			Stmt second = result;
+			result = new SeqStmt(first, second);
+		}
+
+		public void visit(ASTIf n) {
+			n.cond.accept(this);
+			Type condType = n.cond.type().get();
+			if (condType != BoolType.v) {
+				throw new SemanticError("Type error: condition type is not boolean!", n);
+			}
+			Expr cond = tmpExpr;
+			n.thenStmt.accept(this);
+			Stmt thenStmt = result;
+			Stmt elseStmt = null;
+			if (n.elseStmt != null) {
+				n.elseStmt.accept(this);
+				elseStmt = result;
+			}
+			result = new IfStmt(cond, thenStmt, elseStmt);
+		}
+
+		public void visit(ASTWhile n) {
+			n.cond.accept(this);
+			Type condType = n.cond.type().get();
+			if (condType != BoolType.v) {
+				throw new SemanticError("Type error: condition type is not boolean!", n);
+			}
+			Expr cond = tmpExpr;
+			n.body.accept(this);
+			Stmt body = result;
+			result = new WhileStmt(cond, body);
+		}
+	}
+
+	/**
 	 * Converts an {@link ASTExample} into an {@link Example}.
 	 * 
 	 * @author romanm
@@ -251,7 +437,7 @@ public class ProblemCompiler {
 			freeInputObjs.removeAll(inputObjs);
 
 			List<Union2<Store, Stmt>> steps = new ArrayList<>(exampleAST.steps.size());
-			StmtBuilder stmtBuilder = new StmtBuilder();
+			var stmtBuilder = new StmtBuilder();
 			for (ASTStep stepAST : exampleAST.steps) {
 				if (stepAST instanceof ASTStore) {
 					ASTStore storeAST = (ASTStore) stepAST;
@@ -273,8 +459,8 @@ public class ProblemCompiler {
 					steps.add(Union2.ofT1(store));
 				} else {
 					assert stepAST instanceof ASTStmt;
-					ASTStmt stmtAST = (ASTStmt) stepAST;
-					Stmt stmt = stmtBuilder.build(stmtAST);
+					var stmtAST = (ASTStmt) stepAST;
+					var stmt = stmtBuilder.build(stmtAST);
 					steps.add(Union2.ofT2(stmt));
 				}
 			}
@@ -293,138 +479,6 @@ public class ProblemCompiler {
 						typeChange |= typeAssigner.infer(storeAST);
 					}
 				}
-			}
-		}
-
-		/**
-		 * Builds a statement from an AST while ensuring type-safety.
-		 * 
-		 * @author romanm
-		 */
-		public class StmtBuilder extends Visitor {
-			private Stmt result;
-			private Expr tmpExpr;
-
-			public StmtBuilder() {
-			}
-
-			public Stmt build(ASTStmt stmtAST) {
-				result = null;
-				stmtAST.accept(this);
-				return result;
-			}
-
-			public void visit(ASTVarExpr n) {
-				Var v = nameToVar.get(n.varName);
-				if (v == null) {
-					throw new SemanticError("Unknown variable", n);
-				}
-				tmpExpr = new VarExpr(v);
-				n.setType(v.getType());
-			}
-
-			public void visit(ASTNullExpr n) {
-				tmpExpr = NullExpr.v;
-			}
-
-			public void visit(ASTIntBinOpExpr n) {
-				n.lhs.accept(this);
-				Expr lhsExpr = tmpExpr;
-				n.rhs.accept(this);
-				Expr rhsExpr = tmpExpr;
-				Type lhsType = n.lhs.type().get();
-				Type rhsType = n.lhs.type().get();
-				if (lhsType != IntType.v || rhsType != IntType.v) {
-					throw new SemanticError(
-							"Type error: attempt to apply integer-typed operation to non-integer operands!", n);
-				}
-				n.setType(IntType.v);
-				tmpExpr = new IntBinOpExpr(n.op, lhsExpr, rhsExpr);
-			}
-
-			public void visit(ASTIntValExpr n) {
-				n.setType(IntType.v);
-				tmpExpr = new ValExpr(new IntVal(n.val));
-			}
-
-			public void visit(ASTDerefExpr n) {
-				if (n.lhs == ASTNullExpr.v) {
-					throw new SemanticError("Semantic error: null cannot appear in a dereference expression!", n);
-				}
-				n.lhs.accept(this);
-				Expr lhsExpr = tmpExpr;
-				Type lhsType = n.lhs.type().get();
-				if (!(lhsType instanceof RefType)) {
-					throw new SemanticError("Type error: attempt to dereference a non-reference type!", n);
-				}
-				RefType lhsRefType = (RefType) lhsType;
-				Optional<Field> optionField = lhsRefType.findField(n.fieldName);
-				if (!optionField.isPresent()) {
-					throw new SemanticError("Attempt to dereference an unknown field!", n);
-				}
-				Field field = optionField.get();
-				n.setType(field.dstType);
-				tmpExpr = new DerefExpr(lhsExpr, field);
-			}
-
-			public void visit(ASTAssign n) {
-				n.lhs.accept(this);
-				Expr lhsExpr = tmpExpr;
-				n.rhs.accept(this);
-				Expr rhsExpr = tmpExpr;
-				Type lhsType = n.lhs.type().get();
-				Type rhsType = n.lhs.type().get();
-
-				if (!(n.lhs instanceof ASTVarExpr || n.lhs instanceof ASTDerefExpr)) {
-					throw new SemanticError(
-							"Semantic error: left hand side of assignment is not an assignable expression!", n);
-				}
-
-				if (lhsType instanceof RefType && n.rhs == ASTNullExpr.v) {
-					// OK
-				} else if (n.rhs != ASTNullExpr.v && lhsType == rhsType) {
-					// OK
-				} else {
-					throw new SemanticError("Type error: attempt to assign between incompatible types!", n);
-				}
-				result = new AssignStmt(lhsExpr, rhsExpr);
-			}
-
-			public void visit(ASTSeq n) {
-				n.first.accept(this);
-				Stmt first = result;
-				n.second.accept(this);
-				Stmt second = result;
-				result = new SeqStmt(first, second);
-			}
-
-			public void visit(ASTIf n) {
-				n.cond.accept(this);
-				Type condType = n.cond.type().get();
-				if (condType != BoolType.v) {
-					throw new SemanticError("Type error: condition type is not boolean!", n);
-				}
-				Expr cond = tmpExpr;
-				n.thenStmt.accept(this);
-				Stmt thenStmt = result;
-				Stmt elseStmt = null;
-				if (n.elseStmt != null) {
-					n.elseStmt.accept(this);
-					elseStmt = result;
-				}
-				result = new IfStmt(cond, thenStmt, elseStmt);
-			}
-
-			public void visit(ASTWhile n) {
-				n.cond.accept(this);
-				Type condType = n.cond.type().get();
-				if (condType != BoolType.v) {
-					throw new SemanticError("Type error: condition type is not boolean!", n);
-				}
-				Expr cond = tmpExpr;
-				n.body.accept(this);
-				Stmt body = result;
-				result = new WhileStmt(cond, body);
 			}
 		}
 

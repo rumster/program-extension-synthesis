@@ -69,9 +69,9 @@ public class TMTISynthesizer<ValueType extends Value, UpdateType extends Update,
 		var txt = new StringBuilder();
 		txt.append("#guards=" + guards.size());
 		txt.append("=============");
-		for (var guard : guards) {
-			txt.append(guard + "\n");
-		}
+//		for (var guard : guards) {
+//			txt.append(guard + "\n");
+//		}
 		debugger.printCodeFile("guards.txt", txt.toString(), "Available guards");
 	}
 }
