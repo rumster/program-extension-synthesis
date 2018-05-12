@@ -95,7 +95,7 @@ public class ConditionInferencer_debug extends ConditionInferencer<Store, Stmt, 
 
 	private boolean testCondition(BoolExpr condition, Collection<? extends Value> states, boolean expected) {
 		for (var v : states) {
-			if (domain.test(condition, v) != expected) {
+			if (domain.test(condition, (Store) v) != expected) {
 				return false;
 			}
 		}

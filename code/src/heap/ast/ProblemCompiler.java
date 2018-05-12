@@ -14,11 +14,13 @@ import heap.AndExpr;
 import heap.AssignStmt;
 import heap.BoolType;
 import heap.DerefExpr;
+import heap.EqExpr;
 import heap.Expr;
 import heap.Field;
 import heap.HeapDomain;
 import heap.HeapProblem;
 import heap.IfStmt;
+import heap.IntBinOp;
 import heap.IntBinOpExpr;
 import heap.IntField;
 import heap.IntType;
@@ -75,8 +77,7 @@ public class ProblemCompiler {
 			var stmtBuilder = new StmtBuilder();
 			var stmt = stmtBuilder.build(prog);
 			optProg = Optional.of(stmt);
-		}
-		else {
+		} else {
 			optProg = Optional.empty();
 		}
 
@@ -268,6 +269,24 @@ public class ProblemCompiler {
 			tmpExpr = new AndExpr(lhsExpr, rhsExpr);
 		}
 
+		public void visit(ASTEqExpr n) {
+			n.lhs.accept(this);
+			Expr lhsExpr = tmpExpr;
+			n.rhs.accept(this);
+			Expr rhsExpr = tmpExpr;
+			Type lhsType = n.lhs.type().get();
+			Type rhsType = n.lhs.type().get();
+			if (lhsType != rhsType) {
+				throw new SemanticError("Type error: attempt to apply == operator to different types!", n);
+			}
+			n.setType(BoolType.v);
+			if (lhsType != rhsType) {
+				tmpExpr = new IntBinOpExpr(IntBinOp.EQ, lhsExpr, rhsExpr);
+			} else {
+				tmpExpr = new EqExpr(lhsExpr, rhsExpr);
+			}
+		}
+
 		public void visit(ASTOrExpr n) {
 			n.lhs.accept(this);
 			Expr lhsExpr = tmpExpr;
@@ -321,6 +340,15 @@ public class ProblemCompiler {
 		public void visit(ASTAssign n) {
 			n.lhs.accept(this);
 			Expr lhsExpr = tmpExpr;
+			if (lhsExpr instanceof VarExpr) {
+				var lhsVar = (VarExpr) lhsExpr;
+				if (lhsVar.getVar().readonly) {
+					throw new SemanticError("Semantic error: left hand side of assignment is an immutable variabe!", n);
+				}
+			} else {
+				assert lhsExpr instanceof DerefExpr;
+			}
+
 			n.rhs.accept(this);
 			Expr rhsExpr = tmpExpr;
 			Type lhsType = n.lhs.type().get();

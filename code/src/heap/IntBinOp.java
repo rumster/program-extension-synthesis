@@ -6,7 +6,7 @@ package heap;
  * @author romanm
  */
 public enum IntBinOp {
-	PLUS, MINUS, TIMES, DIVIDE, EQ, NEQ, LT, LEQ, GT, GEQ;
+	PLUS, MINUS, TIMES, DIVIDE, EQ, LT, LEQ, GT, GEQ;
 
 	@Override
 	public String toString() {
@@ -19,12 +19,10 @@ public enum IntBinOp {
 			return "*";
 		case DIVIDE:
 			return "/";
-		case EQ:
-			return "==";
-		case NEQ:
-			return "!=";
 		case LT:
 			return "<";
+		case EQ:
+			return "==";
 		case LEQ:
 			return "<=";
 		case GT:

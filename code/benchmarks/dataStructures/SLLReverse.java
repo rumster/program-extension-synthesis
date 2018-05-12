@@ -1,41 +1,40 @@
-package heap;
+package dataStructures;
 
 import java.util.ArrayList;
 
-import dataStructures.SLL;
 import heap.HeapProblem;
+import heap.HeapRunner;
 import heap.jsupport.*;
 
 /**
- * A benchmark for 'SLL.findMax'.
+ * A benchmark for list reversal on acyclic lists of various lengths.
  * 
  * @author romanm
  */
-public class SLLFindMax extends HeapRunner {
+public class SLLReverse extends HeapRunner {
 	public static class BenchEnv extends JavaEnv {
-		@MethodArg(out = true)
+		@MethodArg(out = false)
 		public SLL head;
-
-		@MethodArg(out = true)
 		public SLL ret;
+		public SLL t1;
+		public SLL t2;
 	}
 
 	public static void main(String[] args) {
-		SLLFindMax benchmark = new SLLFindMax();
+		SLLReverse benchmark = new SLLReverse();
 		benchmark.run();
 	}
 
 	@Override
 	public HeapProblem genProblem() {
 		ArrayList<JavaEnv> inputs = new ArrayList<>();
-		for (int i = 1; i < 100; ++i) {
+		for (int i = 30; i >= 1; --i) {/// 100
 			BenchEnv env = new BenchEnv();
 			env.head = SLL.genRandomAcyclic(i);
-			env.ret = null;
 			inputs.add(env);
 		}
 		JavaProblemGenerator problemGen = new JavaProblemGenerator(super.logger);
-		HeapProblem problem = problemGen.generate(SLL.class, "findMax", inputs);
+		HeapProblem problem = problemGen.generate(SLL.class, "reverse", inputs);
 		return problem;
 	}
 }

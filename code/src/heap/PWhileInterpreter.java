@@ -28,15 +28,15 @@ public class PWhileInterpreter extends PWhileVisitor {
 	protected RefType type;
 	protected Plan<Store, Node> trace;
 
-	public Store apply(Stmt n, Store input, Plan<Store, Node> trace) {
+	public Store run(Stmt n, Store input, Plan<Store, Node> trace) {
 		assert n.concrete();
 		this.trace = trace;
 		if (trace != null && trace.isEmpty())
 			trace.setFirst(input);
-		return apply(n, input);
+		return run(n, input);
 	}
 
-	public Store apply(Stmt n, Store input) {
+	public Store run(Stmt n, Store input) {
 		assert n.concrete();
 		reset();
 		state = input;

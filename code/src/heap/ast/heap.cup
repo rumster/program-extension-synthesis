@@ -297,9 +297,9 @@ expr ::= ID:varName
 	| expr:lhs DOT ID:field
 	{: RESULT = new ASTDerefExpr(lhs, field); :}
 	| expr:lhs EQ expr:rhs
-	{: RESULT = new ASTIntBinOpExpr(IntBinOp.EQ, lhs, rhs); :}
+	{: RESULT = new ASTEqExpr(lhs, rhs); :}
 	| expr:lhs NEQ expr:rhs
-	{: RESULT = new ASTIntBinOpExpr(IntBinOp.NEQ, lhs, rhs); :}
+	{: RESULT = new ASTNotExpr(new ASTEqExpr(lhs, rhs)); :}
 	| expr:lhs LT expr:rhs
 	{: RESULT = new ASTIntBinOpExpr(IntBinOp.LT, lhs, rhs); :}
 	| expr:lhs LEQ expr:rhs

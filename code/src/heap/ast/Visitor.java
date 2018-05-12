@@ -102,4 +102,7 @@ public abstract class Visitor {
 
 	public void visit(ASTNotExpr n) {
 	}
+
+	public void visit(ASTEqExpr n) {
+	}
 }

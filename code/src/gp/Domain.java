@@ -34,15 +34,17 @@ public interface Domain<ValueType extends Value, UpdateType extends Update, Guar
 	/**
 	 * Tests whether the given predicate holds for the given state.
 	 * 
+	 * @param guard
+	 *            A value of type {@link GuardType}. A case down should be safe for
+	 *            the instantiating domain.
 	 * @param val
-	 *            A value of type {@link ValueType}. Cast down should be safe for
+	 *            A value of type {@link ValueType}. A cast down should be safe for
 	 *            the instantiating domain.
 	 */
-	public boolean test(GuardType guard, Value val);
+	public boolean test(GuardType guard, ValueType val);
 
 	/**
-	 * Tests whether the first state matches the second, where the second state may
-	 * be a partial state, serving as a (conjunctive) condition for the first state.
+	 * Tests whether the first value matches (i.e., subsumed by) the second value.
 	 */
 	public boolean match(ValueType first, ValueType second);
 
@@ -50,7 +52,7 @@ public interface Domain<ValueType extends Value, UpdateType extends Update, Guar
 	 * Attempts to apply the given update to the given value.
 	 * 
 	 * @param update
-	 *            An update.
+	 *            An update of type {@link UpdateType}.
 	 * @param value
 	 *            An input value.
 	 * @return the resulting value, if the update can be applied to the input value

@@ -25,7 +25,7 @@ public class BasicHeapTR implements TR<Store, Stmt> {
 	@Override
 	public Collection<Stmt> enabledActions(Store store) {
 		Collection<Stmt> result = new ArrayList<>(domain.stmts.size());
-		for (Stmt stmt : domain.stmts) {
+		for (var stmt : domain.stmts) {
 			if (stmt.enabled(store)) {
 				result.add(stmt);
 			}
@@ -40,7 +40,7 @@ public class BasicHeapTR implements TR<Store, Stmt> {
 
 	@Override
 	public Collection<Store> apply(Store store, Stmt stmt) {
-		Store result = PWhileInterpreter.v.apply(stmt, store);
+		Store result = PWhileInterpreter.v.run(stmt, store);
 		return List.of(result);
 	}
 }

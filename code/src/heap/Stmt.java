@@ -49,7 +49,7 @@ public abstract class Stmt extends Node implements Update {
 	 * Tests whether this statement can be applied to the given state.
 	 */
 	public boolean enabled(Store store) {
-		Store result = PWhileInterpreter.v.apply(this, store);
+		Store result = PWhileInterpreter.v.run(this, store);
 		return !(result instanceof Store.ErrorStore);
 	}
 }

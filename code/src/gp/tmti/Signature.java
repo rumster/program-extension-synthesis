@@ -29,7 +29,7 @@ public class Signature {
 	@Override
 	public String toString() {
 		var result = new StringBuilder();
-		result.append("{k=" + length + ", " + lookaheads + "}");
+		result.append("{length=" + length + ", " + lookaheads + "}");
 		return result.toString();
 	}
 

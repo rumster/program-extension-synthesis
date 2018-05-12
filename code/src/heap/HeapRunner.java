@@ -67,11 +67,6 @@ public abstract class HeapRunner {
 			debugger.printExamples(problem.examples);
 			synthesisTime.start();
 			var planner = new AStar<Store, Stmt>(new BasicHeapTR(problem.domain));
-			// var generalizer = new RPNIGeneralizer(debugger, outputDirPath);
-			// var synthesizer = new CFGSynthesizer<Store, Stmt, BoolExpr>(planner,
-			// generalizer, logger, debugger);
-			// var result = new CFG<Store, Stmt, BoolExpr>();
-			// boolean ok = synthesizer.synthesize(problem, result);
 			var synthesizer = new TMTISynthesizer<Store, Stmt, BoolExpr>(planner, logger, debugger);
 			boolean ok = synthesizer.synthesize(problem);
 			if (!ok) {

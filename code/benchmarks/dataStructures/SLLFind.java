@@ -1,19 +1,17 @@
-package heap;
+package dataStructures;
 
 import java.util.ArrayList;
-import java.util.Random;
 
-import dataStructures.SLL;
 import heap.HeapProblem;
+import heap.HeapRunner;
 import heap.jsupport.*;
 
 /**
- * A benchmark for filling the data values of a acyclic lists of various
- * lengths.
+ * A benchmark for finding the first cell with the given integer value. lengths.
  * 
  * @author romanm
  */
-public class SLLFill extends HeapRunner {
+public class SLLFind extends HeapRunner {
 	public static class BenchEnv extends JavaEnv {
 		@MethodArg(out = true, readonly = true)
 		public SLL head;
@@ -21,26 +19,32 @@ public class SLLFill extends HeapRunner {
 		@MethodArg(out = false, readonly = true)
 		public int val;
 
-		public SLL t;
+		@MethodArg(out = true)
+		public SLL ret;
 	}
 
 	public static void main(String[] args) {
-		SLLFill benchmark = new SLLFill();
+		SLLFind benchmark = new SLLFind();
 		benchmark.run();
 	}
 
 	@Override
 	public HeapProblem genProblem() {
 		ArrayList<JavaEnv> inputs = new ArrayList<>();
-		Random r = new Random(31);
-		for (int i = 1; i < 6; ++i) {
+		for (int i = 2; i < 100; ++i) {
 			BenchEnv env = new BenchEnv();
-			env.head = SLL.genAcyclicZeroes(i);
-			env.val = r.nextInt(100);
+			env.head = SLL.genRandomAcyclic(i);
+			SLL t = env.head;
+			if (i % 2 == 0) {
+				for (int j = 0; j < i / 2; ++j) {
+					t = t.n;
+				}
+			}
+			env.val = t.d;
 			inputs.add(env);
 		}
 		JavaProblemGenerator problemGen = new JavaProblemGenerator(super.logger);
-		HeapProblem problem = problemGen.generate(SLL.class, "fill", inputs);
+		HeapProblem problem = problemGen.generate(SLL.class, "find", inputs);
 		return problem;
 	}
 }

@@ -254,5 +254,4 @@ public class Automaton extends HashMultiGraph<State, Action> {
 		assert !containsNode(src);
 		assert containsNode(dst);
 	}
-
 }

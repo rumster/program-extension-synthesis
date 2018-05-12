@@ -29,7 +29,9 @@ public class LinearInferencer<ValueType extends Value, UpdateType extends Update
 		for (var guard : guards) {
 			var separates = true;
 			for (var val1 : first) {
-				if (!domain.test(guard, val1)) {
+				@SuppressWarnings("unchecked")
+				var val1Typed = (ValueType) val1;
+				if (!domain.test(guard, val1Typed)) {
 					separates = false;
 					break;
 				}
@@ -38,7 +40,9 @@ public class LinearInferencer<ValueType extends Value, UpdateType extends Update
 				continue;
 			}
 			for (var val2 : second) {
-				if (domain.test(guard, val2)) {
+				@SuppressWarnings("unchecked")
+				var val2Typed = (ValueType) val2;
+				if (domain.test(guard, val2Typed)) {
 					separates = false;
 					break;
 				}

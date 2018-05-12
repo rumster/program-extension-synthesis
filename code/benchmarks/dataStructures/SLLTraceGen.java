@@ -1,4 +1,4 @@
-package heap;
+package dataStructures;
 
 /**
  * Used to Generate synthesis problems for singly-linked lists, now just

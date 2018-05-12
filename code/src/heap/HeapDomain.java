@@ -45,6 +45,8 @@ public class HeapDomain implements Domain<Store, Stmt, BoolExpr> {
 	public final Collection<RefType> refTypes;
 	public final Collection<Type> types = new LinkedHashSet<>();
 
+	public final List<IntVar> intVars = new ArrayList<>();
+
 	public final Rel2<Type, Var> typeToVar = new HashRel2<>();
 
 	protected Collection<Stmt> stmts = new ArrayList<>();
@@ -63,9 +65,8 @@ public class HeapDomain implements Domain<Store, Stmt, BoolExpr> {
 	}
 
 	@Override
-	public boolean test(BoolExpr c, Value val) {
-		Store state = (Store) val;
-		Boolean result = PWhileInterpreter.v.test(c, state);
+	public boolean test(BoolExpr expr, Store state) {
+		Boolean result = PWhileInterpreter.v.test(expr, state);
 		return result != null && result.booleanValue();
 	}
 
@@ -131,6 +132,10 @@ public class HeapDomain implements Domain<Store, Stmt, BoolExpr> {
 				if (refVar.role == VarRole.TEMP) {
 					refTemps.add(refVar);
 				}
+			} else {
+				assert v instanceof IntVar;
+				var intVar = (IntVar) v;
+				intVars.add(intVar);
 			}
 		}
 
@@ -154,6 +159,7 @@ public class HeapDomain implements Domain<Store, Stmt, BoolExpr> {
 			}
 		}
 
+		// Generate assignments that are specific to reference-typed variables.
 		for (RefVar lhs : refVars) {
 			if (!lhs.readonly) {
 				// lhs = new T()
@@ -181,6 +187,36 @@ public class HeapDomain implements Domain<Store, Stmt, BoolExpr> {
 							result.add(new AssignStmt(new VarExpr(lhs), new DerefExpr(new VarExpr(rhs), f)));
 						}
 					}
+				}
+			}
+		}
+
+		var lvars = new ArrayList<Expr>();
+		var rvals = new ArrayList<Expr>();
+		for (var intVar : intVars) {
+			var varExpr = new VarExpr(intVar);
+			rvals.add(varExpr);
+			if (!intVar.readonly) {
+				lvars.add(varExpr);
+			}
+		}
+		rvals.add(new ValExpr(new IntVal(0)));
+		rvals.add(new ValExpr(new IntVal(1)));
+
+		for (var lhs : lvars) {
+			for (var first : rvals) {
+				for (var second : rvals) {
+					if (first instanceof ValExpr && second instanceof ValExpr) {
+						continue;
+					}
+					var rhs = new IntBinOpExpr(IntBinOp.PLUS, first, second);
+					result.add(new AssignStmt(lhs, rhs));
+					rhs = new IntBinOpExpr(IntBinOp.MINUS, first, second);
+					result.add(new AssignStmt(lhs, rhs));
+					rhs = new IntBinOpExpr(IntBinOp.TIMES, first, second);
+					result.add(new AssignStmt(lhs, rhs));
+					rhs = new IntBinOpExpr(IntBinOp.DIVIDE, first, second);
+					result.add(new AssignStmt(lhs, rhs));
 				}
 			}
 		}
@@ -281,11 +317,11 @@ public class HeapDomain implements Domain<Store, Stmt, BoolExpr> {
 		if (intVals.isEmpty()) {
 			return;
 		}
-		
+
 		// Leave only the maximal and minimal numbers.
 		var min = intVals.iterator().next();
 		var max = intVals.iterator().next();
-		for (var val: intVals) {
+		for (var val : intVals) {
 			if (val.num < min.num) {
 				min = val;
 			}

@@ -1,9 +1,9 @@
-package heap;
+package dataStructures;
 
 import java.util.ArrayList;
 
-import dataStructures.SLL;
 import heap.HeapProblem;
+import heap.HeapRunner;
 import heap.jsupport.*;
 
 /**

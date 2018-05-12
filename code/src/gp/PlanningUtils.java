@@ -35,9 +35,8 @@ public class PlanningUtils {
 			Union2<ValueType, UpdateType> step = example.steps.get(i);
 			if (step.isT1()) {
 				var stateGoal = step.getT1();
-				final var finalCurrent = current;
 				SearchResultType planResult = planner.findPlan(current, state -> {
-					return domain.match(finalCurrent, stateGoal);
+					return domain.match(state, stateGoal);
 				}, plan);
 				switch (planResult) {
 				case OK:
