@@ -32,9 +32,9 @@ parser code {:
   }
 :}
 
-terminal TYPE, VAR, NULL, EXAMPLE, MUT, GHOST;
+terminal TYPE, VAR, NULL, EXAMPLE, TEST, MUT, GHOST;
 terminal IF, WHILE, ELSE;
-terminal COMMA, SEMI, DOT, ASSIGN, COLON, ARROW, LP, RP, LB, RB, LCB, RCB;
+terminal COMMA, SEMI, DOT, ASSIGN, COLON, ARROW, ELLIPSIS, LP, RP, LB, RB, LCB, RCB;
 terminal EQ, NEQ, LT, LEQ, GT, GEQ, AND, OR, NOT, PLUS, MINUS, TIMES, DIVIDE;
 		
 terminal Integer INT_VAL; 
@@ -74,22 +74,20 @@ nonterminal ASTStore store;
 nonterminal AST storeVal;
 nonterminal List heapElems; // <ASTfieldVal>
 
-precedence left SEMI;
-precedence left EQ;
-precedence left LT;
 precedence nonassoc NOT;
 precedence left OR;
 precedence left AND;
-precedence left MINUS;
-precedence left PLUS;
-precedence left TIMES;
-precedence left DIVIDE;
-precedence left DOT;
+precedence left EQ;
 precedence nonassoc NEQ;
 precedence nonassoc GT;
 precedence nonassoc GEQ;
 precedence nonassoc LT;
 precedence nonassoc LEQ;
+precedence left DOT;
+precedence left MINUS;
+precedence left PLUS;
+precedence left TIMES;
+precedence left DIVIDE;
 precedence right SEMI;
 
 precedence right STMT_LIST;
@@ -240,14 +238,31 @@ examples ::= example:e
 	{: RESULT = new ArrayList<ASTExample>();
 	   RESULT.add(e);
 	:}
+	| TEST example:e
+	{: e.isTest = true;
+	   RESULT = new ArrayList<ASTExample>();
+	   RESULT.add(e);	   
+	:}
 	| examples:prefix example:e
 	{: prefix.add(e);
 	   RESULT = prefix;
 	:} 
+	| examples:prefix TEST example:e
+	{: prefix.add(e);
+	   e.isTest = true;
+	   RESULT = prefix;	   
+	:} 
 ;
 
-example ::= EXAMPLE LCB exampleSteps:steps RCB
-	{: RESULT = new ASTExample(steps); :}
+example ::= EXAMPLE LCB store:s ARROW exampleSteps:steps RCB
+	{: exampleSteps:steps.add(0, s);
+	   RESULT = new ASTExample(steps);	    
+	:}
+	| EXAMPLE LCB store:s ARROW ELLIPSIS RCB
+	{: var steps = new ArrayList<ASTStep>();
+	   steps.add(s);
+	   RESULT = new ASTExample(steps);
+	:}
 ;
 
 exampleSteps ::= step:s

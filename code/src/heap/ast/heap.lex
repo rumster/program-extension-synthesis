@@ -41,6 +41,7 @@ TraditionalComment   = "/*" ~"*/" | "/*" "*"+ "/"
 <YYINITIAL> {
   "type"		{ return new Token(HeapSym.TYPE, yytext(), yyline, yycolumn); }
   "example"		{ return new Token(HeapSym.EXAMPLE, yytext(), yyline, yycolumn); }
+  "test"		{ return new Token(HeapSym.TEST, yytext(), yyline, yycolumn); }
   "var"			{ return new Token(HeapSym.VAR, yytext(), yyline, yycolumn); }
   "null"		{ return new Token(HeapSym.NULL, yytext(), yyline, yycolumn); }
   "mut"			{ return new Token(HeapSym.MUT, yytext(), yyline, yycolumn); }
@@ -79,6 +80,7 @@ TraditionalComment   = "/*" ~"*/" | "/*" "*"+ "/"
   
   ":"  			{ return new Token(HeapSym.COLON, yytext(), yyline, yycolumn); }
   "->" 			{ return new Token(HeapSym.ARROW, yytext(), yyline, yycolumn); }
+  "..." 		{ return new Token(HeapSym.ELLIPSIS, yytext(), yyline, yycolumn); }  
   "("  			{ return new Token(HeapSym.LP, yytext(), yyline, yycolumn); }
   ")"  			{ return new Token(HeapSym.RP, yytext(), yyline, yycolumn); }
   "{"  			{ return new Token(HeapSym.LCB, yytext(), yyline, yycolumn); }

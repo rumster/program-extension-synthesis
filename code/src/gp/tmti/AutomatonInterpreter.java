@@ -2,11 +2,13 @@ package gp.tmti;
 
 import java.util.Optional;
 
+import bgu.cs.util.graph.MultiGraph.Edge;
+import gp.ArrayListPlan;
 import gp.Domain;
 import gp.Domain.Guard;
 import gp.Domain.Update;
 import gp.Domain.Value;
-import gp.Interpreter;
+import gp.LoadedInterpreter;
 import gp.Plan;
 
 /**
@@ -22,9 +24,10 @@ import gp.Plan;
  *            The type of guards in the underlying domain.
  */
 public class AutomatonInterpreter<ValueType extends Value, UpdateType extends Update, GuardType extends Guard>
-		implements Interpreter<ValueType, UpdateType, GuardType> {
+		implements LoadedInterpreter<ValueType, UpdateType, GuardType> {
 	private final Automaton automaton;
 	private final Domain<ValueType, UpdateType, GuardType> domain;
+	private Plan<ValueType, UpdateType> trace;
 
 	public AutomatonInterpreter(Automaton automaton, Domain<ValueType, UpdateType, GuardType> domain) {
 		this.automaton = automaton;
@@ -33,25 +36,19 @@ public class AutomatonInterpreter<ValueType extends Value, UpdateType extends Up
 
 	@Override
 	public Optional<ValueType> run(ValueType input, int maxSteps) {
-		return run(input, maxSteps, null);
-	}
-
-	@Override
-	public Optional<ValueType> run(ValueType input, int maxSteps, Plan<ValueType, UpdateType> trace) {
-		if (trace != null) {
-			trace.setFirst(input);
-		}
 		var currState = automaton.getInitial();
 		var stepCounter = 0;
 		var currValue = input;
 		while (currState != automaton.getFinal()) {
 			Action matchedAction = null;
+			Edge<State, Action> matchedEdge = null;
 			for (var edge : automaton.succEdges(currState)) {
 				var action = edge.getLabel();
 				@SuppressWarnings("unchecked")
 				var guard = (GuardType) action.guard();
 				if (domain.test(guard, currValue)) {
 					matchedAction = action;
+					matchedEdge = edge;
 					break;
 				}
 			}
@@ -69,15 +66,29 @@ public class AutomatonInterpreter<ValueType extends Value, UpdateType extends Up
 						trace.append(update, currValue);
 					}
 					++stepCounter;
+					if (stepCounter > maxSteps) {
+						return Optional.empty();
+					}
+					currState = matchedEdge.getDst();
 				} else {
 					return Optional.empty();
 				}
 
 			}
-			if (stepCounter > maxSteps) {
-				return Optional.empty();
-			}
 		}
 		return Optional.of(currValue);
+	}
+
+	@Override
+	public Optional<Plan<ValueType, UpdateType>> genTrace(ValueType input, int maxSteps) {
+		trace = new ArrayListPlan<>(input);
+		var optVal = run(input, maxSteps);
+		if (optVal.isPresent()) {
+			var result = trace;
+			trace = null; // Release unneeded memory resources.
+			return Optional.of(result);
+		} else {
+			return Optional.empty();
+		}
 	}
 }

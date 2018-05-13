@@ -40,7 +40,7 @@ public class BasicHeapTR implements TR<Store, Stmt> {
 
 	@Override
 	public Collection<Store> apply(Store store, Stmt stmt) {
-		Store result = PWhileInterpreter.v.run(stmt, store);
+		Store result = PWhileInterpreter.v.run(stmt, store, PWhileInterpreter.v.guessMaxSteps(stmt, store)).get();
 		return List.of(result);
 	}
 }

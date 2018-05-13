@@ -28,6 +28,10 @@ public class Automaton extends HashMultiGraph<State, Action> {
 	 */
 	private State exit;
 
+	/**
+	 * Constructs an automaton with an initial state, a final state, and an empty
+	 * set of transitions.
+	 */
 	public Automaton() {
 		entry = new State("initial");
 		exit = new State("final");
@@ -35,10 +39,16 @@ public class Automaton extends HashMultiGraph<State, Action> {
 		addNode(exit);
 	}
 
+	/**
+	 * Returns the initial state.
+	 */
 	public State getInitial() {
 		return entry;
 	}
 
+	/**
+	 * Returns the final state.
+	 */
 	public State getFinal() {
 		return exit;
 	}
@@ -67,7 +77,7 @@ public class Automaton extends HashMultiGraph<State, Action> {
 			oldStateToNewState.put(oldState, newState);
 		}
 
-		// Now copy the transitions over to the new automaton
+		// Now copy the transitions over to the new automaton.
 		for (var oldState : getNodes()) {
 			for (Edge<State, Action> transition : this.succEdges(oldState)) {
 				var newSrc = oldStateToNewState.get(transition.getSrc());
@@ -80,6 +90,10 @@ public class Automaton extends HashMultiGraph<State, Action> {
 		return result;
 	}
 
+	/**
+	 * Finds a transition outgoing from the given state and labelled with the given
+	 * update.
+	 */
 	public Optional<Pair<Action, State>> findTransition(State src, Update update) {
 		Action foundAction = null;
 		State foundState = null;
@@ -172,6 +186,10 @@ public class Automaton extends HashMultiGraph<State, Action> {
 		return result;
 	}
 
+	/**
+	 * Removes an outgoing edge if there is already a parallel one with the same
+	 * update.
+	 */
 	protected void removeDuplicateUpdates(State state) {
 		if (!containsNode(state)) {
 			return;
@@ -258,6 +276,9 @@ public class Automaton extends HashMultiGraph<State, Action> {
 		assert containsNode(dst);
 	}
 
+	/**
+	 * Returns the predecessor states of the given state.
+	 */
 	public Collection<State> predStates(State state) {
 		var result = new ArrayList<State>();
 		for (var edge : predEdges(state)) {
@@ -266,6 +287,9 @@ public class Automaton extends HashMultiGraph<State, Action> {
 		return result;
 	}
 
+	/**
+	 * Returns the successor states of the given state.
+	 */
 	public Collection<State> srccStates(State state) {
 		var result = new ArrayList<State>();
 		for (var edge : succEdges(state)) {

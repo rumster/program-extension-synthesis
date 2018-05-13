@@ -73,11 +73,6 @@ public abstract class HeapRunner {
 				logger.info("fail!");
 			} else {
 				logger.info("success!");
-				// debugger.printCodeFile("synth-code.txt", result.toString(), "Synthesis
-				// result");
-				// logger.info("Verifying synthesized program...");
-				// boolean resultCorrect = problem.test(result);
-				// logger.info(resultCorrect ? "ok" : "erroneous");
 			}
 		} catch (Throwable t) {
 			logger.severe(t.toString());

@@ -7,7 +7,7 @@ $fields, succs:{field, succ|$obj$.$field$=$succ$}; separator=" "$
 >>
 
 StoreDOT(objects, refVarNodes, refVarVals, nonRefVarVals, refFields) ::= <<
-digraph state {
+digraph store {
   $if(objects)$null [shape=plaintext];$endif$
   $objects:{it|$it.first$ [label="$it.second$", shape=box];}; separator="\n"$
   $refVarNodes:{it|$it$ [label="$it$", shape=plaintext];}; separator="\n"$
@@ -20,4 +20,10 @@ digraph state {
 objectContent(name, vals) ::= <<
 $name$
 $vals; separator="\n"$
+>>
+
+ErrorStore(message) ::= <<
+digraph error_store {
+ n [label="$message$", shape=plaintext]
+}
 >>

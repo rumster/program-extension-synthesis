@@ -64,15 +64,15 @@ public class TMTI<ValueType extends Value, UpdateType extends Update, GuardType 
 		var prefixAutomaton = optPrefixAutomaton.get();
 		debugger.printAutomaton(prefixAutomaton, "Prefix automaton");
 		if (!prefixAutomaton.isUpdateDeterministic()) {
-			debugger.printTextFile("message", "Unable to learn an automaton: prefix automaton is non-deterministic!",
-					"Synthesizer message");
+			debugger.printTextFile("TMTI message",
+					"Unable to learn an automaton: prefix automaton is non-deterministic!", "Synthesizer message");
 			return Result.failure(ResultType.NON_DETERMINISTIC);
 		}
 		var prefixAutomatonGuardAssignable = assignGuards(prefixAutomaton);
 		if (!prefixAutomatonGuardAssignable) {
 			debugger.printAutomaton(prefixAutomaton, "Prefix automaton with missing guards");
-			debugger.printTextFile("message", "Unable to learn an automaton: cannot infer guards for prefix automaton!",
-					"Synthesizer message");
+			debugger.printTextFile("TMTI message",
+					"Unable to learn an automaton: cannot infer guards for prefix automaton!", "Synthesizer message");
 			return Result.failure(ResultType.NON_DETERMINISTIC);
 		} else {
 			debugger.printAutomaton(prefixAutomaton, "Deterministic prefix automaton");

@@ -87,4 +87,11 @@ public interface Plan<StateType, ActionType> {
 	 * Precondition: <code>!isEmpty()</code>
 	 */
 	public void prependPlan(Plan<StateType, ActionType> other);
+
+	/**
+	 * Compares two plans, assuming actions are deterministic.
+	 */
+	public default boolean eqDeterministic(Plan<StateType, ActionType> other) {
+		return this.firstState().equals(other.firstState()) && this.actions().equals(other.actions());
+	}
 }

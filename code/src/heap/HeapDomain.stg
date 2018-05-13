@@ -56,7 +56,8 @@ RetStmt() ::= <<return>>
 AssignStmt(lhs, rhs) ::= <<$lhs$ = $rhs$>>
 
 SeqStmt(first, second) ::= <<
-$first$; $second$
+$first$;
+$second$
 >>
 
 IfStmt(cond, thenStmt, elseStmt) ::= <<

@@ -15,7 +15,8 @@ public class True extends BoolExpr {
 
 	@Override
 	public void accept(Visitor v) {
-		v.visit(this);
+		PWhileVisitor whileVisitor = (PWhileVisitor) v;
+		whileVisitor.visit(this);
 	}
 
 	@Override

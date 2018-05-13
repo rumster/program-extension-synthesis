@@ -3,7 +3,7 @@ package heap;
 import grammar.Visitor;
 
 /**
- * A terminal representing an integer value.
+ * Represents an integer value.
  * 
  * @author romanm
  */

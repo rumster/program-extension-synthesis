@@ -84,14 +84,14 @@ public class PWhileVisitor implements Visitor {
 	}
 
 	public void visit(Nonterminal n) {
-		assert false : "unhandled terminal " + n.toString();
+		assert false : "unhandled nonterminal " + n.toString();
 	}
 
 	public void visit(Token n) {
-		assert false : "unhandled terminal " + n.toString();
+		assert false : "unhandled token node " + n.toString();
 	}
 
 	public void visit(Node n) {
-		assert false : "unhandled operator " + n.toString();
+		assert false : "unhandled node " + n.toString();
 	}
 }

@@ -24,6 +24,12 @@ public class Example<ValueType extends Value, UpdateType extends Update>
 	public final int id;
 
 	/**
+	 * Indicates whether this example is for training (false) or for testing (true)
+	 * the result of the synthesis.
+	 */
+	public boolean isTest = false;
+
+	/**
 	 * A list of intermediate steps. The first step is always a state, while the
 	 * following steps may be either partial states or actions.
 	 */
@@ -67,6 +73,10 @@ public class Example<ValueType extends Value, UpdateType extends Update>
 		return steps.get(i);
 	}
 
+	public boolean inputOnly() {
+		return steps.size() == 1;
+	}
+
 	public ValueType input() {
 		return steps.get(0).getT1();
 	}
@@ -82,6 +92,6 @@ public class Example<ValueType extends Value, UpdateType extends Update>
 
 	@Override
 	public String toString() {
-		return "Example []";
+		return "Example " + name;
 	}
 }

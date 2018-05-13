@@ -3,6 +3,7 @@ package heap;
 import java.util.Optional;
 
 import gp.Domain;
+import gp.LoadedInterpreter;
 import gp.SynthesisProblem;
 
 /**
@@ -22,11 +23,27 @@ public class HeapProblem extends SynthesisProblem<Store, Stmt, BoolExpr> {
 
 	@Override
 	public String toString() {
-		return domain.toString();
+		var result = new StringBuilder();
+		if (optProg.isPresent()) {
+			var prog = optProg.get();
+			result.append(Renderer.render(prog));
+			result.append(System.lineSeparator());
+		}
+		result.append(domain.toString());
+		return result.toString();
 	}
 
 	@Override
 	public Domain<Store, Stmt, BoolExpr> domain() {
 		return domain;
+	}
+
+	@Override
+	public Optional<LoadedInterpreter<Store, Stmt, BoolExpr>> interpreter() {
+		if (optProg.isPresent()) {
+			return Optional.of(new HeapLoadedInterpreter(optProg.get()));
+		} else {
+			return Optional.empty();
+		}
 	}
 }

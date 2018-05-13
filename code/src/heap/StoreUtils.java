@@ -22,6 +22,7 @@ import bgu.cs.util.graph.MultiGraph;
 import bgu.cs.util.graph.visualization.GraphizVisualizer;
 import gnu.trove.map.TObjectIntMap;
 import gnu.trove.map.hash.TObjectIntHashMap;
+import heap.Store.ErrorStore;
 
 /**
  * Store-related utility methods.
@@ -60,7 +61,15 @@ public class StoreUtils {
 	 * Renders the given store into an image file with the given base name.
 	 */
 	public static void printStore(Store store, String filename, Logger logger) {
-		String dotStr = storeToDOT(store);
+		String dotStr;
+		if (store instanceof ErrorStore) {
+			ErrorStore errorStore = (ErrorStore) store;
+			var errorStoreST = templates.load("ErrorStore");
+			errorStoreST.add("message", errorStore.description);
+			dotStr = errorStoreST.render();
+		} else {
+			dotStr = storeToDOT(store);
+		}
 		GraphizVisualizer.renderToFile(dotStr, FileUtils.base(filename), FileUtils.suffix(filename), logger);
 	}
 
@@ -99,7 +108,8 @@ public class StoreUtils {
 				template.add("refVarNodes", var.name);
 			} else {
 				if (store.isInitialized(var)) {
-					template.add("nonRefVarVals", new Pair<String, String>(var.name, var.name + "==" + store.eval(var)));
+					template.add("nonRefVarVals",
+							new Pair<String, String>(var.name, var.name + "==" + store.eval(var)));
 				}
 			}
 		}

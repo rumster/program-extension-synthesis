@@ -9,6 +9,7 @@ import java.util.List;
  */
 public class ASTExample extends AST {
 	public final List<ASTStep> steps;
+	public boolean isTest = false;
 
 	public ASTExample(List<ASTStep> steps) {
 		this.steps = steps;

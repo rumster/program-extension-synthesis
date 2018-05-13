@@ -523,8 +523,14 @@ public class ProblemCompiler {
 					steps.add(Union2.ofT2(stmt));
 				}
 			}
-			steps.add(Union2.ofT2(RetStmt.v));
-			return new Example<Store, Stmt>(steps, exampleId);
+			if (steps.size() > 1) {
+				steps.add(Union2.ofT2(RetStmt.v));
+			} else {
+				// This is an input-only example so the return statement will be added later.
+			}
+			var result = new Example<Store, Stmt>(steps, exampleId);
+			result.isTest = exampleAST.isTest;
+			return result;
 		}
 
 		private void inferObjectTypes() {

@@ -1,5 +1,8 @@
 package heap;
 
+import java.util.Optional;
+
+import gp.ArrayListPlan;
 import gp.Plan;
 import grammar.Node;
 import grammar.Nonterminal;
@@ -26,22 +29,42 @@ public class PWhileInterpreter extends PWhileVisitor {
 	protected Val resultVal;
 	protected Field resulField;
 	protected RefType type;
-	protected Plan<Store, Node> trace;
+	protected Plan<Store, Stmt> trace;
+	protected int stepCounter;
+	protected int maxSteps;
 
-	public Store run(Stmt n, Store input, Plan<Store, Node> trace) {
-		assert n.concrete();
-		this.trace = trace;
-		if (trace != null && trace.isEmpty())
-			trace.setFirst(input);
-		return run(n, input);
+	/**
+	 * Guesses the number of steps needed to evaluate the given statement on the
+	 * given store.
+	 * 
+	 * TODO: compute by taking the loop-depth into account.
+	 */
+	public int guessMaxSteps(Stmt stmt, Store store) {
+		return store.objects.size() * store.objects.size() + 1000;
 	}
 
-	public Store run(Stmt n, Store input) {
+	public Optional<Plan<Store, Stmt>> genTrace(Stmt n, Store input, int maxSteps) {
 		assert n.concrete();
+		this.trace = new ArrayListPlan<Store, Stmt>(input);
+		run(n, input, maxSteps);
+		if (stepCounter <= maxSteps) {
+			updateTrace(state, state, RetStmt.v);
+			var result = this.trace;
+			this.trace = null;
+			return Optional.of(result);
+		} else {
+			return Optional.empty();
+		}
+	}
+
+	public Optional<Store> run(Stmt n, Store input, int maxSteps) {
+		assert n.concrete();
+		this.stepCounter = 0;
+		this.maxSteps = maxSteps;
 		reset();
 		state = input;
 		n.accept(this);
-		return state;
+		return Optional.of(state);
 	}
 
 	public Boolean test(BoolExpr n, Store input) {
@@ -62,7 +85,11 @@ public class PWhileInterpreter extends PWhileVisitor {
 		this.resultVal = null;
 	}
 
-	protected void updateTrace(Store pre, Store post, Node label) {
+	protected void updateTrace(Store pre, Store post, Stmt label) {
+		++stepCounter;
+		if (stepCounter > maxSteps) {
+			state = Store.error("Exceeded maximal number of steps: " + maxSteps);
+		}
 		if (trace != null) {
 			trace.append(label, post);
 		}
@@ -215,7 +242,7 @@ public class PWhileInterpreter extends PWhileVisitor {
 			return;
 		Val rval = resultVal;
 
-		resultCond = lval != null && rval != null && lval == rval;
+		resultCond = lval != null && rval != null && lval.equals(rval);
 	}
 
 	@Override
@@ -283,19 +310,20 @@ public class PWhileInterpreter extends PWhileVisitor {
 			updateTrace(pre, state, n);
 			return;
 		}
-		int iterationBound = state.getObjects().size() * 2;
-		int iterationCounter = 0;
 		while (resultCond) {
 			n.getBody().accept(this);
 			if (state instanceof ErrorStore)
 				return;
+			if (pre.equals(state)) {
+				state = ErrorStore.error("Possibly non-terminating loop!");
+				return;
+			}
 			pre = state;
 			n.getCond().accept(this);
 			if (state instanceof ErrorStore) {
 				return;
 			}
-			++iterationCounter;
-			if (iterationCounter > iterationBound) {
+			if (stepCounter > maxSteps) {
 				state = ErrorStore.error("Possibly non-terminating loop!");
 				return;
 			}
@@ -336,24 +364,36 @@ public class PWhileInterpreter extends PWhileVisitor {
 		if (!(lval instanceof IntVal) || !(rval instanceof IntVal)) {
 			state = ErrorStore.error("non-integer operands " + n);
 		} else {
-			var lhsVal = ((IntVal) lval).num;
-			var rhsVal = ((IntVal) rval).num;
+			var lhsNum = ((IntVal) lval).num;
+			var rhsNum = ((IntVal) rval).num;
 			switch (n.op) {
 			case PLUS:
-				resultVal = new IntVal(lhsVal + rhsVal);
+				resultVal = new IntVal(lhsNum + rhsNum);
 				break;
 			case MINUS:
-				resultVal = new IntVal(lhsVal - rhsVal);
+				resultVal = new IntVal(lhsNum - rhsNum);
 				break;
 			case TIMES:
-				resultVal = new IntVal(lhsVal * rhsVal);
+				resultVal = new IntVal(lhsNum * rhsNum);
 				break;
 			case DIVIDE:
-				if (rhsVal == 0) {
+				if (rhsNum == 0) {
 					state = ErrorStore.error("division by zero");
 				} else {
-					resultVal = new IntVal(lhsVal + rhsVal);
+					resultVal = new IntVal(lhsNum + rhsNum);
 				}
+				break;
+			case LT:
+				resultCond = lhsNum < rhsNum;
+				break;
+			case LEQ:
+				resultCond = lhsNum <= rhsNum;
+				break;
+			case GT:
+				resultCond = lhsNum > rhsNum;
+				break;
+			case GEQ:
+				resultCond = lhsNum >= rhsNum;
 				break;
 			default:
 				throw new IllegalArgumentException("Encountered unsupported operator: " + n.op);

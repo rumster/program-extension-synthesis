@@ -57,6 +57,7 @@ public class HeapDebugger extends GPDebugger<Store, Stmt, BoolExpr> {
 				}
 			}
 			indexedExampleTemplate.add("id", example.id);
+			indexedExampleTemplate.add("isTest", example.isTest);
 			exampleListTemplate.add("indexedExample", indexedExampleTemplate.render());
 			exampleListTemplate.add("indices", example.id);
 		}

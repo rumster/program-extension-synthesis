@@ -49,6 +49,20 @@ public abstract class SynthesisProblem<ValueType extends Value, UpdateType exten
 	 */
 	public abstract Domain<ValueType, UpdateType, GuardType> domain();
 
+	public abstract Optional<LoadedInterpreter<ValueType, UpdateType, GuardType>> interpreter();
+
+	public Optional<Plan<ValueType, UpdateType>> generate(Example<ValueType, UpdateType> inputOnlyExample,
+			int maxSteps) {
+		var optInterpreter = interpreter();
+		if (optInterpreter.isPresent()) {
+			var interpreter = optInterpreter.get();
+			var result = interpreter.genTrace(inputOnlyExample.input(), maxSteps);
+			return result;
+		} else {
+			return Optional.empty();
+		}
+	}
+
 	public SynthesisProblem(String name) {
 		this.name = name;
 	}
@@ -63,7 +77,7 @@ public abstract class SynthesisProblem<ValueType extends Value, UpdateType exten
 		this.examples.add(new Example<>(input, output, examples.size()));
 	}
 
-	public boolean test(Interpreter<ValueType, UpdateType, GuardType> prog) {
+	public boolean test(LoadedInterpreter<ValueType, UpdateType, GuardType> prog) {
 		for (Example<ValueType, UpdateType> example : this.examples) {
 			ValueType input = example.input();
 			ValueType goal = example.goal();

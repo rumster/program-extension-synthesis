@@ -9,8 +9,8 @@ gcd(mut a:int, mut b:int) -> (res:int) {
     else {
       b = b - a;
     }
-    res = a;
   }
+  res = a;
 
   example {
     [a==100 && b==150]
@@ -31,37 +31,19 @@ gcd(mut a:int, mut b:int) -> (res:int) {
     -> res = a;
   }
 
-/*  
-  example {
-    [a==16 && b==12]
-    -> a = a - b; // a==4 && b==12
-    -> b = b - a; // a==4 && b==8
-    -> b = b - a; // a==4 && b==4
-    -> res = a;
+  test example {
+    [a==16 && b==12] -> ...
   }
 
-  example {
-    [a==20 && b==12]
-    -> a = a - b; // a==8 && b==12
-    -> b = b - a; // a==8 && b==4
-    -> a = a - b; // a==4 && b==4
-    -> res = a;
+  test example {
+    [a==20 && b==12] -> ...
   }
 
-  example {
-    [a==12 && b==16]
-    -> b = b - a;
-    -> a = a - b;
-    -> a = a - b;
-    -> res = a;
+  test example {
+    [a==12 && b==16] -> ...
   }
 
-  example {
-    [a==12 && b==20]
-    -> b = b - a;
-    -> a = a - b;
-    -> b = b - a;
-    -> res = a;
-  }
-*/  
+  test example {
+    [a==12 && b==20] -> ...
+  } 
 }

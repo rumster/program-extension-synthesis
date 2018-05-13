@@ -1,7 +1,7 @@
-indexedExample(step, id) ::= <<
+indexedExample(step, id, isTest) ::= <<
 <div id="example$id$" style="display:none;">
 <table>
-  <caption>Example $id$</caption>
+  <caption>Example $id$$if(isTest)$ (test)$else$ (training)$endif$</caption>
   $step:{it|<tr><td>$it$</td></tr>}; separator="\n"$
 </table>
 </div>
@@ -20,7 +20,7 @@ examples(indexedExample, indices) ::= <<
    "http://www.w3.org/TR/html4/frameset.dtd">
 <HTML>
 <HEAD>
-<TITLE>Input-Output Examples</TITLE>
+<TITLE>Examples</TITLE>
 
 <script type="text/javascript">
 var currOption = 0;
