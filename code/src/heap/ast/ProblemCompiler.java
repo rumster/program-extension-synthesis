@@ -251,7 +251,38 @@ public class ProblemCompiler {
 				throw new SemanticError("Type error: attempt to apply integer-typed operation to non-integer operands!",
 						n);
 			}
-			n.setType(IntType.v);
+			switch (n.op) {
+			case PLUS:
+				n.setType(IntType.v);
+				break;
+			case MINUS:
+				n.setType(IntType.v);
+				break;
+			case TIMES:
+				n.setType(IntType.v);
+				break;
+			case DIVIDE:
+				n.setType(IntType.v);
+				break;
+			case EQ:
+				n.setType(BoolType.v);
+				break;
+			case LT:
+				n.setType(BoolType.v);
+				break;
+			case LEQ:
+				n.setType(BoolType.v);
+				break;
+			case GT:
+				n.setType(BoolType.v);
+				break;
+			case GEQ:
+				n.setType(BoolType.v);
+				break;
+			default:
+				throw new Error("Encountered unexpected operator " + n.op);
+			}
+
 			tmpExpr = new IntBinOpExpr(n.op, lhsExpr, rhsExpr);
 		}
 

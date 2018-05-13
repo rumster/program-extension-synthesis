@@ -6,7 +6,7 @@ import grammar.Nonterminal;
 import heap.Store.ErrorStore;
 
 /**
- * Interprets a program for a given state. The interpreter attempts to run even
+ * Interprets a program for a given store. The interpreter attempts to run even
  * on abstract programs (programs containing nonterminals) and may return the
  * top state if it cannot evaluate assignments or expressions.
  * 
@@ -104,6 +104,53 @@ public class PWhileInterpreter extends PWhileVisitor {
 	public void visit(AssignStmt n) {
 		Store pre = state;
 		computeAssignStmt(n);
+		updateTrace(pre, state, n);
+		if (state instanceof ErrorStore) {
+			return;
+		}
+		if (state.containsGarbage()) {
+			state = Store.error("memory leak!");
+		}
+	}
+
+	@Override
+	public void visit(ParallelAssign n) {
+		Store pre = state;
+		var rexprs = (ExprList) n.rvals();
+		var rvals = new Val[rexprs.size()];
+		for (int i = 0; i < rvals.length; ++i) {
+			var rexpr = rexprs.get(i);
+			rexpr.accept(this);
+			if (state instanceof ErrorStore) {
+				return;
+			}
+			rvals[i] = resultVal;
+		}
+
+		var lexprs = (ExprList) n.rvals();
+		for (int i = 0; i < lexprs.size(); ++i) {
+			var lexpr = lexprs.get(i);
+			if (lexpr instanceof VarExpr) {
+				var lvarExpr = (VarExpr) lexpr;
+				var lvar = lvarExpr.getVar();
+				state.assign(lvar, rvals[i]);
+			} else {
+				assert lexpr instanceof DerefExpr;
+				var lhsDeref = (DerefExpr) lexpr;
+				lhsDeref.getLhs().accept(this);
+				Obj lobj = (Obj) resultVal;
+				if (state instanceof ErrorStore) {
+					return;
+				}
+				if (lobj == Obj.NULL) {
+					state = Store.error("illegal dereference by " + lhsDeref);
+					return;
+				}
+				state = state.assign(lobj, lhsDeref.getField(), rvals[i]);
+
+			}
+		}
+
 		updateTrace(pre, state, n);
 		if (state instanceof ErrorStore) {
 			return;

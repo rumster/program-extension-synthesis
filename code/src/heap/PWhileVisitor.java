@@ -20,6 +20,9 @@ public class PWhileVisitor implements Visitor {
 	public void visit(AssignStmt n) {
 	}
 
+	public void visit(ParallelAssign n) {
+	}
+
 	public void visit(DerefExpr n) {
 	}
 
@@ -49,7 +52,7 @@ public class PWhileVisitor implements Visitor {
 
 	public void visit(RetStmt n) {
 	}
-	
+
 	public void visit(NullExpr n) {
 	}
 
