@@ -17,7 +17,7 @@ public class PWhileGrammarGen {
 
 	/**
 	 * a view of the grammar (not a component): A op B A - nonterminal B -
-	 * nonterminal, null op - ==/<=/<
+	 * nonterminal, null op <code>- ==/<=/< </code>
 	 */
 	public static final Nonterminal neq_arithm = new Nonterminal("NSimple");
 

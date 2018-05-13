@@ -4,26 +4,29 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import gp.Domain.Guard;
-import gp.Domain.Update;
-import gp.Domain.Value;
-import gp.controlFlowGraph.Interpreted;
+import gp.Domain.*;
 
 /**
  * A specification consisting of a list of input-output examples.
  * 
  * @author romanm
  *
- * @param <Value>
- *            The type of states.
- * @param <Update>
- *            The type of actions.
- * @param <Guard>
- *            The type of conditions.
+ * @param <ValueType>
+ *            The type of domain values.
+ * @param <UpdateType>
+ *            The type of domain updates.
+ * @param <GuardType>
+ *            The type of domain guards.
  */
 public abstract class SynthesisProblem<ValueType extends Value, UpdateType extends Update, GuardType extends Guard> {
 	public final String name;
 
+	/**
+	 * The type of result returned by comparing the result of the synthesizer with a
+	 * given specification.
+	 * 
+	 * @author romanm
+	 */
 	public static enum SpecTestResult {
 		SPEC_FAIL, SPEC_SATISFIED, ILLEGAL;
 
@@ -60,11 +63,11 @@ public abstract class SynthesisProblem<ValueType extends Value, UpdateType exten
 		this.examples.add(new Example<>(input, output, examples.size()));
 	}
 
-	public boolean test(Interpreted<ValueType, UpdateType, GuardType> prog) {
+	public boolean test(Interpreter<ValueType, UpdateType, GuardType> prog) {
 		for (Example<ValueType, UpdateType> example : this.examples) {
 			ValueType input = example.input();
 			ValueType goal = example.goal();
-			Optional<ValueType> finalState = prog.execute(input, 100000);
+			Optional<ValueType> finalState = prog.run(input, 100000);
 			if (!finalState.isPresent() || !domain().match(finalState.get(), goal)) {
 				return false;
 			}

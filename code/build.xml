@@ -41,17 +41,17 @@
 			<arg value="HeapSym" />
 			<arg value="${src}/heap/ast/heap.cup" />
 		</java>
-		
+
 		<move file="HeapParser.java" tofile="${src}/heap/ast/HeapParser.java" />
 		<move file="HeapSym.java" tofile="${src}/heap/ast/HeapSym.java" />
-		
+
 		<replace file="${src}/heap/ast/HeapParser.java" value='@SuppressWarnings({"rawtypes", "unused", "unchecked"}) class CUP$HeapParser$actions'>
 			<replacetoken>class CUP$HeapParser$actions</replacetoken>
-		</replace>		
+		</replace>
 		<replace file="${src}/heap/ast/HeapParser.java" value='@SuppressWarnings({"rawtypes", "unused"}) public class HeapParser'>
 			<replacetoken>public class HeapParser</replacetoken>
-		</replace>		
-		
+		</replace>
+
 	</target>
 
 	<!--
@@ -95,7 +95,8 @@
        ===================================================================
   -->
 	<target name="javadocs" depends="init" description="-> creates javadocs">
-		<javadoc packagenames="bgu.*" sourcepath="src" classpath="${lib}/java_cup.jar; ${lib}/Util.jar" defaultexcludes="yes" destdir="${javadocs}" author="true" version="true" use="true" windowtitle="Logic Tools">
+		<javadoc packagenames="gp.*, heap*" sourcepath="src" classpath="${lib}/java_cup.jar; ${lib}/ST-4.0.8.jar; ${lib}/smtinterpol-2.1-335-g4c543a5.jar; ${lib}/commons-configuration2-2.0.jar; 
+			${lib}/commons-exec-1.3.jar; ${lib}/trove-3.0.3.jar; ${lib}/Util.jar" defaultexcludes="yes" destdir="${javadocs}" author="true" version="true" use="true" windowtitle="Generalized Planning">
 		</javadoc>
 	</target>
 

@@ -19,8 +19,21 @@ public abstract class Var extends Token {
 
 	protected final Type type;
 
+	/**
+	 * The intended purpose of a variable within a procedure.
+	 * 
+	 * @author romanm
+	 */
 	public static enum VarRole {
-		ARG, TEMP
+		/**
+		 * A procedure input/output argument.
+		 */
+		ARG,
+
+		/**
+		 * A temporary variable.
+		 */
+		TEMP
 	}
 
 	public Var(String name, Type type, VarRole role, boolean out, boolean readonly) {

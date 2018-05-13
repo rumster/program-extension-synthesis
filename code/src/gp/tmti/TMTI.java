@@ -21,12 +21,12 @@ import gp.separation.ConditionInferencer;
  * 
  * @author romanm
  *
- * @param <Value>
- *            The type of data elements.
- * @param <Update>
- *            The type of data operations.
+ * @param <ValueType>
+ *            The type of domain values.
+ * @param <UpdateType>
+ *            The type of domain updates.
  * @param <GuardType>
- *            The type of data predicates.
+ *            The type of domain guards.
  */
 public class TMTI<ValueType extends Value, UpdateType extends Update, GuardType extends Guard> {
 	private final GPDebugger<ValueType, UpdateType, GuardType> debugger;

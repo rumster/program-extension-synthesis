@@ -13,8 +13,10 @@ import gp.Domain.Value;
  * 
  * @author romanm
  *
- * @param <Value>
- *            The type of states.
+ * @param <ValueType>
+ *            The type of domain values.
+ * @param <UpdateType>
+ *            The type of domain updates.
  */
 public class Example<ValueType extends Value, UpdateType extends Update>
 		implements Iterable<Union2<ValueType, UpdateType>> {

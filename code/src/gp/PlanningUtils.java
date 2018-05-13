@@ -11,6 +11,11 @@ import gp.planning.Planner;
 import gp.planning.SearchResultType;
 import heap.Store.ErrorStore;
 
+/**
+ * Utilities related to planning and plans.
+ * 
+ * @author romanm
+ */
 public class PlanningUtils {
 	public static <ValueType extends Value, UpdateType extends Update, GuardType extends Guard> Optional<Plan<ValueType, UpdateType>> exampleToPlan(
 			Domain<ValueType, UpdateType, GuardType> domain, Planner<ValueType, UpdateType> planner,

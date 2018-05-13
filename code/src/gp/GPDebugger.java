@@ -63,7 +63,13 @@ public abstract class GPDebugger<ValueType extends Value, UpdateType extends Upd
 		printGraph(automaton, description, automatonProps);
 	}
 
+	/**
+	 * Returns a textual representation for the given update.
+	 */
 	public abstract String renderUpdate(Update update);
 
+	/**
+	 * Returns a textual representation for the given guard.
+	 */
 	public abstract String renderGuard(Guard guard);
 }

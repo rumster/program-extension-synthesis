@@ -5,8 +5,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import heap.Renderer;
-
 /**
  * A node in a derivation tree.
  * 
@@ -162,10 +160,5 @@ public abstract class Node {
 	 */
 	protected Node() {
 		this(0);
-	}
-	
-	@Override
-	public String toString() {
-		return Renderer.render(this);
 	}
 }

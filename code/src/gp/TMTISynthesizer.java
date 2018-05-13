@@ -4,18 +4,16 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.logging.Logger;
 
-import gp.Domain.Guard;
-import gp.Domain.Update;
-import gp.Domain.Value;
+import gp.Domain.*;
 import gp.planning.Planner;
 import gp.separation.LinearInferencer;
-import gp.tmti.TMTI;
+import gp.tmti.*;
 
 /**
- * Synthesizes a CFG from a list of input-output examples by using the given
- * planner and CFG generalizer (which internally uses and condition inferencer).
- * The synthesizer uses the planner to generate a plan for each example and then
- * passes the set of plans to the CFG generalizer, which then outputs a CFG.
+ * Synthesizes an {@link Automaton} from a list of examples by using the given
+ * planner and the TMTI learner (which internally uses and condition
+ * inferencer). The synthesizer uses the planner to generate a plan for each
+ * example and then passes the list of plans to TMTI.
  * 
  * @author romanm
  *
@@ -69,9 +67,9 @@ public class TMTISynthesizer<ValueType extends Value, UpdateType extends Update,
 		var txt = new StringBuilder();
 		txt.append("#guards=" + guards.size());
 		txt.append("=============");
-//		for (var guard : guards) {
-//			txt.append(guard + "\n");
-//		}
+		// for (var guard : guards) {
+		// txt.append(guard + "\n");
+		// }
 		debugger.printCodeFile("guards.txt", txt.toString(), "Available guards");
 	}
 }
