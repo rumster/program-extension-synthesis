@@ -1,8 +1,12 @@
+/** A node in a singly-linked list.
+ */
 type SLL {
   n:SLL
   d:int
 }
 
+/** Assigns the given value to each element of the list referenced by head.
+ */
 fill(head:SLL, val:int) -> () {
   var t:SLL
 

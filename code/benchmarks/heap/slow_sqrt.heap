@@ -6,7 +6,7 @@ sqrt(x:int) -> (res:int) {
   var tn:int
   
   res = 1;
-  while ((res+1)*(res+1) < x) {
+  while (((res+1)*(res+1)) < x) {
     res = res + 1;
   }
   

@@ -25,12 +25,6 @@ factorial(mut x:int) -> (y:int) {
   */
 
   example {
-    [x==6]
-    -> y = 1;
-    -> [y==720]
-  }
-
-  example {
     [x==3]
     ->  y = 1;
     ->  y = y * x;
@@ -38,4 +32,12 @@ factorial(mut x:int) -> (y:int) {
     ->  y = y * x;
     ->  x = x - 1;
   }
+  
+  /*
+    example {
+    [x==6]
+    -> y = 1;
+    -> [y==720]
+  }
+  */
 }

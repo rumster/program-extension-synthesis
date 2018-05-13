@@ -1,8 +1,12 @@
+/** A node in a singly-linked list.
+ */
 type SLL {
   n:SLL
   d:int
 }
 
+/** Reverses the list referenced by head in-place.
+ */
 reverse(mut head:SLL) -> (result:SLL) {
   var t:SLL
   
@@ -14,13 +18,6 @@ reverse(mut head:SLL) -> (result:SLL) {
     head = t;
   }
 
-/*
-  example {
-    [head==o1 && o1.n==o2 && o2.n==o3 && o3.n==o4 && o4.n==null]
-    -> [result==o4 && o4.n==o3 && o3.n==o2 && o2.n==o1 && o1.n==null]
-  }
-*/
-  
 /*
   example {
     [head==null]

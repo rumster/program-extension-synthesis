@@ -129,8 +129,8 @@ public class Automaton extends HashMultiGraph<State, Action> {
 	 * up to states that are already update-deterministic.
 	 */
 	public void fold(State state) {
-		System.err.println("Attempting to fold " + state.id);
-		if (state == getFinal()) {
+		removeDuplicateUpdates(state);
+		if (!containsNode(state) || state == getFinal() || isUpdateDeterministic(state)) {
 			return;
 		}
 		var affected = makeUpdateDeterministic(state);
@@ -139,9 +139,7 @@ public class Automaton extends HashMultiGraph<State, Action> {
 		}
 		for (var affectedState : affected) {
 			fold(affectedState);
-		}
-		if (containsNode(state)) {
-			removeDuplicateUpdates(state);
+			removeDuplicateUpdates(affectedState);
 		}
 	}
 
@@ -166,14 +164,18 @@ public class Automaton extends HashMultiGraph<State, Action> {
 			var statesToFold = updateToTargetState.select1(update);
 			var optMergedState = mergeStates(statesToFold);
 			if (optMergedState.isPresent()) {
-				result.add(optMergedState.get());
+				var mergedState = optMergedState.get();
+				result.add(mergedState);
 			}
 		}
 
 		return result;
 	}
 
-	public void removeDuplicateUpdates(State state) {
+	protected void removeDuplicateUpdates(State state) {
+		if (!containsNode(state)) {
+			return;
+		}
 		var updateToAction = new HashRel2<Update, Edge<State, Action>>();
 		for (var transition : this.succEdges(state)) {
 			var transitionAction = transition.getLabel();
@@ -181,11 +183,11 @@ public class Automaton extends HashMultiGraph<State, Action> {
 		}
 		for (var update : updateToAction.all1()) {
 			var updateEdges = updateToAction.select1(update);
-			if (updateEdges.size() > 1) {
-				var edgeiter = updateEdges.iterator();
-				edgeiter.next(); // Skip the first edge
-				while (edgeiter.hasNext()) {
-					var edge = edgeiter.next();
+			var uniqueEdges = new ArrayList<Edge<State, Action>>();
+			for (var edge : updateEdges) {
+				var change = bgu.cs.util.Collections.addNoEquiv(uniqueEdges, edge,
+						(e1, e2) -> e1.getSrc() == e2.getSrc() && e1.getDst() == e2.getDst());
+				if (!change) {
 					super.removeEdge(edge);
 				}
 			}
@@ -205,7 +207,7 @@ public class Automaton extends HashMultiGraph<State, Action> {
 		var statesList = new ArrayList<State>();
 		for (var state : states) {
 			if (containsNode(state)) {
-				statesList.add(state);
+				bgu.cs.util.Collections.addNoCopies(statesList, state);
 			}
 		}
 		if (statesList.size() == 0) {
@@ -228,6 +230,7 @@ public class Automaton extends HashMultiGraph<State, Action> {
 			var otherState = statesList.get(i);
 			this.mergeStates(otherState, firstState);
 		}
+
 		return Optional.ofNullable(firstState);
 	}
 
@@ -253,5 +256,21 @@ public class Automaton extends HashMultiGraph<State, Action> {
 		super.mergeInto(src, dst);
 		assert !containsNode(src);
 		assert containsNode(dst);
+	}
+
+	public Collection<State> predStates(State state) {
+		var result = new ArrayList<State>();
+		for (var edge : predEdges(state)) {
+			bgu.cs.util.Collections.addNoCopies(result, edge.getSrc());
+		}
+		return result;
+	}
+
+	public Collection<State> srccStates(State state) {
+		var result = new ArrayList<State>();
+		for (var edge : succEdges(state)) {
+			bgu.cs.util.Collections.addNoCopies(result, edge.getDst());
+		}
+		return result;
 	}
 }

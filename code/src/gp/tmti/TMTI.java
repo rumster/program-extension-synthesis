@@ -105,6 +105,9 @@ public class TMTI<ValueType extends Value, UpdateType extends Update, GuardType 
 					debugger.printAutomaton(automaton, "After merging " + equivStates);
 					if (optMergedState.isPresent()) {
 						var mergedState = optMergedState.get();
+						for (var predState : automaton.predStates(mergedState)) {
+							automaton.fold(predState);
+						}
 						automaton.fold(mergedState);
 						debugger.printAutomaton(automaton, "After folding " + mergedState);
 					}
