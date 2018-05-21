@@ -26,13 +26,17 @@ import heap.Store;
 public class InterpolatingConditionInferencer extends ConditionInferencer<Store, Stmt, BoolExpr> {
 	private String outputDir;
 	public Map<Store, List<Boolean>> predicates;
+	/**
+	 * The domain comprised of values and predicates.
+	 */
+	public Domain<Store, Stmt, BoolExpr> domain;	
 
 	private final CachedLanguageIterator citer;
 
 	// TODO - remove @outputDir (env variables?)
 	public InterpolatingConditionInferencer(Domain<Store, Stmt, BoolExpr> domain, CachedLanguageIterator citer,
 			String outputDir) {
-		super(domain);
+		this.domain = domain;
 		this.outputDir = outputDir;
 		this.predicates = new HashMap<>();
 		this.citer = citer;

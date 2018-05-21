@@ -13,7 +13,6 @@ import gp.Domain.Guard;
 import gp.Domain.Update;
 import gp.Domain.Value;
 import gp.planning.Planner;
-import gp.separation.ID3Inferencer;
 import gp.separation.LinearInferencer;
 import gp.tmti.Automaton;
 import gp.tmti.AutomatonInterpreter;

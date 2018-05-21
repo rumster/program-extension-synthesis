@@ -17,10 +17,15 @@ import gp.Domain.Value;
  */
 public class LinearInferencer<ValueType extends Value, UpdateType extends Update, GuardType extends Guard>
 		extends ConditionInferencer<ValueType, UpdateType, GuardType> {
+	/**
+	 * The domain comprised of values and predicates.
+	 */
+	public Domain<ValueType, UpdateType, GuardType> domain;
+	
 	private final List<GuardType> guards;
 
 	public LinearInferencer(Domain<ValueType, UpdateType, GuardType> domain, List<GuardType> guards) {
-		super(domain);
+		this.domain = domain;
 		this.guards = guards;
 	}
 

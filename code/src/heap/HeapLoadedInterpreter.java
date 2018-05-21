@@ -5,6 +5,11 @@ import java.util.Optional;
 import gp.LoadedInterpreter;
 import gp.Plan;
 
+/**
+ * A loaded interpreter for a heap-manipulating program.
+ * 
+ * @author romanm
+ */
 public class HeapLoadedInterpreter implements LoadedInterpreter<Store, Stmt, BoolExpr> {
 	private final Stmt prog;
 

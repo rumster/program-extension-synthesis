@@ -28,8 +28,13 @@ import heap.Var.VarRole;
  * @author romanm
  */
 public class ConditionInferencer_debug extends ConditionInferencer<Store, Stmt, BoolExpr> {
+	/**
+	 * The domain comprised of values and predicates.
+	 */
+	public Domain<Store, Stmt, BoolExpr> domain;
+	
 	public ConditionInferencer_debug(Domain<Store, Stmt, BoolExpr> domain) {
-		super(domain);
+		this.domain = domain;
 	}
 
 	// Conditions

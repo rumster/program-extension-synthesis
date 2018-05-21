@@ -71,10 +71,6 @@ public class HeapDebugger extends GPDebugger<Store, Stmt, BoolExpr> {
 
 	@Override
 	public void printPlan(Plan<Store, Stmt> plan, int planIndex) {
-		// if (plan.isEmpty())
-		// throw new UnsupportedOperationException("Missing implementation for
-		// visualizing empty plans!");
-
 		logger.info("Visualizing plan..." + planIndex);
 		ST planTemplate = heapTemplates.load("plan");
 		planTemplate.add("planIndex", planIndex);

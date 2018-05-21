@@ -6,25 +6,28 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import gp.Domain;
+import gp.BooleanDomain;
 import gp.Domain.Guard;
 import gp.Domain.Update;
 import gp.Domain.Value;
 
 /**
  * An inferencer is loosely based on ID3 algorithm.
+ * 
  * @author alexanders
  */
-public class ID3Inferencer<ValueType extends Value, UpdateType extends Update, GuardType extends Guard> 
+public class ID3Inferencer<ValueType extends Value, UpdateType extends Update, GuardType extends Guard>
 		extends ConditionInferencer<ValueType, UpdateType, GuardType> {
+	private BooleanDomain<ValueType, UpdateType, GuardType> domain;
 	private final List<GuardType> basicGuards;
 
 	/**
 	 * 
-	 * @param guards, sorted list of basic predicates
+	 * @param guards,
+	 *            sorted list of basic predicates
 	 */
-	public ID3Inferencer(Domain<ValueType, UpdateType, GuardType> domain, List<GuardType> guards) {
-		super(domain);
+	public ID3Inferencer(BooleanDomain<ValueType, UpdateType, GuardType> domain, List<GuardType> guards) {
+		this.domain = domain;
 		this.basicGuards = guards;
 	}
 
@@ -32,42 +35,41 @@ public class ID3Inferencer<ValueType extends Value, UpdateType extends Update, G
 	public Optional<GuardType> infer(Collection<? extends Value> first, Collection<? extends Value> second) {
 		return inferHelper(first, second, basicGuards);
 	}
-	
-	
+
 	/*
-	 * 1. Choose a basic predicate P1 with minimal number of "mistakes" (negative qualification on "first" and positive on "second")
-	 * 2. If the number of "mistakes" is greater than 0 (separation is not complete):
-	 * 		2.1. Recursively separate positive first and (false)positive second - P2
-	 * 		2.2. Recursively separate (false)negative first and negative second - P3
-	 * 		2.3. Combine the result as (P1 & P2) | (~P1 & P3)
+	 * 1. Choose a basic predicate P1 with minimal number of "mistakes" (negative
+	 * qualification on "first" and positive on "second") 2. If the number of
+	 * "mistakes" is greater than 0 (separation is not complete): 2.1. Recursively
+	 * separate positive first and (false)positive second - P2 2.2. Recursively
+	 * separate (false)negative first and negative second - P3 2.3. Combine the
+	 * result as (P1 & P2) | (~P1 & P3)
 	 */
-	private Optional<GuardType> inferHelper(Collection<? extends Value> first, Collection<? extends Value> second, List<GuardType> guards){
-		if(guards.isEmpty()) {
+	private Optional<GuardType> inferHelper(Collection<? extends Value> first, Collection<? extends Value> second,
+			List<GuardType> guards) {
+		if (guards.isEmpty()) {
 			return Optional.empty();
 		}
-		
+
 		Collection<? extends Value> bestPositiveFirst = null;
 		Collection<? extends Value> bestNegativeFirst = null;
 		Collection<? extends Value> bestPositiveSecond = null;
 		Collection<? extends Value> bestNegativeSecond = null;
 		GuardType bestGuard = null;
 		int bestScore = 0;
-		for(GuardType guard : guards) {
+		for (GuardType guard : guards) {
 			@SuppressWarnings("unchecked")
-			Collection<? extends Value> positiveFirst = first.stream()
-													.filter(e -> domain.test(guard, (ValueType) e))
-													.collect(Collectors.toList());
+			Collection<? extends Value> positiveFirst = first.stream().filter(e -> domain.test(guard, (ValueType) e))
+					.collect(Collectors.toList());
 			Collection<? extends Value> negativeFirst = new ArrayList<>(first);
-			negativeFirst.removeAll(positiveFirst);	
-			
+			negativeFirst.removeAll(positiveFirst);
+
 			@SuppressWarnings("unchecked")
-			Collection<? extends Value> positiveSecond = second.stream()
-													.filter(e -> domain.test(guard, (ValueType) e))
-													.collect(Collectors.toList());
+			Collection<? extends Value> positiveSecond = second.stream().filter(e -> domain.test(guard, (ValueType) e))
+					.collect(Collectors.toList());
 			Collection<? extends Value> negativeSecond = new ArrayList<>(second);
 			negativeSecond.removeAll(positiveSecond);
-			
-			if((positiveFirst.size() + negativeSecond.size()) > bestScore) {
+
+			if ((positiveFirst.size() + negativeSecond.size()) > bestScore) {
 				bestScore = positiveFirst.size() + negativeSecond.size();
 				bestGuard = guard;
 				bestPositiveFirst = positiveFirst;
@@ -75,28 +77,27 @@ public class ID3Inferencer<ValueType extends Value, UpdateType extends Update, G
 				bestNegativeSecond = negativeSecond;
 				bestPositiveSecond = positiveSecond;
 			}
-			
-			//complete separation was achieved
-			if(bestScore == (first.size() + second.size())) {
+
+			// complete separation was achieved
+			if (bestScore == (first.size() + second.size())) {
 				return Optional.of(bestGuard);
 			}
 		}
 
 		List<GuardType> nextGuards = new ArrayList<>(guards);
 		nextGuards.remove(bestGuard);
-		
+
 		Optional<GuardType> left = inferHelper(bestPositiveFirst, bestPositiveSecond, nextGuards);
-		if(!left.isPresent()) {
+		if (!left.isPresent()) {
 			return Optional.empty();
 		}
-		
-		Optional<GuardType> right = inferHelper(bestNegativeFirst, bestNegativeSecond, nextGuards);	
-		if(!right.isPresent()) {
+
+		Optional<GuardType> right = inferHelper(bestNegativeFirst, bestNegativeSecond, nextGuards);
+		if (!right.isPresent()) {
 			return Optional.empty();
 		}
-					
-		return Optional.of(domain.or(
-				domain.and(bestGuard, left.get()),
-				domain.and(domain.not(bestGuard), right.get())));		
+
+		return Optional
+				.of(domain.or(domain.and(bestGuard, left.get()), domain.and(domain.not(bestGuard), right.get())));
 	}
 }

@@ -69,27 +69,7 @@ public interface Domain<ValueType extends Value, UpdateType extends Update, Guar
 	 * Returns a list of likely atomic predicates for the given plans.
 	 */
 	public List<GuardType> generateBasicGuards(ArrayList<Plan<ValueType, UpdateType>> plans);
-	
-	/**
-	 * Returns a complete list(including Boolean negation) of likely atomic predicates for the given plans
-	 */
-	public List<GuardType> generateCompleteBasicGuards(ArrayList<Plan<ValueType, UpdateType>> plans);
 
-	/**
-	 * Boolean OR operator
-	 */
-	public GuardType or(GuardType l, GuardType r);
-	
-	/**
-	 * Boolean AND operator
-	 */
-	public GuardType and(GuardType l, GuardType r);
-	
-	/**
-	 * Boolean NOT operator
-	 */
-	public GuardType not(GuardType l);
-	
 	/**
 	 * An interface marking domain values.
 	 * 

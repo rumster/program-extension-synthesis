@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-import gp.Domain;
 import gp.Domain.Guard;
 import gp.Domain.Update;
 import gp.Domain.Value;
@@ -21,15 +20,6 @@ import gp.Domain.Value;
  *            The type of predicates.
  */
 public abstract class ConditionInferencer<ValueType extends Value, UpdateType extends Update, GuardType extends Guard> {
-	/**
-	 * The domain comprised of values and predicates.
-	 */
-	public Domain<ValueType, UpdateType, GuardType> domain;
-
-	public ConditionInferencer(Domain<ValueType, UpdateType, GuardType> domain) {
-		this.domain = domain;
-	}
-
 	/**
 	 * Attempts to infer a predicate that holds for all values in the first
 	 * collection and none of the values in the second collection.

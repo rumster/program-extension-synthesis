@@ -16,7 +16,7 @@ import bgu.cs.util.STGLoader;
 import bgu.cs.util.STHierarchyRenderer;
 import bgu.cs.util.rel.HashRel2;
 import bgu.cs.util.rel.Rel2;
-import gp.Domain;
+import gp.BooleanDomain;
 import gp.Plan;
 import grammar.CostSize;
 import heap.Store.ErrorStore;
@@ -27,7 +27,7 @@ import heap.Var.VarRole;
  * 
  * @author romanm
  */
-public class HeapDomain implements Domain<Store, Stmt, BoolExpr> {
+public class HeapDomain implements BooleanDomain<Store, Stmt, BoolExpr> {
 	public final Set<Field> fields = new LinkedHashSet<>();
 
 	/**
@@ -443,7 +443,7 @@ public class HeapDomain implements Domain<Store, Stmt, BoolExpr> {
 		final var result = new ArrayList<BoolExpr>();
 		addBasicIntGuards(plans, result);
 		addBasicRefGuards(plans, result);
-		
+
 		var sizeFun = new CostSize();
 		Collections.sort(result, (e1, e2) -> {
 			var diff = sizeFun.apply(e1) - sizeFun.apply(e2);
@@ -451,7 +451,7 @@ public class HeapDomain implements Domain<Store, Stmt, BoolExpr> {
 		});
 		return result;
 	}
-	
+
 	@Override
 	public List<BoolExpr> generateCompleteBasicGuards(ArrayList<Plan<Store, Stmt>> plans) {
 		var guards = new ArrayList<BoolExpr>();
@@ -459,7 +459,7 @@ public class HeapDomain implements Domain<Store, Stmt, BoolExpr> {
 			guards.add(e);
 			guards.add(new NotExpr(e));
 		}
-		
+
 		var sizeFun = new CostSize();
 		Collections.sort(guards, (e1, e2) -> {
 			var diff = sizeFun.apply(e1) - sizeFun.apply(e2);
@@ -467,7 +467,7 @@ public class HeapDomain implements Domain<Store, Stmt, BoolExpr> {
 		});
 		return guards;
 	}
-	
+
 	@Override
 	public BoolExpr or(BoolExpr l, BoolExpr r) {
 		return new OrExpr(l, r);
