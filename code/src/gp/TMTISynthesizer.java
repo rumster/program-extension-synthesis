@@ -13,6 +13,7 @@ import gp.Domain.Guard;
 import gp.Domain.Update;
 import gp.Domain.Value;
 import gp.planning.Planner;
+import gp.separation.ID3Inferencer;
 import gp.separation.LinearInferencer;
 import gp.tmti.Automaton;
 import gp.tmti.AutomatonInterpreter;
@@ -77,9 +78,11 @@ public class TMTISynthesizer<ValueType extends Value, UpdateType extends Update,
 		}
 		logger.info("Generating guards...");
 		final var guards = problem.domain().generateGuards(plans);
+		//final var guards = problem.domain().generateCompleteBasicGuards(plans);
 		logger.info("done");
 		debugPrintGuards(guards);
 		final var separator = new LinearInferencer<ValueType, UpdateType, GuardType>(problem.domain(), guards);
+		//final var separator = new ID3Inferencer<ValueType, UpdateType, GuardType>(problem.domain(), guards);
 
 		logger.info("Generalizing " + plans.size() + " plans...");
 		var learner = new TMTI<ValueType, UpdateType, GuardType>(problem.domain(), separator, debugger, logger);

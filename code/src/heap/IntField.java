@@ -22,4 +22,9 @@ public class IntField extends Field {
 	public Val getDefaultVal() {
 		return IntVal.ZERO;
 	}
+	
+	@Override
+	public String toString() {
+		return name;
+	}
 }

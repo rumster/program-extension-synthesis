@@ -34,7 +34,7 @@ public abstract class Type extends Token {
 			return true;
 		if (!super.equals(obj))
 			return false;
-		if (!(obj instanceof Type))
+		if (getClass() != obj.getClass())
 			return false;
 		Type other = (Type) obj;
 		if (name == null) {

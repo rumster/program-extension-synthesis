@@ -45,19 +45,27 @@ public abstract class Var extends Token {
 
 	@Override
 	public int hashCode() {
-		return name.hashCode();
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		return result;
 	}
-
+	
 	@Override
-	public boolean equals(Object o) {
-		if (o == this) {
+	public boolean equals(Object obj) {
+		if (this == obj)
 			return true;
-		}
-		if (!this.getClass().equals(o.getClass())) {
+		if (!super.equals(obj))
 			return false;
-		}
-		Var other = (Var) o;
-		return this.name.equals(other.name);
+		if (getClass() != obj.getClass())
+			return false;
+		Var other = (Var) obj;
+		if (name == null) {
+			if (other.name != null)
+				return false;
+		} else if (!name.equals(other.name))
+			return false;
+		return true;
 	}
 
 	public Type getType() {

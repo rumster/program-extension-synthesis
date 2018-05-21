@@ -443,7 +443,44 @@ public class HeapDomain implements Domain<Store, Stmt, BoolExpr> {
 		final var result = new ArrayList<BoolExpr>();
 		addBasicIntGuards(plans, result);
 		addBasicRefGuards(plans, result);
+		
+		var sizeFun = new CostSize();
+		Collections.sort(result, (e1, e2) -> {
+			var diff = sizeFun.apply(e1) - sizeFun.apply(e2);
+			return (int) diff;
+		});
 		return result;
+	}
+	
+	@Override
+	public List<BoolExpr> generateCompleteBasicGuards(ArrayList<Plan<Store, Stmt>> plans) {
+		var guards = new ArrayList<BoolExpr>();
+		for (var e : generateBasicGuards(plans)) {
+			guards.add(e);
+			guards.add(new NotExpr(e));
+		}
+		
+		var sizeFun = new CostSize();
+		Collections.sort(guards, (e1, e2) -> {
+			var diff = sizeFun.apply(e1) - sizeFun.apply(e2);
+			return (int) diff;
+		});
+		return guards;
+	}
+	
+	@Override
+	public BoolExpr or(BoolExpr l, BoolExpr r) {
+		return new OrExpr(l, r);
+	}
+
+	@Override
+	public BoolExpr and(BoolExpr l, BoolExpr r) {
+		return new AndExpr(l, r);
+	}
+
+	@Override
+	public BoolExpr not(BoolExpr l) {
+		return new NotExpr(l);
 	}
 
 	/**

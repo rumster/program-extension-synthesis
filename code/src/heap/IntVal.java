@@ -32,13 +32,28 @@ public class IntVal extends Val {
 
 	@Override
 	public int hashCode() {
-		return num;
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + num;
+		return result;
 	}
-
+	
 	@Override
-	public boolean equals(Object o) {
-		IntVal other = (IntVal) o;
-		return this.num == other.num;
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (!super.equals(obj)) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		IntVal other = (IntVal) obj;
+		if (num != other.num) {
+			return false;
+		}
+		return true;
 	}
 
 	@Override

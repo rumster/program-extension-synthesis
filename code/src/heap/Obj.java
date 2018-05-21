@@ -57,12 +57,27 @@ public class Obj extends Val {
 
 	@Override
 	public int hashCode() {
-		return id * 31;
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + id;
+		return result;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (!super.equals(obj)) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
 		Obj other = (Obj) obj;
-		return this.id == other.id;
+		if (id != other.id) {
+			return false;
+		}
+		return true;
 	}
 }

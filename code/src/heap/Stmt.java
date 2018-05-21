@@ -52,4 +52,9 @@ public abstract class Stmt extends Node implements Update {
 		Store result = PWhileInterpreter.v.run(this, store, PWhileInterpreter.v.guessMaxSteps(this, store)).get();
 		return !(result instanceof Store.ErrorStore);
 	}
+	
+	@Override
+	public String toString() {
+		return Renderer.render(this);
+	}
 }

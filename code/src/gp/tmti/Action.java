@@ -48,4 +48,9 @@ public class Action {
 		var result = new Action(guard, update);
 		return result;
 	}
+	
+	@Override
+	public String toString() {
+		return guard.toString() + " / "+ update.toString();
+	}
 }

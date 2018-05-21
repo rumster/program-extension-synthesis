@@ -23,10 +23,11 @@ public abstract class Field extends Token {
 	public final boolean ghost;
 
 	@Override
-	public int hashCode() {
+	public int hashCode() {		
 		final int prime = 31;
-		int result = name.hashCode();
-		result = result * prime + srcType.hashCode();
+		int result = super.hashCode();
+		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		result = prime * result + ((srcType == null) ? 0 : srcType.hashCode());
 		return result;
 	}
 
@@ -35,8 +36,27 @@ public abstract class Field extends Token {
 		if (this == obj) {
 			return true;
 		}
+		if (!super.equals(obj)) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
 		Field other = (Field) obj;
-		return this.name.equals(other.name) && this.srcType.equals(other.srcType);
+		if (name == null) {
+			if (other.name != null) {
+				return false;
+			}
+		} else if (!name.equals(other.name))
+			return false;
+		if (srcType == null) {
+			if (other.srcType != null) {
+				return false;
+			}
+		} else if (!srcType.equals(other.srcType)) {
+			return false;
+		}
+		return true;
 	}
 
 	public Field(String name, RefType srcType, Type dstType, boolean ghost) {
