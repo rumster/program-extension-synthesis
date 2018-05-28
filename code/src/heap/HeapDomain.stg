@@ -45,9 +45,9 @@ ValExpr(val) ::= <<$val$>>
 NewExpr(raw_type) ::= <<new $raw_type.name$()>>
 DerefExpr(lhs, field) ::= <<$lhs$.$field$>>
 EqExpr(lhs, rhs) ::= <<$lhs$ == $rhs$>>
-IntBinOpExpr(lhs, op, rhs) ::= <<$lhs$ $op$ $rhs$>>
+IntBinOpExpr(lhs, op, rhs) ::= <<($lhs$ $op$ $rhs$)>>
 LtExpr(lhs, rhs) ::= <<$lhs$ < $rhs$>>
-OrExpr(lhs, rhs) ::= <<$lhs$ || $rhs$>>
+OrExpr(lhs, rhs) ::= <<($lhs$ || $rhs$)>>
 AndExpr(lhs, rhs) ::= <<$lhs$ && $rhs$>>
 NotExpr(sub) ::= <<!($sub$)>>
 
@@ -56,16 +56,16 @@ RetStmt() ::= <<return>>
 AssignStmt(lhs, rhs) ::= <<$lhs$ = $rhs$>>
 
 SeqStmt(first, second) ::= <<
-$first$;
+$first$
 $second$
 >>
 
-IfStmt(cond, thenStmt, elseStmt) ::= <<
+IfStmt(cond, thenNode, elseNode) ::= <<
 if ($cond$) {
-  $thenStmt$
+  $thenNode$
 }
 else {
-  $elseStmt$
+  $elseNode$
 }
 >>
 

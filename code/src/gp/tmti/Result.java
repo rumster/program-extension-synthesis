@@ -1,7 +1,7 @@
 package gp.tmti;
 
 /**
- * A class representing the different types of results.
+ * A class representing the different types of generalization results.
  * 
  * @author romanm
  */
@@ -13,7 +13,7 @@ public class Result {
 		var result = new Result(ResultType.OK, m);
 		return result;
 	}
-	
+
 	public static Result failure(ResultType type) {
 		var result = new Result(type, null);
 		return result;
@@ -23,7 +23,7 @@ public class Result {
 		assert type == ResultType.OK;
 		return m;
 	}
-	
+
 	public boolean success() {
 		return type == ResultType.OK;
 	}

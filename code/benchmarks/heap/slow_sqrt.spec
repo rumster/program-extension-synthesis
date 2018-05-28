@@ -1,17 +1,15 @@
-/* Computes the integer square root of x.
- * That is, the square root, rounded down.
+/* Computes the integer square root of x (the square root rounded down)
+ * by linear iteration.
  */ 
 sqrt(x:int) -> (res:int) {
-  var t:int
-  var tn:int
-  
+  // We need this variable to help the condition inferencer.
+  var resNext:int
+   
   res = 1;
-  t = res*res;
-  tn = (res+1)*(res+1);
-  while (tn < x) {
+  resNext = res + 1;
+  while ((res + 1) * (res + 1) < x) {
     res = res + 1;
-    t = res*res;
-    tn = (res+1)*(res+1);
+    resNext = res + 1;
   }
 
   example {
@@ -22,26 +20,7 @@ sqrt(x:int) -> (res:int) {
     [x==5] -> ...
   }
 
-/*  
   example {
-    [x==1]
-    -> res = 1;
-    -> t = res*res;
-    -> tn = (res+1)*(res+1);
-  }
-
-  example {
-    [x==5]
-    -> res = 1;
-    -> t = res*res;
-    -> tn = (res+1)*(res+1);
-    -> res = res+1;
-    -> t = res*res;
-    -> tn = (res+1)*(res+1);
-  }
-*/
-
-  test example {
     [x==9] -> ...
   }
 

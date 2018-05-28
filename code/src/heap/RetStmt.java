@@ -13,10 +13,6 @@ import grammar.Visitor;
 public class RetStmt extends Stmt {
 	public static final RetStmt v = new RetStmt();
 	
-	private RetStmt() {
-		super();
-	}
-
 	@Override
 	public RetStmt clone(List<Node> args) {
 		return v;
@@ -26,5 +22,14 @@ public class RetStmt extends Stmt {
 	public void accept(Visitor v) {
 		PWhileVisitor whileVisitor = (PWhileVisitor) v;
 		whileVisitor.visit(this);
+	}
+	
+	@Override
+	public boolean equals(Object o) {
+		return o == this;
+	}
+
+	private RetStmt() {
+		super();
 	}
 }

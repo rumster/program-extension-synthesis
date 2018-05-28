@@ -19,12 +19,17 @@ public class NullExpr extends Expr {
 		whileVisitor.visit(this);
 	}
 
-	private NullExpr() {
-	}
-
 	@Override
 	public Node clone(List<Node> args) {
 		assertNumOfArgs(0);
 		return this;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		return o == this;
+	}
+
+	private NullExpr() {
 	}
 }

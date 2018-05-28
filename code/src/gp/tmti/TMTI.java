@@ -57,7 +57,7 @@ public class TMTI<ValueType extends Value, UpdateType extends Update, GuardType 
 	 * Runs the algorithm on the given collection of example traces.
 	 */
 	public Result infer(Collection<Plan<ValueType, UpdateType>> traces) {
-		var optPrefixAutomaton = prefixAutomaton(traces);
+		var optPrefixAutomaton = prefixAutomaton(traces, domain, debugger);
 		if (!optPrefixAutomaton.isPresent()) {
 			return null;
 		}
@@ -172,7 +172,9 @@ public class TMTI<ValueType extends Value, UpdateType extends Update, GuardType 
 	/**
 	 * Attempts to constructs a prefix automaton out of a collection of traces.
 	 */
-	protected Optional<Automaton> prefixAutomaton(Collection<Plan<ValueType, UpdateType>> traces) {
+	public static <ValueType extends Value, UpdateType extends Update, GuardType extends Guard> Optional<Automaton> prefixAutomaton(
+			Collection<Plan<ValueType, UpdateType>> traces, Domain<ValueType, UpdateType, GuardType> domain,
+			GPDebugger<ValueType, UpdateType, GuardType> debugger) {
 		var stateCounter = 0;
 		var result = new Automaton();
 		var traceCounter = 0;
@@ -181,7 +183,7 @@ public class TMTI<ValueType extends Value, UpdateType extends Update, GuardType 
 			for (int i = 0; i < trace.size() - 1; ++i) {
 				if (currState == result.getFinal()) {
 					debugger.printTextFile("message",
-							"Unable to learn an automaton: prefix automaton contains transitions beyond final state with trace "
+							"Unable to build prefix automaton, since it contains transitions beyond final state with trace "
 									+ traceCounter + "!",
 							"Synthesizer message");
 					return Optional.empty();

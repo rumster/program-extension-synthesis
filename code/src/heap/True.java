@@ -29,6 +29,11 @@ public class True extends BoolExpr {
 		return "true";
 	}
 
+	@Override
+	public boolean equals(Object o) {
+		return o == this;
+	}
+
 	private True() {
 	}
 }

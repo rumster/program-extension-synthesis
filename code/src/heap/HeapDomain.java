@@ -16,7 +16,7 @@ import bgu.cs.util.STGLoader;
 import bgu.cs.util.STHierarchyRenderer;
 import bgu.cs.util.rel.HashRel2;
 import bgu.cs.util.rel.Rel2;
-import gp.BooleanDomain;
+import gp.Domain;
 import gp.Plan;
 import grammar.CostSize;
 import heap.Store.ErrorStore;
@@ -27,7 +27,7 @@ import heap.Var.VarRole;
  * 
  * @author romanm
  */
-public class HeapDomain implements BooleanDomain<Store, Stmt, BoolExpr> {
+public class HeapDomain implements Domain<Store, Stmt, BoolExpr> {
 	public final Set<Field> fields = new LinkedHashSet<>();
 
 	/**
@@ -229,7 +229,7 @@ public class HeapDomain implements BooleanDomain<Store, Stmt, BoolExpr> {
 	 * possible) constants.
 	 */
 	@Override
-	public List<BoolExpr> generateGuards(ArrayList<Plan<Store, Stmt>> plans) {
+	public List<BoolExpr> generateGuards(List<Plan<Store, Stmt>> plans) {
 		var posLiterals = generateBasicGuards(plans);
 		var negLiterals = new ArrayList<BoolExpr>();
 		for (var e : posLiterals) {
@@ -288,7 +288,7 @@ public class HeapDomain implements BooleanDomain<Store, Stmt, BoolExpr> {
 		return result;
 	}
 
-	protected void addBasicIntGuards(ArrayList<Plan<Store, Stmt>> plans, List<BoolExpr> result) {
+	protected void addBasicIntGuards(List<Plan<Store, Stmt>> plans, List<BoolExpr> result) {
 		// Collect all of the integers constants into a single set.
 		final var intVals = new HashSet<IntVal>();
 		for (final var plan : plans) {
@@ -311,6 +311,8 @@ public class HeapDomain implements BooleanDomain<Store, Stmt, BoolExpr> {
 				}
 			}
 		}
+
+		// TODO: add numbers explicitly appearing in statements.
 
 		// No use generating guards, since they will not be able to separate
 		// stores that have no integer values.
@@ -353,6 +355,19 @@ public class HeapDomain implements BooleanDomain<Store, Stmt, BoolExpr> {
 			}
 		}
 
+		final var binaryIntExprs = new ArrayList<Expr>();
+		for (var lhs : intExprs) {
+			for (var rhs : intExprs) {
+				binaryIntExprs.add(new IntBinOpExpr(IntBinOp.PLUS, lhs, rhs));
+				binaryIntExprs.add(new IntBinOpExpr(IntBinOp.TIMES, lhs, rhs));
+				if (lhs != rhs) {
+					binaryIntExprs.add(new IntBinOpExpr(IntBinOp.MINUS, lhs, rhs));
+					binaryIntExprs.add(new IntBinOpExpr(IntBinOp.DIVIDE, lhs, rhs));
+				}
+			}
+		}
+		intExprs.addAll(binaryIntExprs);
+
 		// Add less-than and equality guards from the integer-valued expressions.
 		for (int i = 0; i < intExprs.size(); ++i) {
 			var e1 = intExprs.get(i);
@@ -386,10 +401,13 @@ public class HeapDomain implements BooleanDomain<Store, Stmt, BoolExpr> {
 	/**
 	 * TODO: prune out incorrectly-typed expressions.
 	 */
-	protected void addBasicRefGuards(ArrayList<Plan<Store, Stmt>> plans, List<BoolExpr> result) {
+	protected void addBasicRefGuards(List<Plan<Store, Stmt>> plans, List<BoolExpr> result) {
 		boolean storesWithObjects = false;
 		for (var plan : plans) {
 			for (var store : plan.states()) {
+				if (store instanceof ErrorStore) {
+					continue;
+				}
 				if (!store.getObjects().isEmpty()) {
 					storesWithObjects = true;
 					break;
@@ -439,7 +457,7 @@ public class HeapDomain implements BooleanDomain<Store, Stmt, BoolExpr> {
 	}
 
 	@Override
-	public List<BoolExpr> generateBasicGuards(ArrayList<Plan<Store, Stmt>> plans) {
+	public List<BoolExpr> generateBasicGuards(List<Plan<Store, Stmt>> plans) {
 		final var result = new ArrayList<BoolExpr>();
 		addBasicIntGuards(plans, result);
 		addBasicRefGuards(plans, result);
@@ -453,7 +471,7 @@ public class HeapDomain implements BooleanDomain<Store, Stmt, BoolExpr> {
 	}
 
 	@Override
-	public List<BoolExpr> generateCompleteBasicGuards(ArrayList<Plan<Store, Stmt>> plans) {
+	public List<BoolExpr> generateCompleteBasicGuards(List<Plan<Store, Stmt>> plans) {
 		var guards = new ArrayList<BoolExpr>();
 		for (var e : generateBasicGuards(plans)) {
 			guards.add(e);

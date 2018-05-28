@@ -2,6 +2,11 @@ package gp.tmti;
 
 import gp.Domain.Update;
 
+/**
+ * An update signifying that the automaton has arrived to the final state.
+ * 
+ * @author romanm
+ */
 class HaltUpdate implements Update {
 	public static final HaltUpdate v = new HaltUpdate();
 
@@ -14,7 +19,7 @@ class HaltUpdate implements Update {
 	public int hashCode() {
 		return HaltUpdate.class.hashCode();
 	}
-	
+
 	@Override
 	public String toString() {
 		return "Halt";

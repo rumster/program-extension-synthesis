@@ -6,7 +6,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import gp.BooleanDomain;
+import gp.Domain;
+import gp.Plan;
 import gp.Domain.Guard;
 import gp.Domain.Update;
 import gp.Domain.Value;
@@ -18,7 +19,7 @@ import gp.Domain.Value;
  */
 public class ID3Inferencer<ValueType extends Value, UpdateType extends Update, GuardType extends Guard>
 		extends ConditionInferencer<ValueType, UpdateType, GuardType> {
-	private BooleanDomain<ValueType, UpdateType, GuardType> domain;
+	private Domain<ValueType, UpdateType, GuardType> domain;
 	private final List<GuardType> basicGuards;
 
 	/**
@@ -26,9 +27,9 @@ public class ID3Inferencer<ValueType extends Value, UpdateType extends Update, G
 	 * @param guards,
 	 *            sorted list of basic predicates
 	 */
-	public ID3Inferencer(BooleanDomain<ValueType, UpdateType, GuardType> domain, List<GuardType> guards) {
+	public ID3Inferencer(Domain<ValueType, UpdateType, GuardType> domain, List<Plan<ValueType, UpdateType>> plans) {
 		this.domain = domain;
-		this.basicGuards = guards;
+		this.basicGuards = domain.generateCompleteBasicGuards(plans);
 	}
 
 	@Override
@@ -99,5 +100,10 @@ public class ID3Inferencer<ValueType extends Value, UpdateType extends Update, G
 
 		return Optional
 				.of(domain.or(domain.and(bestGuard, left.get()), domain.and(domain.not(bestGuard), right.get())));
+	}
+
+	@Override
+	public List<GuardType> guards() {
+		return basicGuards;
 	}
 }

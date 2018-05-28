@@ -43,18 +43,21 @@ public class PWhileInterpreter extends PWhileVisitor {
 		return store.objects.size() * store.objects.size() + 1000;
 	}
 
+	/**
+	 * Generates a trace by running the given statement on the given input store. If
+	 * the run terminates without exceeding the maximal number of steps, a return
+	 * statement is added.
+	 */
 	public Optional<Plan<Store, Stmt>> genTrace(Stmt n, Store input, int maxSteps) {
 		assert n.concrete();
 		this.trace = new ArrayListPlan<Store, Stmt>(input);
 		run(n, input, maxSteps);
 		if (stepCounter <= maxSteps) {
 			updateTrace(state, state, RetStmt.v);
-			var result = this.trace;
-			this.trace = null;
-			return Optional.of(result);
-		} else {
-			return Optional.empty();
 		}
+		var result = this.trace;
+		this.trace = null;
+		return Optional.of(result);
 	}
 
 	public Optional<Store> run(Stmt n, Store input, int maxSteps) {
@@ -380,7 +383,7 @@ public class PWhileInterpreter extends PWhileVisitor {
 				if (rhsNum == 0) {
 					state = ErrorStore.error("division by zero");
 				} else {
-					resultVal = new IntVal(lhsNum + rhsNum);
+					resultVal = new IntVal(lhsNum / rhsNum);
 				}
 				break;
 			case LT:

@@ -19,4 +19,9 @@ public class BoolType extends Type {
 		PWhileVisitor whileVisitor = (PWhileVisitor) v;
 		whileVisitor.visit(this);
 	}
+
+	@Override
+	public boolean equals(Object o) {
+		return o == this;
+	}
 }

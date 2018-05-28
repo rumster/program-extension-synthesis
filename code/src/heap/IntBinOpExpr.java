@@ -12,7 +12,7 @@ import grammar.Visitor;
  */
 public class IntBinOpExpr extends Expr {
 	public final IntBinOp op;
-	
+
 	public IntBinOpExpr(IntBinOp op, Node lhs, Node rhs) {
 		super(lhs, rhs);
 		this.op = op;
@@ -32,14 +32,23 @@ public class IntBinOpExpr extends Expr {
 		whileVisitor.visit(this);
 	}
 
+	@Override
+	public IntBinOpExpr clone(List<Node> args) {
+		return new IntBinOpExpr(op, args);
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (!super.equals(o)) {
+			return false;
+		}
+		IntBinOpExpr other = (IntBinOpExpr) o;
+		return this.op == other.op;
+	}
+
 	protected IntBinOpExpr(IntBinOp op, List<Node> args) {
 		super(args);
 		this.op = op;
 		assertNumOfArgs(2);
-	}
-
-	@Override
-	public IntBinOpExpr clone(List<Node> args) {
-		return new IntBinOpExpr(op, args);
 	}
 }

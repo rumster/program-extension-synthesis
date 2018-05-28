@@ -143,4 +143,9 @@ public class InterpolatingConditionInferencer extends ConditionInferencer<Store,
 			}
 		}
 	}
+
+	@Override
+	public List<BoolExpr> guards() {
+		return List.of();
+	}
 }

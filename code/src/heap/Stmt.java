@@ -21,6 +21,36 @@ public abstract class Stmt extends Node implements Update {
 		return args;
 	}
 
+	/**
+	 * Tests whether this statement can be applied to the given state.
+	 */
+	public boolean enabled(Store store) {
+		Store result = PWhileInterpreter.v.run(this, store, PWhileInterpreter.v.guessMaxSteps(this, store)).get();
+		return !(result instanceof Store.ErrorStore);
+	}
+
+	@Override
+	public String toString() {
+		return Renderer.render(this);
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (o == null) {
+			return false;
+		}
+		if (o == this) {
+			return true;
+		}
+		Stmt other = (Stmt) o;
+		for (var i = 0; i < args.size(); ++i) {
+			if (!args.get(i).equals(other.args.get(i))) {
+				return false;
+			}
+		}
+		return true;
+	}
+
 	protected Stmt(Collection<Node> nodes) {
 		super(countNonterminals(nodes));
 		this.args = Collections.unmodifiableList(new ArrayList<>(nodes));
@@ -43,18 +73,5 @@ public abstract class Stmt extends Node implements Update {
 	protected Stmt(int numOfNonterminals) {
 		super(numOfNonterminals);
 		this.args = Collections.emptyList();
-	}
-
-	/**
-	 * Tests whether this statement can be applied to the given state.
-	 */
-	public boolean enabled(Store store) {
-		Store result = PWhileInterpreter.v.run(this, store, PWhileInterpreter.v.guessMaxSteps(this, store)).get();
-		return !(result instanceof Store.ErrorStore);
-	}
-	
-	@Override
-	public String toString() {
-		return Renderer.render(this);
 	}
 }

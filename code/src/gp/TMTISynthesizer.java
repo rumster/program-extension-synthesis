@@ -4,15 +4,19 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Logger;
+
+import org.apache.commons.configuration2.Configuration;
 
 import bgu.cs.util.Timer;
 import gp.Domain.Guard;
 import gp.Domain.Update;
 import gp.Domain.Value;
 import gp.planning.Planner;
+import gp.separation.ConditionInferencer;
 import gp.separation.LinearInferencer;
 import gp.tmti.Automaton;
 import gp.tmti.AutomatonInterpreter;
@@ -34,54 +38,39 @@ import gp.tmti.TMTI;
  *            The type of condition in the program.
  */
 public class TMTISynthesizer<ValueType extends Value, UpdateType extends Update, GuardType extends Guard> {
+	public final int maxTraceLength;
+
 	private final Planner<ValueType, UpdateType> planner;
+	private final Configuration config;
 	private final GPDebugger<ValueType, UpdateType, GuardType> debugger;
 	private final Logger logger;
 
-	public TMTISynthesizer(Planner<ValueType, UpdateType> planner, Logger logger,
+	public TMTISynthesizer(Planner<ValueType, UpdateType> planner, Configuration config, Logger logger,
 			GPDebugger<ValueType, UpdateType, GuardType> debugger) {
 		assert planner != null;
+		this.config = config;
 		this.planner = planner;
 		this.logger = logger;
 		this.debugger = debugger;
+		maxTraceLength = config.getInt("gp.maxTraceLength", 200);
 	}
 
 	public boolean synthesize(SynthesisProblem<ValueType, UpdateType, GuardType> problem) {
+		var exampleToPlan = genPlans(problem);
 		var plans = new ArrayList<Plan<ValueType, UpdateType>>();
-		var exampleToPlan = new LinkedHashMap<Example<ValueType, UpdateType>, Plan<ValueType, UpdateType>>();
-		for (Example<ValueType, UpdateType> example : problem.examples) {
-			Optional<Plan<ValueType, UpdateType>> optPlan;
-			if (example.inputOnly()) {
-				if (problem.interpreter().isPresent()) {
-					var interpreter = problem.interpreter().get();
-					optPlan = interpreter.genTrace(example.step(0).getT1(), 1000);
-				} else {
-					logger.info("WARNING: No reference program to complete " + example.name + " (skipped)!");
-					optPlan = Optional.empty();
-				}
-			} else {
-				optPlan = PlanningUtils.exampleToPlan(problem.domain(), planner, example, logger);
+		exampleToPlan.forEach((example, plan) -> {
+			if (!example.isTest) {
+				plans.add(plan);
 			}
+		});
 
-			if (optPlan.isPresent()) {
-				var plan = optPlan.get();
-				exampleToPlan.put(example, plan);
-				debugger.printPlan(plan, example.id);
-				logger.info("Found a plan for example " + example.name);
-				if (!example.isTest) {
-					plans.add(plan);
-				}
-			} else {
-				continue;
-			}
+		ConditionInferencer<ValueType, UpdateType, GuardType> separator;
+		if (config.getString("gp.separator", "").equals("ID3")) {
+			separator = new gp.separation.ID3Inferencer<ValueType, UpdateType, GuardType>(problem.domain(), plans);
+		} else {
+			separator = new LinearInferencer<ValueType, UpdateType, GuardType>(problem.domain(), plans);
 		}
-		logger.info("Generating guards...");
-		final var guards = problem.domain().generateGuards(plans);
-		//final var guards = problem.domain().generateCompleteBasicGuards(plans);
-		logger.info("done");
-		debugPrintGuards(guards);
-		final var separator = new LinearInferencer<ValueType, UpdateType, GuardType>(problem.domain(), guards);
-		//final var separator = new ID3Inferencer<ValueType, UpdateType, GuardType>(problem.domain(), guards);
+		debugPrintGuards(separator.guards());
 
 		logger.info("Generalizing " + plans.size() + " plans...");
 		var learner = new TMTI<ValueType, UpdateType, GuardType>(problem.domain(), separator, debugger, logger);
@@ -101,6 +90,36 @@ public class TMTISynthesizer<ValueType extends Value, UpdateType extends Update,
 		return false;
 	}
 
+	protected Map<Example<ValueType, UpdateType>, Plan<ValueType, UpdateType>> genPlans(
+			SynthesisProblem<ValueType, UpdateType, GuardType> problem) {
+		var exampleToPlan = new LinkedHashMap<Example<ValueType, UpdateType>, Plan<ValueType, UpdateType>>();
+		for (Example<ValueType, UpdateType> example : problem.examples) {
+			Optional<Plan<ValueType, UpdateType>> optPlan;
+			if (example.inputOnly()) {
+				if (problem.interpreter().isPresent()) {
+					var interpreter = problem.interpreter().get();
+					optPlan = interpreter.genTrace(example.step(0).getT1(), maxTraceLength);
+				} else {
+					logger.info("WARNING: No reference program to complete " + example.name + " (skipped)!");
+					optPlan = Optional.empty();
+				}
+			} else {
+				optPlan = PlanningUtils.exampleToPlan(problem.domain(), planner, example, logger);
+			}
+
+			if (optPlan.isPresent()) {
+				var plan = optPlan.get();
+				exampleToPlan.put(example, plan);
+				debugger.printPlan(plan, example.id);
+				logger.info("Found a plan for example " + example.name);
+			} else {
+				logger.info("No plan for example " + example.name);
+				continue;
+			}
+		}
+		return exampleToPlan;
+	}
+
 	protected boolean compareOnTestExamples(
 			Map<Example<ValueType, UpdateType>, Plan<ValueType, UpdateType>> exampleToPlan, Automaton automaton,
 			SynthesisProblem<ValueType, UpdateType, GuardType> problem) {
@@ -111,14 +130,24 @@ public class TMTISynthesizer<ValueType extends Value, UpdateType extends Update,
 		var exampleToCompareResult = new HashMap<Example<ValueType, UpdateType>, Boolean>();
 		for (var entry : exampleToPlan.entrySet()) {
 			var example = entry.getKey();
-			var examplePlan = entry.getValue();
+			var plan = entry.getValue();
 			if (!example.isTest) {
 				continue;
 			}
 			++numOfTests;
 			var interpreter = new AutomatonInterpreter<ValueType, UpdateType, GuardType>(automaton, problem.domain());
-			var optAutomatonTrace = interpreter.genTrace(example.input(), 1000);
-			if (!optAutomatonTrace.isPresent() || !optAutomatonTrace.get().eqDeterministic(examplePlan)) {
+			var optAutomatonTrace = interpreter.genTrace(example.input(), maxTraceLength);
+			if (!optAutomatonTrace.isPresent() || !optAutomatonTrace.get().eqDeterministic(plan)) {
+				{
+					if (!optAutomatonTrace.isPresent()) {
+						debugger.printCodeFile("diff_" + example.name + " .txt", "No trace",
+								"Difference on example " + example.name);
+					} else {
+						var diffAutomaton = TMTI.prefixAutomaton(List.of(optAutomatonTrace.get(), plan),
+								problem.domain(), debugger);
+						debugger.printAutomaton(diffAutomaton.get(), "Difference on example " + example.name);
+					}
+				}
 				exampleToCompareResult.put(example, Boolean.FALSE);
 				message.append("Testing example " + example.name + ": fail" + System.lineSeparator());
 				result = false;
@@ -133,13 +162,25 @@ public class TMTISynthesizer<ValueType extends Value, UpdateType extends Update,
 		return result;
 	}
 
+	protected void visualizeDiff(Plan<ValueType, UpdateType> trace1, Plan<ValueType, UpdateType> trace2,
+			SynthesisProblem<ValueType, UpdateType, GuardType> problem, String description) {
+		var diffAutomaton = TMTI.prefixAutomaton(List.of(trace1, trace2), problem.domain(), debugger);
+		debugger.printAutomaton(diffAutomaton.get(), "Difference on example " + description);
+	}
+
 	protected void debugPrintGuards(Collection<GuardType> guards) {
+		final var maxGuardPrintCount = config.getInt("gp.printGuardCountBound", -1);
 		var txt = new StringBuilder();
 		txt.append("#guards=" + guards.size());
-		txt.append("=============");
-		// for (var guard : guards) {
-		// txt.append(guard + "\n");
-		// }
+		txt.append("\n=============\n");
+		var guardCounter = 0;
+		for (var guard : guards) {
+			txt.append(guard + "\n");
+			++guardCounter;
+			if (maxGuardPrintCount >= 0 && guardCounter > maxGuardPrintCount) {
+				break;
+			}
+		}
 		debugger.printCodeFile("guards.txt", txt.toString(), "Available guards");
 	}
 }

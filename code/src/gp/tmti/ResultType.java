@@ -1,10 +1,23 @@
 package gp.tmti;
 
 /**
- * The possible results of the algorithm.
+ * The possible results of a generalization algorithm.
  * 
  * @author romanm
  */
 public enum ResultType {
-	OK, NON_DETERMINISTIC, NOT_ENOUGH_TRACES, OUT_OF_RESOURCES
+	/**
+	 * Generalization succeeded, resulting in a deterministic automaton.
+	 */
+	OK,
+
+	/**
+	 * No deterministic automaton exists.
+	 */
+	NON_DETERMINISTIC,
+
+	/**
+	 * Generalization terminated due to resource exhaustion.
+	 */
+	OUT_OF_RESOURCES
 }

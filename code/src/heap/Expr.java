@@ -24,10 +24,27 @@ public abstract class Expr extends Node {
 		super(countNonterminals(nodes));
 		args = Collections.unmodifiableList(new ArrayList<>(nodes));
 	}
-	
+
 	@Override
 	public String toString() {
 		return Renderer.render(this);
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (o == null) {
+			return false;
+		}
+		if (o == this) {
+			return true;
+		}
+		Expr other = (Expr) o;
+		for (var i = 0; i < args.size(); ++i) {
+			if (!args.get(i).equals(other.args.get(i))) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	protected Expr(Node... nodes) {

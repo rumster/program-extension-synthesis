@@ -61,13 +61,13 @@ public abstract class HeapRunner {
 		planningTime.reset();
 		try {
 			var problem = genProblem();
-			debugger = new HeapDebugger(logger, problem.name, outputDirPath);
+			debugger = new HeapDebugger(config, logger, problem.name, outputDirPath);
 			debugger.printLink(logFile.getName(), "Events log");
 			debugger.printCodeFile("problem.txt", problem.toString(), "Specification");
 			debugger.printExamples(problem.examples);
 			synthesisTime.start();
 			var planner = new AStar<Store, Stmt>(new BasicHeapTR(problem.domain));
-			var synthesizer = new TMTISynthesizer<Store, Stmt, BoolExpr>(planner, logger, debugger);
+			var synthesizer = new TMTISynthesizer<Store, Stmt, BoolExpr>(planner, config, logger, debugger);
 			boolean ok = synthesizer.synthesize(problem);
 			if (!ok) {
 				logger.info("fail!");

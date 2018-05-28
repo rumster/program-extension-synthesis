@@ -1,12 +1,12 @@
 package gp;
 
-import gp.Domain.Update;
-import gp.Domain.Guard;
-import gp.Domain.Value;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import gp.Domain.Guard;
+import gp.Domain.Update;
+import gp.Domain.Value;
 
 /**
  * A domain for representing systems.
@@ -63,13 +63,42 @@ public interface Domain<ValueType extends Value, UpdateType extends Update, Guar
 	/**
 	 * Returns a list of likely predicates for the given plans.
 	 */
-	public List<GuardType> generateGuards(ArrayList<Plan<ValueType, UpdateType>> plans);
+	public List<GuardType> generateGuards(List<Plan<ValueType, UpdateType>> plans);
 
 	/**
 	 * Returns a list of likely atomic predicates for the given plans.
 	 */
-	public List<GuardType> generateBasicGuards(ArrayList<Plan<ValueType, UpdateType>> plans);
+	public List<GuardType> generateBasicGuards(List<Plan<ValueType, UpdateType>> plans);
 
+	/**
+	 * Constructs a disjunction of guards.
+	 */
+	public GuardType or(GuardType l, GuardType r);
+
+	/**
+	 * Constructs a conjunction of guards.
+	 */
+	public GuardType and(GuardType l, GuardType r);
+
+	/**
+	 * Constructs a negated guard.
+	 */
+	public GuardType not(GuardType l);
+
+	/**
+	 * Returns a complete list (including Boolean negation) of likely atomic
+	 * predicates for the given plans
+	 */
+	public default List<GuardType> generateCompleteBasicGuards(List<Plan<ValueType, UpdateType>> plans) {
+		var result = new ArrayList<GuardType>();
+		var basicGuards = generateBasicGuards(plans);
+		result.addAll(basicGuards);
+		for (var guard : basicGuards) {
+			result.add(not(guard));
+		}
+		return result;
+	}
+	
 	/**
 	 * An interface marking domain values.
 	 * 

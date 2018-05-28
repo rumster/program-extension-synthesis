@@ -26,6 +26,8 @@ public abstract class ConditionInferencer<ValueType extends Value, UpdateType ex
 	 */
 	public abstract Optional<GuardType> infer(Collection<? extends Value> first, Collection<? extends Value> second);
 
+	public abstract List<GuardType> guards();
+	
 	/**
 	 * Attempts to infer a predicate that holds for all values at a given index of
 	 * the given list and none of the values at any other index.

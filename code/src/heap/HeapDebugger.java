@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.List;
 import java.util.logging.Logger;
 
+import org.apache.commons.configuration2.Configuration;
 import org.stringtemplate.v4.ST;
 
 import bgu.cs.util.FileUtils;
@@ -27,9 +28,12 @@ public class HeapDebugger extends GPDebugger<Store, Stmt, BoolExpr> {
 	public boolean logDetailedExampleRendering = false;
 
 	protected STGLoader heapTemplates = new STGLoader(HeapDebugger.class);
+	
+	private final Configuration config;
 
-	public HeapDebugger(Logger logger, String title, String outputDirPath) {
+	public HeapDebugger(Configuration config, Logger logger, String title, String outputDirPath) {
 		super(logger, title, outputDirPath);
+		this.config = config;
 	}
 
 	public boolean printExamples(List<Example<Store, Stmt>> examples) {
@@ -71,6 +75,11 @@ public class HeapDebugger extends GPDebugger<Store, Stmt, BoolExpr> {
 
 	@Override
 	public void printPlan(Plan<Store, Stmt> plan, int planIndex) {
+		var printPlans = config.getBoolean("gp.visualizePlans", true);
+		if (!printPlans) {
+			return;
+		}
+		
 		logger.info("Visualizing plan..." + planIndex);
 		ST planTemplate = heapTemplates.load("plan");
 		planTemplate.add("planIndex", planIndex);
