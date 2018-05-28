@@ -1,4 +1,4 @@
-package dataStructures;
+package heap_io;
 
 import java.util.ArrayList;
 
@@ -7,35 +7,44 @@ import heap.HeapRunner;
 import heap.jsupport.*;
 
 /**
- * A benchmark for 'SLL.findMax'.
+ * A benchmark for finding the first cell with the given integer value. lengths.
  * 
  * @author romanm
  */
-public class SLLFindMax extends HeapRunner {
+public class SLLFind extends HeapRunner {
 	public static class BenchEnv extends JavaEnv {
-		@MethodArg(out = true)
+		@MethodArg(out = true, readonly = true)
 		public SLL head;
+
+		@MethodArg(out = false, readonly = true)
+		public int val;
 
 		@MethodArg(out = true)
 		public SLL ret;
 	}
 
 	public static void main(String[] args) {
-		SLLFindMax benchmark = new SLLFindMax();
+		SLLFind benchmark = new SLLFind();
 		benchmark.run();
 	}
 
 	@Override
 	public HeapProblem genProblem() {
 		ArrayList<JavaEnv> inputs = new ArrayList<>();
-		for (int i = 1; i < 100; ++i) {
+		for (int i = 2; i < 100; ++i) {
 			BenchEnv env = new BenchEnv();
 			env.head = SLL.genRandomAcyclic(i);
-			env.ret = null;
+			SLL t = env.head;
+			if (i % 2 == 0) {
+				for (int j = 0; j < i / 2; ++j) {
+					t = t.n;
+				}
+			}
+			env.val = t.d;
 			inputs.add(env);
 		}
 		JavaProblemGenerator problemGen = new JavaProblemGenerator(super.logger);
-		HeapProblem problem = problemGen.generate(SLL.class, "findMax", inputs);
+		HeapProblem problem = problemGen.generate(SLL.class, "find", inputs);
 		return problem;
 	}
 }
