@@ -68,7 +68,7 @@ public class HeapDebugger extends GPDebugger<Store, Stmt, BoolExpr> {
 		String exampleListFileName = "examples.html";
 		String exampleListPath = outputDirPath + File.separator + exampleListFileName;
 		FileUtils.stringToFile(exampleListTemplate.render(), exampleListPath);
-		super.printLink(exampleListFileName, "Examples");
+		super.addLink(exampleListFileName, "Examples");
 		logger.info("Done visualizing examples.");
 		return refresh();
 	}
@@ -105,7 +105,7 @@ public class HeapDebugger extends GPDebugger<Store, Stmt, BoolExpr> {
 		String planFileName = "Plan" + planIndex + ".html";
 		String planFilePath = outputDirPath + File.separator + planFileName;
 		FileUtils.stringToFile(planTemplate.render(), planFilePath);
-		super.printLink(planFileName, "Plan " + planIndex);
+		super.addLink(planFileName, "Plan " + planIndex);
 	}
 
 	@Override

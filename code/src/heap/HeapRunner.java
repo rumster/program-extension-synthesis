@@ -62,8 +62,8 @@ public abstract class HeapRunner {
 		try {
 			var problem = genProblem();
 			debugger = new HeapDebugger(config, logger, problem.name, outputDirPath);
-			debugger.printLink(logFile.getName(), "Events log");
-			debugger.printCodeFile("problem.txt", problem.toString(), "Specification");
+			debugger.addLink(logFile.getName(), "Events log");
+			debugger.addCodeFile("problem.txt", problem.toString(), "Specification");
 			debugger.printExamples(problem.examples);
 			synthesisTime.start();
 			var planner = new AStar<Store, Stmt>(new BasicHeapTR(problem.domain));

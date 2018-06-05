@@ -140,7 +140,7 @@ public class TMTISynthesizer<ValueType extends Value, UpdateType extends Update,
 			if (!optAutomatonTrace.isPresent() || !optAutomatonTrace.get().eqDeterministic(plan)) {
 				{
 					if (!optAutomatonTrace.isPresent()) {
-						debugger.printCodeFile("diff_" + example.name + " .txt", "No trace",
+						debugger.addCodeFile("diff_" + example.name + " .txt", "No trace",
 								"Difference on example " + example.name);
 					} else {
 						var diffAutomaton = TMTI.prefixAutomaton(List.of(optAutomatonTrace.get(), plan),
@@ -158,7 +158,7 @@ public class TMTISynthesizer<ValueType extends Value, UpdateType extends Update,
 			}
 		}
 		message.append("Succeeded on " + numOfTestsSucceeded + " out of " + numOfTests + " test examples.");
-		debugger.printCodeFile("Synthesizer message", message.toString(), "Synthesis test results");
+		debugger.addCodeFile("Synthesizer message", message.toString(), "Synthesis test results");
 		return result;
 	}
 
@@ -181,6 +181,6 @@ public class TMTISynthesizer<ValueType extends Value, UpdateType extends Update,
 				break;
 			}
 		}
-		debugger.printCodeFile("guards.txt", txt.toString(), "Available guards");
+		debugger.addCodeFile("guards.txt", txt.toString(), "Available guards");
 	}
 }

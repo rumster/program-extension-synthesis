@@ -30,7 +30,7 @@ public abstract class GPDebugger<ValueType extends Value, UpdateType extends Upd
 	 *            The directory in which display-related files are generated.
 	 */
 	public GPDebugger(Logger logger, String title, String outputDirPath) {
-		super(logger, title, outputDirPath);
+		super(title, outputDirPath, logger);
 	}
 
 	/**
@@ -60,7 +60,7 @@ public abstract class GPDebugger<ValueType extends Value, UpdateType extends Upd
 			}
 		}
 
-		printGraph(automaton, description, automatonProps);
+		addGraph(automaton, description, automatonProps);
 	}
 
 	/**

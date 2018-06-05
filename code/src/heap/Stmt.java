@@ -42,6 +42,9 @@ public abstract class Stmt extends Node implements Update {
 		if (o == this) {
 			return true;
 		}
+		if (!this.getClass().equals(o.getClass())) {
+			return false;
+		}		
 		Stmt other = (Stmt) o;
 		for (var i = 0; i < args.size(); ++i) {
 			if (!args.get(i).equals(other.args.get(i))) {

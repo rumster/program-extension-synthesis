@@ -38,6 +38,9 @@ public abstract class Expr extends Node {
 		if (o == this) {
 			return true;
 		}
+		if (!this.getClass().equals(o.getClass())) {
+			return false;
+		}
 		Expr other = (Expr) o;
 		for (var i = 0; i < args.size(); ++i) {
 			if (!args.get(i).equals(other.args.get(i))) {

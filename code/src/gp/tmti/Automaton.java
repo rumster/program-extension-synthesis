@@ -168,6 +168,7 @@ public class Automaton extends HashMultiGraph<State, Action> {
 			return Collections.emptyList();
 		}
 		var result = new ArrayList<State>();
+		result.add(state);
 
 		var updateToTargetState = new HashRel2<Update, State>();
 		for (Edge<State, Action> transition : this.succEdges(state)) {

@@ -64,14 +64,14 @@ public class TMTI<ValueType extends Value, UpdateType extends Update, GuardType 
 		var prefixAutomaton = optPrefixAutomaton.get();
 		debugger.printAutomaton(prefixAutomaton, "Prefix automaton");
 		if (!prefixAutomaton.isUpdateDeterministic()) {
-			debugger.printTextFile("TMTI message",
+			debugger.addTextFile("TMTI message",
 					"Unable to learn an automaton: prefix automaton is non-deterministic!", "Synthesizer message");
 			return Result.failure(ResultType.NON_DETERMINISTIC);
 		}
 		var prefixAutomatonGuardAssignable = assignGuards(prefixAutomaton);
 		if (!prefixAutomatonGuardAssignable) {
 			debugger.printAutomaton(prefixAutomaton, "Prefix automaton with missing guards");
-			debugger.printTextFile("TMTI message",
+			debugger.addTextFile("TMTI message",
 					"Unable to learn an automaton: cannot infer guards for prefix automaton!", "Synthesizer message");
 			return Result.failure(ResultType.NON_DETERMINISTIC);
 		} else {
@@ -182,7 +182,7 @@ public class TMTI<ValueType extends Value, UpdateType extends Update, GuardType 
 			var currState = result.getInitial();
 			for (int i = 0; i < trace.size() - 1; ++i) {
 				if (currState == result.getFinal()) {
-					debugger.printTextFile("message",
+					debugger.addTextFile("message",
 							"Unable to build prefix automaton, since it contains transitions beyond final state with trace "
 									+ traceCounter + "!",
 							"Synthesizer message");

@@ -9,7 +9,7 @@ sqrt(n:int) -> (res:int) {
   l = 0;
   h = n;
   while (h - l > 1) {	
-    m = (l + h ) / 2;
+    m = (l + h) / 2;
 	if (m * m > n) {
       h = m;
 	}
@@ -35,10 +35,14 @@ sqrt(n:int) -> (res:int) {
   }
 
   test example {
-    [n==25] -> ...
+    [n==10] -> ...
   }
 
   test example {
+    [n==25] -> ...
+  }
+
+  example {
     [n==46] -> ...
   }
 
