@@ -3,7 +3,7 @@ package heap_io;
 import java.util.ArrayList;
 
 import heap.HeapProblem;
-import heap.HeapRunner;
+import heap.Main;
 import heap.jsupport.*;
 
 /**
@@ -11,7 +11,7 @@ import heap.jsupport.*;
  * 
  * @author romanm
  */
-public class SLLFindMax extends HeapRunner {
+public class SLLFindMax extends Main {
 	public static class BenchEnv extends JavaEnv {
 		@MethodArg(out = true)
 		public SLL head;
@@ -20,8 +20,12 @@ public class SLLFindMax extends HeapRunner {
 		public SLL ret;
 	}
 
+	public SLLFindMax(String name) {
+		super(name);
+	}
+
 	public static void main(String[] args) {
-		SLLFindMax benchmark = new SLLFindMax();
+		SLLFindMax benchmark = new SLLFindMax("findMax");
 		benchmark.run();
 	}
 

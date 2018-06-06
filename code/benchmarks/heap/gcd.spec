@@ -36,14 +36,38 @@ gcd(mut a:int, mut b:int) -> (res:int) {
   }
 
   test example {
-    [a==20 && b==12] -> ...
-  }
-
-  test example {
     [a==12 && b==16] -> ...
   }
 
   test example {
+    [a==20 && b==12] -> ...
+  }
+
+  test example {
     [a==12 && b==20] -> ...
-  } 
+  }
+
+  test example {
+    [a==87 && b==93] -> ...
+  }
+  
+  test example {
+    [a==25 && b==213] -> ...
+  }
+
+  test example {
+    [a==486 && b==132] -> ...
+  }  
+
+  test example {
+    [a==54 && b==365] -> ...
+  }  
+
+  test example {
+    [a==1021 && b==74] -> ...
+  }  
+
+  test example {
+    [a==532 && b==789] -> ...
+  }  
 }

@@ -9,30 +9,62 @@ type SLL {
  */
 fill(head:SLL, val:int) -> () {
   var t:SLL
-
-/*
-  example {
-    [head==null && val==42]
-    -> t = head;
-  }
-*/
-
-  example {
-    [head==o1 && o1.n==o2 && o2.n==null && val==42]
-    -> t = head;
-    -> t.d = val;
-    -> t = t.n;
-    -> t.d = val;
-    -> t = t.n;
+  
+  t = head;
+  while (t != null) {
+    t.d = val;
+    t = t.n;
   }
 
-/* planning-driven examples:
-  example {
-    [head==o1 && o1.n==o2 && o2.n==o3 && o3.n==o4 && o4.n==null && val==42] ->
-    [t==o1] ->
-    [o1.d==42] ->
-    [head==o1 && o1.n==o2 && o2.n==o3 && o3.n==o4 && o4.n==null &&
-     o1.d==42 && o2.d==42 && o3.d==42 && o4.d==42]
+  test example {
+    [val==2 && head==o0 && o0.n==o1 && o1.n==null] -> ...
   }
-*/  
+
+  example {
+    [val==3 && head==o0 && o0.n==o1 && o1.n==o2 && o2.n==null] -> ...
+  }
+
+  test example {
+    [val==0 && head==null] -> ...
+  }
+
+  test example {
+    [val==1 && head==o0 && o0.n==null] -> ...
+  }
+ 
+  test example {
+    [val==4 && head==o1 && o1.n==o2 && o2.n==o3 && o3.n==null] -> ...
+  }
+   
+  test example {
+    [val==5 && head==o1 && o1.n==o2 && o2.n==o3 && o3.n==o4 && o4.n==null] -> ...
+  }
+
+  test example {
+    [val==6 && head==o1 && o1.n==o2 && o2.n==o3 && o3.n==o4 && o4.n==o5 && o5.n==null] -> ...
+  }
+
+  test example {
+    [val==7 && head==o1 && o1.n==o2 && o2.n==o3 && o3.n==o4 && o4.n==o5 && o5.n==o6 && o6.n==null] -> ...
+  }
+
+  test example {
+    [val==8 && head==o1 && o1.n==o2 && o2.n==o3 && o3.n==o4 && o4.n==o5 && o5.n==o6 && o6.n==o7 &&
+     o7.n==null] -> ...
+  }
+
+  test example {
+    [val==9 && head==o1 && o1.n==o2 && o2.n==o3 && o3.n==o4 && o4.n==o5 && o5.n==o6 && o6.n==o7 &&
+     o7.n==o8 && o8.n==null] -> ...
+  }
+
+  test example {
+    [val==10 && head==o1 && o1.n==o2 && o2.n==o3 && o3.n==o4 && o4.n==o5 && o5.n==o6 && o6.n==o7 &&
+     o7.n==o8 && o8.n==o9 && o9.n==null] -> ...
+  }
+
+  test example {
+    [val==11 && head==o1 && o1.n==o2 && o2.n==o3 && o3.n==o4 && o4.n==o5 && o5.n==o6 && o6.n==o7 &&
+     o7.n==o8 && o8.n==o9 && o9.n==o10 && o10.n==null] -> ...
+  }
 }

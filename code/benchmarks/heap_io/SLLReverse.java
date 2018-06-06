@@ -3,7 +3,7 @@ package heap_io;
 import java.util.ArrayList;
 
 import heap.HeapProblem;
-import heap.HeapRunner;
+import heap.Main;
 import heap.jsupport.*;
 
 /**
@@ -11,7 +11,7 @@ import heap.jsupport.*;
  * 
  * @author romanm
  */
-public class SLLReverse extends HeapRunner {
+public class SLLReverse extends Main {
 	public static class BenchEnv extends JavaEnv {
 		@MethodArg(out = false)
 		public SLL head;
@@ -20,8 +20,12 @@ public class SLLReverse extends HeapRunner {
 		public SLL t2;
 	}
 
+	public SLLReverse(String name) {
+		super(name);
+	}
+
 	public static void main(String[] args) {
-		SLLReverse benchmark = new SLLReverse();
+		SLLReverse benchmark = new SLLReverse("reverse");
 		benchmark.run();
 	}
 

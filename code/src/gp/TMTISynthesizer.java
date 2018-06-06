@@ -17,9 +17,11 @@ import gp.Domain.Update;
 import gp.Domain.Value;
 import gp.planning.Planner;
 import gp.separation.ConditionInferencer;
+import gp.separation.ID3Inferencer;
 import gp.separation.LinearInferencer;
 import gp.tmti.Automaton;
 import gp.tmti.AutomatonInterpreter;
+import gp.tmti.Result;
 import gp.tmti.TMTI;
 
 /**
@@ -55,28 +57,28 @@ public class TMTISynthesizer<ValueType extends Value, UpdateType extends Update,
 		maxTraceLength = config.getInt("gp.maxTraceLength", 200);
 	}
 
-	public boolean synthesize(SynthesisProblem<ValueType, UpdateType, GuardType> problem) {
+	public Result synthesize(SynthesisProblem<ValueType, UpdateType, GuardType> problem) {
 		var exampleToPlan = genPlans(problem);
-		var plans = new ArrayList<Plan<ValueType, UpdateType>>();
+		var trainingPlans = new ArrayList<Plan<ValueType, UpdateType>>();
 		exampleToPlan.forEach((example, plan) -> {
 			if (!example.isTest) {
-				plans.add(plan);
+				trainingPlans.add(plan);
 			}
 		});
 
 		ConditionInferencer<ValueType, UpdateType, GuardType> separator;
 		if (config.getString("gp.separator", "").equals("ID3")) {
-			separator = new gp.separation.ID3Inferencer<ValueType, UpdateType, GuardType>(problem.domain(), plans);
+			separator = new ID3Inferencer<ValueType, UpdateType, GuardType>(problem.domain(), trainingPlans);
 		} else {
-			separator = new LinearInferencer<ValueType, UpdateType, GuardType>(problem.domain(), plans);
+			separator = new LinearInferencer<ValueType, UpdateType, GuardType>(problem.domain(), trainingPlans);
 		}
 		debugPrintGuards(separator.guards());
 
-		logger.info("Generalizing " + plans.size() + " plans...");
+		logger.info("Generalizing " + trainingPlans.size() + " plans...");
 		var learner = new TMTI<ValueType, UpdateType, GuardType>(problem.domain(), separator, debugger, logger);
 		var learningTime = new Timer();
 		learningTime.start();
-		var learningResult = learner.infer(plans);
+		var learningResult = learner.infer(trainingPlans);
 		learningTime.stop();
 		logger.info("Automaton learning time: " + learningTime.toSeconds());
 		logger.info("Automaton learning result = " + learningResult.type);
@@ -85,9 +87,8 @@ public class TMTISynthesizer<ValueType extends Value, UpdateType extends Update,
 			var comparisonResult = compareOnTestExamples(exampleToPlan, inferredAutomaton, problem);
 			var synthesisResultStr = comparisonResult ? "success" : "failure";
 			logger.info("Synthesis result = " + synthesisResultStr);
-			return true;
 		}
-		return false;
+		return learningResult;
 	}
 
 	protected Map<Example<ValueType, UpdateType>, Plan<ValueType, UpdateType>> genPlans(
@@ -178,6 +179,7 @@ public class TMTISynthesizer<ValueType extends Value, UpdateType extends Update,
 			txt.append(guard + "\n");
 			++guardCounter;
 			if (maxGuardPrintCount >= 0 && guardCounter > maxGuardPrintCount) {
+				txt.append("...");
 				break;
 			}
 		}

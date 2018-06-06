@@ -3,6 +3,7 @@ package heap.jsupport;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -38,7 +39,8 @@ public class JavaProblemGenerator {
 		Class<? extends JavaEnv> envType = inputs.get(0).getClass();
 		heapWalker = new JavaHeapWalker(m, envType, logger);
 		HeapDomain domain = HeapDomain.fromVarsAndTypes(heapWalker.getVars(), heapWalker.getRefTypes());
-		HeapProblem result = new HeapProblem(m.getName(), domain, Optional.empty());
+		HeapProblem result = new HeapProblem(m.getName(), domain, Collections.emptyList(), Collections.emptyList(),
+				Collections.emptyList(), Optional.empty());
 
 		for (JavaEnv input : inputs) {
 			try {

@@ -23,20 +23,44 @@ sqrt(x:int) -> (res:int) {
   example {
     [x==9] -> ...
   }
+  
+  test example {
+    [x==18] -> ...
+  }
 
   test example {
     [x==25] -> ...
+  }
+  
+  test example {
+    [x==37] -> ...
   }
 
   test example {
     [x==46] -> ...
   }
+  
+  test example {
+    [x==52] -> ...
+  }  
+
+  test example {
+    [x==63] -> ...
+  }
+  
+  test example {
+    [x==71] -> ...
+  }  
 
   test example {
     [x==83] -> ...
   }
-
+  
   test example {
-    [x==63] -> ...
+    [x==91] -> ...
+  }
+  
+  test example {
+    [x==127] -> ...
   }
 }

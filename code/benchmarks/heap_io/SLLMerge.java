@@ -3,7 +3,7 @@ package heap_io;
 import java.util.ArrayList;
 
 import heap.HeapProblem;
-import heap.HeapRunner;
+import heap.Main;
 import heap.jsupport.*;
 
 /**
@@ -11,7 +11,7 @@ import heap.jsupport.*;
  * 
  * @author romanm
  */
-public class SLLMerge extends HeapRunner {
+public class SLLMerge extends Main {
 	public static class BenchEnv extends JavaEnv {
 		@MethodArg(out = false)
 		public SLL first;
@@ -22,8 +22,12 @@ public class SLLMerge extends HeapRunner {
 		public SLL t2;
 	}
 
+	public SLLMerge(String name) {
+		super(name);
+	}
+
 	public static void main(String[] args) {
-		SLLMerge benchmark = new SLLMerge();
+		SLLMerge benchmark = new SLLMerge("merge");
 		benchmark.run();
 	}
 

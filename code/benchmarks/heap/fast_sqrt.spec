@@ -34,23 +34,47 @@ sqrt(n:int) -> (res:int) {
     [n==9] -> ...
   }
 
+  example {
+    [n==12] -> ...
+  }
+
   test example {
-    [n==10] -> ...
+    [n==18] -> ...
   }
 
   test example {
     [n==25] -> ...
   }
+  
+  test example {
+    [n==37] -> ...
+  }
 
-  example {
+  test example {
     [n==46] -> ...
   }
+  
+  test example {
+    [n==52] -> ...
+  }  
+
+  test example {
+    [n==63] -> ...
+  }
+  
+  test example {
+    [n==71] -> ...
+  }  
 
   test example {
     [n==83] -> ...
   }
-
+  
   test example {
-    [n==63] -> ...
+    [n==91] -> ...
+  }
+  
+  test example {
+    [n==127] -> ...
   }
 }

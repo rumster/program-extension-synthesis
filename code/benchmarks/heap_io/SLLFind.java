@@ -3,7 +3,7 @@ package heap_io;
 import java.util.ArrayList;
 
 import heap.HeapProblem;
-import heap.HeapRunner;
+import heap.Main;
 import heap.jsupport.*;
 
 /**
@@ -11,7 +11,7 @@ import heap.jsupport.*;
  * 
  * @author romanm
  */
-public class SLLFind extends HeapRunner {
+public class SLLFind extends Main {
 	public static class BenchEnv extends JavaEnv {
 		@MethodArg(out = true, readonly = true)
 		public SLL head;
@@ -23,8 +23,12 @@ public class SLLFind extends HeapRunner {
 		public SLL ret;
 	}
 
+	public SLLFind(String name) {
+		super(name);
+	}
+
 	public static void main(String[] args) {
-		SLLFind benchmark = new SLLFind();
+		SLLFind benchmark = new SLLFind("find");
 		benchmark.run();
 	}
 

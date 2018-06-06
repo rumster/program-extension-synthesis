@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="benchmarks"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER">
 		<attributes>
 			<attribute name="module" value="true"/>
@@ -19,6 +20,5 @@
 	<classpathentry kind="lib" path="lib/pddl4j-3.5.0.jar"/>
 	<classpathentry kind="lib" path="lib/smtinterpol-2.1-335-g4c543a5.jar"/>
 	<classpathentry kind="lib" path="lib/ST-4.0.8.jar"/>
-	<classpathentry kind="src" path="benchmarks"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

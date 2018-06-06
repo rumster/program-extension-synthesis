@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Random;
 
 import heap.HeapProblem;
-import heap.HeapRunner;
+import heap.Main;
 import heap.jsupport.*;
 
 /**
@@ -13,7 +13,7 @@ import heap.jsupport.*;
  * 
  * @author romanm
  */
-public class SLLFill extends HeapRunner {
+public class SLLFill extends Main {
 	public static class BenchEnv extends JavaEnv {
 		@MethodArg(out = true, readonly = true)
 		public SLL head;
@@ -24,8 +24,12 @@ public class SLLFill extends HeapRunner {
 		public SLL t;
 	}
 
+	public SLLFill(String name) {
+		super(name);
+	}
+
 	public static void main(String[] args) {
-		SLLFill benchmark = new SLLFill();
+		SLLFill benchmark = new SLLFill("fill");
 		benchmark.run();
 	}
 

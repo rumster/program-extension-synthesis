@@ -81,7 +81,23 @@ public class ProblemCompiler {
 			optProg = Optional.empty();
 		}
 
-		HeapProblem result = new HeapProblem(funAST.name, domain, optProg);
+		var inputVars = new ArrayList<Var>();
+		for (var inputArgAST : funAST.inputArgs) {
+			var inputVar = nameToVar.get(inputArgAST.name);
+			inputVars.add(inputVar);
+		}
+		var outputVars = new ArrayList<Var>();
+		for (var outputArgAST : funAST.outputArgs) {
+			var outputVar = nameToVar.get(outputArgAST.name);
+			outputVars.add(outputVar);
+		}
+		var tempVars = new ArrayList<Var>();
+		for (var tempArgAST : funAST.temps) {
+			var tempVar = nameToVar.get(tempArgAST.name);
+			tempVars.add(tempVar);
+		}
+
+		HeapProblem result = new HeapProblem(funAST.name, domain, inputVars, outputVars, tempVars, optProg);
 
 		int exampleId = 0;
 		for (ASTExample exampleAST : funAST.examples) {

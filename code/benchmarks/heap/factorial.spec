@@ -57,4 +57,8 @@ factorial(mut x:int) -> (y:int) {
   test example {
     [x==10] -> ...
   }  
+
+  test example {
+    [x==11] -> ...
+  }  
 }

@@ -110,23 +110,56 @@ public class PWhileInterpreter extends PWhileVisitor {
 		resultCond = true;
 	}
 
+	/**
+	 * If an evaluation of the expression causes an error, the whole expression
+	 * evaluates to false. The store is not affected (effectively, rolled back to
+	 * the input store).
+	 */
 	@Override
 	public void visit(AndExpr n) {
+		Store pre = state;
 		n.getLhs().accept(this);
-		if (state instanceof ErrorStore)
-			return;
+		if (state instanceof ErrorStore) {
+			state = pre;
+			resultCond = false;
+		}
 		if (resultCond) {
 			n.getRhs().accept(this);
 		}
 	}
 
+	/**
+	 * If an evaluation of the expression causes an error, the whole expression
+	 * evaluates to false. The store is not affected (effectively, rolled back to
+	 * the input store).
+	 */
 	@Override
 	public void visit(OrExpr n) {
+		Store pre = state;
 		n.getLhs().accept(this);
-		if (state instanceof ErrorStore)
-			return;
+		if (state instanceof ErrorStore) {
+			state = pre;
+			resultCond = false;
+		}
 		if (!resultCond) {
 			n.getRhs().accept(this);
+		}
+	}
+
+	/**
+	 * If an evaluation of the expression causes an error, the whole expression
+	 * evaluates to false. The store is not affected (effectively, rolled back to
+	 * the input store).
+	 */
+	@Override
+	public void visit(NotExpr n) {
+		Store pre = state;
+		n.getSub().accept(this);
+		if (state instanceof ErrorStore) {
+			state = pre;
+			resultCond = false;
+		} else {
+			resultCond = !resultCond;
 		}
 	}
 
@@ -233,31 +266,55 @@ public class PWhileInterpreter extends PWhileVisitor {
 		}
 	}
 
+	/**
+	 * If an evaluation of the expression causes an error, the whole expression
+	 * evaluates to false. The store is not affected (effectively, rolled back to
+	 * the input store).
+	 */
 	@Override
 	public void visit(EqExpr n) {
+		Store pre = state;
 		n.getLhs().accept(this);
-		if (state instanceof ErrorStore)
+		if (state instanceof ErrorStore) {
+			resultCond = false;
+			state = pre;
 			return;
+		}
 		Val lval = resultVal;
 
 		n.getRhs().accept(this);
-		if (state instanceof ErrorStore)
+		if (state instanceof ErrorStore) {
+			resultCond = false;
+			state = pre;
 			return;
+		}
 		Val rval = resultVal;
 
 		resultCond = lval != null && rval != null && lval.equals(rval);
 	}
 
+	/**
+	 * If an evaluation of the expression causes an error, the whole expression
+	 * evaluates to false. The store is not affected (effectively, rolled back to
+	 * the input store).
+	 */
 	@Override
 	public void visit(LtExpr n) {
+		Store pre = state;
 		n.getLhs().accept(this);
-		if (state instanceof ErrorStore)
+		if (state instanceof ErrorStore) {
+			resultCond = false;
+			state = pre;
 			return;
+		}
 		IntVal lval = (IntVal) resultVal;
 
 		n.getRhs().accept(this);
-		if (state instanceof ErrorStore)
+		if (state instanceof ErrorStore) {
+			resultCond = false;
+			state = pre;
 			return;
+		}
 		IntVal rval = (IntVal) resultVal;
 
 		resultCond = lval != null && rval != null && lval.num < rval.num;
@@ -285,14 +342,6 @@ public class PWhileInterpreter extends PWhileVisitor {
 		} else {
 			state = ErrorStore.error("Allocation error, out of " + n.getType().getName() + " objects!");
 		}
-	}
-
-	@Override
-	public void visit(NotExpr n) {
-		n.getSub().accept(this);
-		if (state instanceof ErrorStore)
-			return;
-		resultCond = !resultCond;
 	}
 
 	@Override

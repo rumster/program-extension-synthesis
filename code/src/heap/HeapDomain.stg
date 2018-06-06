@@ -53,7 +53,7 @@ NotExpr(sub) ::= <<!($sub$)>>
 
 RetStmt() ::= <<return>>
 
-AssignStmt(lhs, rhs) ::= <<$lhs$ = $rhs$>>
+AssignStmt(lhs, rhs) ::= <<$lhs$ = $rhs$;>>
 
 SeqStmt(first, second) ::= <<
 $first$
