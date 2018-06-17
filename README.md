@@ -1,4 +1,4 @@
-# Program Synthesis via Automata Learning and Automated Planning
+# Program Synthesis via Learning and Planning
 
 The goal of this project project is to drive research in example-based synthesis.
 
@@ -14,5 +14,3 @@ Add the 'bin' sub-directory to the working path.
 
 ## Dependencies
 You should download the [Util](https://github.com/rumster/Util/ "Util") project and reference it to compile the code.
-
-
