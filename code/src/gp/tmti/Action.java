@@ -22,7 +22,7 @@ public class Action {
 		return guard;
 	}
 
-	public void setGuarde(Guard guard) {
+	public void setGuard(Guard guard) {
 		this.guard = guard;
 	}
 

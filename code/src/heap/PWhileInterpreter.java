@@ -54,10 +54,13 @@ public class PWhileInterpreter extends PWhileVisitor {
 		run(n, input, maxSteps);
 		if (stepCounter <= maxSteps) {
 			updateTrace(state, state, RetStmt.v);
+			var result = this.trace;
+			this.trace = null;
+			return Optional.of(result);
+		} else {
+			this.trace = null;
+			return Optional.empty();
 		}
-		var result = this.trace;
-		this.trace = null;
-		return Optional.of(result);
 	}
 
 	public Optional<Store> run(Stmt n, Store input, int maxSteps) {
@@ -368,6 +371,7 @@ public class PWhileInterpreter extends PWhileVisitor {
 				return;
 			if (pre.equals(state)) {
 				state = ErrorStore.error("Possibly non-terminating loop!");
+				stepCounter = maxSteps + 1;
 				return;
 			}
 			pre = state;

@@ -16,6 +16,7 @@ import gp.Plan;
  * 
  * @author romanm
  */
+@Deprecated
 public class LinearInferencer<ValueType extends Value, UpdateType extends Update, GuardType extends Guard>
 		extends ConditionInferencer<ValueType, UpdateType, GuardType> {
 	/**

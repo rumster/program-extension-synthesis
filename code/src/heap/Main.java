@@ -105,10 +105,10 @@ public class Main {
 			var synthesisResult = synthesizer.synthesize(problem);
 			if (synthesisResult.success()) {
 				logger.info("success!");
-				var backend = new AutomatonBackend(synthesisResult.get(), problem,
-						config,
-						debugger);
-				backend.generate();
+				if (config.getBoolean("jminor.generateJavaImplementation", true)) {
+					var backend = new AutomatonBackend(synthesisResult.get(), problem, config, debugger);
+					backend.generate();
+				}
 			} else {
 				logger.info("fail!");
 			}

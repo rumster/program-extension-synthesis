@@ -29,7 +29,7 @@ public interface Domain<ValueType extends Value, UpdateType extends Update, Guar
 	/**
 	 * Returns the always-true predicate.
 	 */
-	public Guard getTrue();
+	public GuardType getTrue();
 
 	/**
 	 * Tests whether the given predicate holds for the given state.

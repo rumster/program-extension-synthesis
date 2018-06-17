@@ -3,8 +3,10 @@ package gp.separation;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
+import bgu.cs.util.rel.Rel2;
 import gp.Domain.Guard;
 import gp.Domain.Update;
 import gp.Domain.Value;
@@ -27,7 +29,11 @@ public abstract class ConditionInferencer<ValueType extends Value, UpdateType ex
 	public abstract Optional<GuardType> infer(Collection<? extends Value> first, Collection<? extends Value> second);
 
 	public abstract List<GuardType> guards();
-	
+
+	public Optional<Map<Update, ? extends Guard>> infer(Rel2<Update, Value> updateToValue) {
+		throw new UnsupportedOperationException();
+	}
+
 	/**
 	 * Attempts to infer a predicate that holds for all values at a given index of
 	 * the given list and none of the values at any other index.

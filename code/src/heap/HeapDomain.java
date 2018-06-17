@@ -60,7 +60,7 @@ public class HeapDomain implements Domain<Store, Stmt, BoolExpr> {
 	}
 
 	@Override
-	public Guard getTrue() {
+	public BoolExpr getTrue() {
 		return True.v;
 	}
 
@@ -288,14 +288,13 @@ public class HeapDomain implements Domain<Store, Stmt, BoolExpr> {
 		return result;
 	}
 
-	protected void addBasicIntGuards(List<Plan<Store, Stmt>> plans, List<BoolExpr> result) {
-		// Collect all of the integers constants into a single set.
-		final var intVals = new HashSet<IntVal>();
+	public static Set<IntVal> collectIntValsFromStores(List<Plan<Store, Stmt>> plans) {
+		final var result = new HashSet<IntVal>();
 		for (final var plan : plans) {
 			for (final Store store : plan.states()) {
 				for (final Val v : store.env.values()) {
 					if (v instanceof IntVal) {
-						intVals.add((IntVal) v);
+						result.add((IntVal) v);
 					}
 				}
 				for (final Obj o : store.objects) {
@@ -304,26 +303,45 @@ public class HeapDomain implements Domain<Store, Stmt, BoolExpr> {
 							Val v = store.eval(o, field);
 							if (v != null) {
 								IntVal iv = (IntVal) v;
-								intVals.add(iv);
+								result.add(iv);
 							}
 						}
 					}
 				}
 			}
 		}
+		return result;
+	}
 
-		// TODO: add numbers explicitly appearing in statements.
+	public static Set<IntVal> collectIntValsFromStmts(List<Plan<Store, Stmt>> plans) {
+		final var result = new HashSet<IntVal>();
+		for (final Plan<Store, Stmt> plan : plans) {
+			for (final Stmt stmt : plan.actions()) {
+				stmt.accept(new PWhileVisitor() {
+					public void visit(IntVal val) {
+						result.add(val);
+					}
+				});
+			}
+		}
+		return result;
+	}
+
+	protected void addBasicIntGuards(List<Plan<Store, Stmt>> plans, List<BoolExpr> result) {
+		// Collect all of the integers constants into a single set.
+		final var storeVals = collectIntValsFromStores(plans);
+		final var stmtVals = collectIntValsFromStmts(plans);
 
 		// No use generating guards, since they will not be able to separate
 		// stores that have no integer values.
-		if (intVals.isEmpty()) {
+		if (storeVals.isEmpty() && stmtVals.isEmpty()) {
 			return;
 		}
 
 		// Leave only the maximal and minimal numbers.
-		var min = intVals.iterator().next();
-		var max = intVals.iterator().next();
-		for (var val : intVals) {
+		var min = storeVals.iterator().next();
+		var max = min;
+		for (var val : storeVals) {
 			if (val.num < min.num) {
 				min = val;
 			}
@@ -331,11 +349,13 @@ public class HeapDomain implements Domain<Store, Stmt, BoolExpr> {
 				max = val;
 			}
 		}
-		intVals.clear();
-		intVals.add(min);
-		intVals.add(max);
-		intVals.add(new IntVal(0));
-		intVals.add(new IntVal(1));
+		storeVals.clear();
+		//storeVals.add(min);
+		//storeVals.add(max);
+		storeVals.add(new IntVal(0));
+		storeVals.add(new IntVal(1));
+		final var intVals = new HashSet<IntVal>(storeVals);
+		intVals.addAll(stmtVals);
 
 		final var intExprs = new ArrayList<Expr>();
 		// Add variables and variable-field-dereference expressions as basic

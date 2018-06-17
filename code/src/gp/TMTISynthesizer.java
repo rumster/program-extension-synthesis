@@ -17,6 +17,7 @@ import gp.Domain.Update;
 import gp.Domain.Value;
 import gp.planning.Planner;
 import gp.separation.ConditionInferencer;
+import gp.separation.DTreeInferencer;
 import gp.separation.ID3Inferencer;
 import gp.separation.LinearInferencer;
 import gp.tmti.Automaton;
@@ -69,6 +70,8 @@ public class TMTISynthesizer<ValueType extends Value, UpdateType extends Update,
 		ConditionInferencer<ValueType, UpdateType, GuardType> separator;
 		if (config.getString("gp.separator", "").equals("ID3")) {
 			separator = new ID3Inferencer<ValueType, UpdateType, GuardType>(problem.domain(), trainingPlans);
+		} else if (config.getString("gp.separator", "").equals("dtree")) {
+			separator = new DTreeInferencer<ValueType, UpdateType, GuardType>(problem.domain(), trainingPlans);
 		} else {
 			separator = new LinearInferencer<ValueType, UpdateType, GuardType>(problem.domain(), trainingPlans);
 		}
@@ -91,6 +94,9 @@ public class TMTISynthesizer<ValueType extends Value, UpdateType extends Update,
 		return learningResult;
 	}
 
+	/**
+	 * Converts examples to plans.
+	 */
 	protected Map<Example<ValueType, UpdateType>, Plan<ValueType, UpdateType>> genPlans(
 			SynthesisProblem<ValueType, UpdateType, GuardType> problem) {
 		var exampleToPlan = new LinkedHashMap<Example<ValueType, UpdateType>, Plan<ValueType, UpdateType>>();

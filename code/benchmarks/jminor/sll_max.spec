@@ -30,6 +30,16 @@ findMax(head:SLL) -> (t:SLL) {
   }
 
   example {
+    [head==o0 && o0.n==o1 && o1.n==null &&
+     o0.d==-7 && o1.d==-9] -> ...
+  }
+
+  example {
+    [head==o0 && o0.n==o1 && o1.n==null &&
+     o0.d==1000 && o1.d==-7] -> ...
+  }
+
+  example {
     [head==o0 && o0.n==o1 && o1.n==o2 && o2.n==null &&
      o0.d==1 && o1.d==3 && o2.d==4] -> ...
   }
@@ -44,7 +54,7 @@ findMax(head:SLL) -> (t:SLL) {
     [head==o0 && o0.n==null && o0.d==5] -> ...
   }
 
-  example {
+  test example {
     [head==o0 && o0.n==o1 && o1.n==o2 && o2.n==null &&
      o0.d==1 && o1.d==-2 && o2.d==3] -> ...
   }

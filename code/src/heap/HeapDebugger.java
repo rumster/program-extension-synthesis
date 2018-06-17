@@ -13,6 +13,7 @@ import bgu.cs.util.STGLoader;
 import bgu.cs.util.Union2;
 import gp.Domain.Guard;
 import gp.Domain.Update;
+import gp.tmti.Automaton;
 import gp.Example;
 import gp.GPDebugger;
 import gp.Plan;
@@ -29,14 +30,29 @@ public class HeapDebugger extends GPDebugger<Store, Stmt, BoolExpr> {
 
 	protected STGLoader heapTemplates = new STGLoader(HeapDebugger.class);
 	
-	private final Configuration config;
+	private final boolean printPlans;
+	private final boolean printExamples;
+	private final boolean printAutomata;
 
 	public HeapDebugger(Configuration config, Logger logger, String title, String outputDirPath) {
 		super(logger, title, outputDirPath);
-		this.config = config;
+		printPlans = config.getBoolean("gp.visualizePlans", true);
+		printExamples = config.getBoolean("gp.visualizeExamples", true);
+		printAutomata = config.getBoolean("gp.visualizeAutomata", true);		
+	}
+	
+	@Override
+	public void printAutomaton(Automaton automaton, String description) {
+		if (!printAutomata) {
+			return;
+		}
+		super.printAutomaton(automaton, description);
 	}
 
 	public boolean printExamples(List<Example<Store, Stmt>> examples) {
+		if (!printExamples) {
+			return true;
+		}
 		logger.info("Visualizing examples...");
 		Logger examplesLogger = logDetailedExampleRendering ? logger : null;
 		ST exampleListTemplate = heapTemplates.load("examples");
@@ -74,8 +90,7 @@ public class HeapDebugger extends GPDebugger<Store, Stmt, BoolExpr> {
 	}
 
 	@Override
-	public void printPlan(Plan<Store, Stmt> plan, int planIndex) {
-		var printPlans = config.getBoolean("gp.visualizePlans", true);
+	public void printPlan(Plan<Store, Stmt> plan, int planIndex) {		
 		if (!printPlans) {
 			return;
 		}

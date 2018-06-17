@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.logging.Logger;
 
 import bgu.cs.util.graph.MultiGraph.Edge;
+import bgu.cs.util.rel.HashRel2;
 import gp.Domain;
 import gp.Domain.Guard;
 import gp.Domain.Update;
@@ -147,6 +148,7 @@ public class TMTI<ValueType extends Value, UpdateType extends Update, GuardType 
 		}
 
 		var deterministic = assignGuards(automaton);
+		//var deterministic = assignGuardsOld(automaton);
 		debugger.printAutomaton(automaton,
 				"After folding with k=" + lookaheadLength + ":" + (deterministic ? "success" : "failure"));
 		return deterministic ? Optional.of(automaton) : Optional.empty();
@@ -223,6 +225,33 @@ public class TMTI<ValueType extends Value, UpdateType extends Update, GuardType 
 			if (automaton.outDegree(state) <= 1)
 				continue;
 
+			var updateToValue = new HashRel2<Update, Value>();
+			state.updateToValues().forEach((update, values) -> {				
+				for (var value : values) {
+					updateToValue.add(update, value);
+				}
+			});
+			var optUpdateToGuard = separator.infer(updateToValue);
+			if (!optUpdateToGuard.isPresent()) {
+				return false;
+			}
+			var updateToGuard = optUpdateToGuard.get();
+
+			// All guards exist, now set them for each action.
+			for (Edge<State, Action> edge : automaton.succEdges(state)) {
+				var action = edge.getLabel();
+				var guard = updateToGuard.get(action.update);
+				action.setGuard(guard);
+			}
+		}
+		return true;
+	}
+	
+	protected boolean assignGuardsOld(Automaton automaton) {
+		for (var state : automaton.getNodes()) {
+			if (automaton.outDegree(state) <= 1)
+				continue;
+
 			var updates = new ArrayList<Update>();
 			List<Collection<? extends Value>> updateValues = new ArrayList<>();
 			state.updateToValues().forEach((update, values) -> {
@@ -247,7 +276,7 @@ public class TMTI<ValueType extends Value, UpdateType extends Update, GuardType 
 			for (Edge<State, Action> edge : automaton.succEdges(state)) {
 				var action = edge.getLabel();
 				var guard = updateToGuard.get(action.update);
-				action.setGuarde(guard);
+				action.setGuard(guard);
 			}
 		}
 		return true;
