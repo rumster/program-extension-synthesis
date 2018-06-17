@@ -5,7 +5,7 @@
     Application build file
   =======================================================================
 -->
-<project name="Generalized Planning" default="build" basedir=".">
+<project name="Program Extension Synthesis" default="build" basedir=".">
 	<!-- Set global properties for this build -->
 	<property name="src" value="src" />
 	<property name="lib" value="lib" />
@@ -28,7 +28,7 @@
 	         Generates the heap parser
 	       ===================================================================
 	  -->
-	<target name="heap parser" depends="heap scanner" description="-> generates the heap parser">
+	<target name="jminor parser" depends="jminor scanner" description="-> generates the jminor parser">
 		<delete file="${src}/heap/ast/Parser.java" />
 		<delete file="${src}/heap/ast/sym.java" />
 
@@ -59,7 +59,7 @@
 	         Generates the heap scanner
 	       ===================================================================
 	  -->
-	<target name="heap scanner" depends="init" description="-> generates the heap scanner">
+	<target name="jminor scanner" depends="init" description="-> generates the jminor scanner">
 		<delete file="${src}/heap/ast/HeapLexer.java" />
 
 		<java classname="jflex.Main" classpath="${lib}/jflex-1.6.1.jar">
@@ -96,7 +96,7 @@
   -->
 	<target name="javadocs" depends="init" description="-> creates javadocs">
 		<javadoc packagenames="gp.*, heap*" sourcepath="src" classpath="${lib}/java_cup.jar; ${lib}/ST-4.0.8.jar; ${lib}/smtinterpol-2.1-335-g4c543a5.jar; ${lib}/commons-configuration2-2.0.jar; 
-			${lib}/commons-exec-1.3.jar; ${lib}/trove-3.0.3.jar; ${lib}/Util.jar" defaultexcludes="yes" destdir="${javadocs}" author="true" version="true" use="true" windowtitle="Generalized Planning">
+			${lib}/commons-exec-1.3.jar; ${lib}/trove-3.0.3.jar; ${lib}/Util.jar" defaultexcludes="yes" destdir="${javadocs}" author="true" version="true" use="true" windowtitle="Program Extension Synthesizer">
 		</javadoc>
 	</target>
 
@@ -131,12 +131,12 @@
 			<attribute name="Built-By" value="${user.name}" />
 			<attribute name="Main-Class" value="heap.Main" />
 			<attribute name="Class-Path" value="${lib}/jflex-1.6.1.jar ${lib}/java_cup.jar ${lib}/java-cup-11b-runtime.jar ${lib}/Util.jar ${lib}/ST-4.0.8.jar" />
-			<section name="GeneralizedPlanning">
+			<section name="PexSyn">
 				<attribute name="Implementation-Version" value="${TODAY}" />
 			</section>
 		</manifest>
 
-		<jar destfile="GeneralizedPlanning.jar" basedir="${build}" manifest="MANIFEST.MF" />
+		<jar destfile="pexyn.jar" basedir="${build}" manifest="MANIFEST.MF" />
 	</target>
 
 	<!--
@@ -147,7 +147,7 @@
 	<target name="clean" description="-> cleans up build and dist directories">
 		<delete dir="${build}" />
 		<delete dir="${javadocs}" />
-		<delete file="LogicTools.jar" />
+		<delete file="pexyn.jar" />
 		<delete file="MANIFEST.MF" />
 	</target>
 </project>
