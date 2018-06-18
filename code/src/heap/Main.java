@@ -26,8 +26,8 @@ import heap.jsupport.AutomatonBackend;
 public class Main {
 	protected final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
-	private static final String OUTPUT_DIR_KEY = "outputDir";
-	private static final String PROPERTIES_FILE_NAME = "gp.properties";
+	private static final String OUTPUT_DIR_KEY = "pexyn.outputDir";
+	private static final String PROPERTIES_FILE_NAME = "pexyn.properties";
 
 	private String outputDirPath = null;
 
@@ -124,7 +124,7 @@ public class Main {
 	}
 
 	private void setOutputDirectory() {
-		var outputDirProp = config.getString("outputDir", "output");
+		var outputDirProp = config.getString("pexyn.outputDir", "output");
 		var outputDirFile = new File(outputDirProp);
 		outputDirFile.mkdir();
 		String outputDirPath;

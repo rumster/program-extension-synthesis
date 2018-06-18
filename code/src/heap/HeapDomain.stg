@@ -7,7 +7,7 @@ Variables = {
   $vars; separator="\n"$
 }
 
-Actions = {
+Commands = {
   $actions; separator="\n"$
 }
 >>

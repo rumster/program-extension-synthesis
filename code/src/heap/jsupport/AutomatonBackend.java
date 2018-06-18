@@ -108,7 +108,7 @@ public class AutomatonBackend {
 		var text = classFileST.render();
 		debugger.addCodeFile("implementation.txt", text, "A Java implementation");
 		FileUtils.stringToFile(text,
-				config.getString("implementationDir", "output") + File.separator + classFileName);
+				config.getString("pexyn.implementationDir", ".") + File.separator + classFileName);
 	}
 
 	public static enum TransitionType {

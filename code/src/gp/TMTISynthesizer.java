@@ -55,7 +55,7 @@ public class TMTISynthesizer<ValueType extends Value, UpdateType extends Update,
 		this.planner = planner;
 		this.logger = logger;
 		this.debugger = debugger;
-		maxTraceLength = config.getInt("gp.maxTraceLength", 200);
+		maxTraceLength = config.getInt("pexyn.maxTraceLength", 200);
 	}
 
 	public Result synthesize(SynthesisProblem<ValueType, UpdateType, GuardType> problem) {
@@ -68,9 +68,10 @@ public class TMTISynthesizer<ValueType extends Value, UpdateType extends Update,
 		});
 
 		ConditionInferencer<ValueType, UpdateType, GuardType> separator;
-		if (config.getString("gp.separator", "").equals("ID3")) {
+		var guardInfAlgName = config.getString("pexyn.guardInferenceAlgorithm", "");
+		if (guardInfAlgName.equals("ID3")) {
 			separator = new ID3Inferencer<ValueType, UpdateType, GuardType>(problem.domain(), trainingPlans);
-		} else if (config.getString("gp.separator", "").equals("dtree")) {
+		} else if (guardInfAlgName.equals("dtree")) {
 			separator = new DTreeInferencer<ValueType, UpdateType, GuardType>(problem.domain(), trainingPlans);
 		} else {
 			separator = new LinearInferencer<ValueType, UpdateType, GuardType>(problem.domain(), trainingPlans);
@@ -176,7 +177,7 @@ public class TMTISynthesizer<ValueType extends Value, UpdateType extends Update,
 	}
 
 	protected void debugPrintGuards(Collection<GuardType> guards) {
-		final var maxGuardPrintCount = config.getInt("gp.printGuardCountBound", -1);
+		final var maxGuardPrintCount = config.getInt("pexyn.printGuardCountBound", -1);
 		var txt = new StringBuilder();
 		txt.append("#guards=" + guards.size());
 		txt.append("\n=============\n");

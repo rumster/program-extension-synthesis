@@ -147,7 +147,7 @@ public class HeapDomain implements Domain<Store, Stmt, BoolExpr> {
 		Collection<Stmt> result = new ArrayList<>();
 
 		// Generate variable-to-variable assignments.
-		for (Var lhs : vars) {
+		for (Var lhs : refVars) {
 			if (lhs.readonly) {
 				continue;
 			}
@@ -200,23 +200,35 @@ public class HeapDomain implements Domain<Store, Stmt, BoolExpr> {
 				lvars.add(varExpr);
 			}
 		}
-		rvals.add(new ValExpr(new IntVal(0)));
-		rvals.add(new ValExpr(new IntVal(1)));
+		var zeroExpr = new ValExpr(new IntVal(0));
+		var oneExpr = new ValExpr(new IntVal(1));
+		rvals.add(zeroExpr);
+		rvals.add(oneExpr);
 
 		for (var lhs : lvars) {
 			for (var first : rvals) {
+				if (lhs != first) {
+					result.add(new AssignStmt(lhs, first));
+				}
 				for (var second : rvals) {
 					if (first instanceof ValExpr && second instanceof ValExpr) {
 						continue;
 					}
-					var rhs = new IntBinOpExpr(IntBinOp.PLUS, first, second);
-					result.add(new AssignStmt(lhs, rhs));
-					rhs = new IntBinOpExpr(IntBinOp.MINUS, first, second);
-					result.add(new AssignStmt(lhs, rhs));
-					rhs = new IntBinOpExpr(IntBinOp.TIMES, first, second);
-					result.add(new AssignStmt(lhs, rhs));
-					rhs = new IntBinOpExpr(IntBinOp.DIVIDE, first, second);
-					result.add(new AssignStmt(lhs, rhs));
+					Expr rhs = null;
+					if (second != zeroExpr) {
+						rhs = new IntBinOpExpr(IntBinOp.PLUS, first, second);
+						result.add(new AssignStmt(lhs, rhs));
+					}
+					if (second != zeroExpr && second != oneExpr) {
+						rhs = new IntBinOpExpr(IntBinOp.TIMES, first, second);
+						result.add(new AssignStmt(lhs, rhs));
+					}
+					if (first != second && second != zeroExpr) {
+						rhs = new IntBinOpExpr(IntBinOp.MINUS, first, second);
+						result.add(new AssignStmt(lhs, rhs));
+						rhs = new IntBinOpExpr(IntBinOp.DIVIDE, first, second);
+						result.add(new AssignStmt(lhs, rhs));
+					}
 				}
 			}
 		}
@@ -350,8 +362,8 @@ public class HeapDomain implements Domain<Store, Stmt, BoolExpr> {
 			}
 		}
 		storeVals.clear();
-		//storeVals.add(min);
-		//storeVals.add(max);
+		// storeVals.add(min);
+		// storeVals.add(max);
 		storeVals.add(new IntVal(0));
 		storeVals.add(new IntVal(1));
 		final var intVals = new HashSet<IntVal>(storeVals);

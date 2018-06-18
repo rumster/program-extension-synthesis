@@ -36,9 +36,9 @@ public class HeapDebugger extends GPDebugger<Store, Stmt, BoolExpr> {
 
 	public HeapDebugger(Configuration config, Logger logger, String title, String outputDirPath) {
 		super(logger, title, outputDirPath);
-		printPlans = config.getBoolean("gp.visualizePlans", true);
-		printExamples = config.getBoolean("gp.visualizeExamples", true);
-		printAutomata = config.getBoolean("gp.visualizeAutomata", true);		
+		printPlans = config.getBoolean("pexyn.visualizePlans", true);
+		printExamples = config.getBoolean("pexyn.visualizeExamples", true);
+		printAutomata = config.getBoolean("pexyn.visualizeAutomata", true);		
 	}
 	
 	@Override
