@@ -1,6 +1,6 @@
 package grammar;
 
-import heap.IntField;
+import jminor.IntField;
 
 /**
  * A cost function that returns the number of states in the tree.

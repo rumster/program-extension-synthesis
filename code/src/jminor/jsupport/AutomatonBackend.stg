@@ -1,0 +1,57 @@
+ClassFile(className, methodName, returnArg, args, locals, states, stateCodes) ::= <<
+/** Automatically-generated code.
+ */
+public class $className$ {
+  private static enum State {
+    $states; separator=",\n"$
+  };
+
+  /** Synthesized method.
+   */
+  public static $if(returnArg)$$returnArg.type$$else$void$endif$ run($args:{it|$it.type$ $it.name$}; separator=", "$) {
+    $locals:{it|$it.type$ $it.name$ = $it.defaultVal$;}; separator="\n"$
+    $if(returnArg)$$returnArg.type$ $returnArg.name$  = $returnArg.defaultVal$;$else$$endif$
+    
+    State _state = State.ENTRY;
+    while (_state != State.EXIT) {
+      switch (_state) {
+        $stateCodes; separator="\n"$
+        case EXIT: // Unreachable.        
+      }
+    }
+    $if(returnArg)$return $returnArg.name$;$endif$
+  }
+}
+>>
+
+StateCode(name, transitions) ::= <<
+case $name$:
+  $transitions; separator="\n"$
+  break;
+>>
+
+IfTransition(succ, guard, update) ::= <<
+if ($guard$) {
+  $update$
+  _state = State.$succ$;
+}
+>>
+
+ElseIfTransition(succ, guard, update) ::= <<
+else if ($guard$) {
+  $update$
+  _state = State.$succ$;
+}
+>>
+
+ElseTransition(succ, update) ::= <<
+else {
+  $update$
+  _state = State.$succ$;
+}
+>>
+
+UpdateTransition(succ, update) ::= <<
+$update$
+_state = State.$succ$;
+>>

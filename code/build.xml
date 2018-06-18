@@ -25,49 +25,49 @@
 
 	<!--
 	       ===================================================================
-	         Generates the heap parser
+	         Generates the Jminor parser
 	       ===================================================================
 	  -->
 	<target name="jminor parser" depends="jminor scanner" description="-> generates the jminor parser">
-		<delete file="${src}/heap/ast/Parser.java" />
-		<delete file="${src}/heap/ast/sym.java" />
+		<delete file="${src}/jminor/ast/Parser.java" />
+		<delete file="${src}/jminor/ast/sym.java" />
 
 		<java classname="java_cup.Main" classpath="${lib}/java_cup.jar">
 			<arg value="-parser" />
-			<arg value="HeapParser" />
+			<arg value="JminorParser" />
 			<arg value="-package" />
-			<arg value="heap.ast" />
+			<arg value="jminor.ast" />
 			<arg value="-symbols" />
-			<arg value="HeapSym" />
-			<arg value="${src}/heap/ast/heap.cup" />
+			<arg value="JminorSym" />
+			<arg value="${src}/jminor/ast/jminor.cup" />
 		</java>
 
-		<move file="HeapParser.java" tofile="${src}/heap/ast/HeapParser.java" />
-		<move file="HeapSym.java" tofile="${src}/heap/ast/HeapSym.java" />
+		<move file="JminorParser.java" tofile="${src}/jminor/ast/JminorParser.java" />
+		<move file="JminorSym.java" tofile="${src}/jminor/ast/JminorSym.java" />
 
-		<replace file="${src}/heap/ast/HeapParser.java" value='@SuppressWarnings({"rawtypes", "unused", "unchecked"}) class CUP$HeapParser$actions'>
-			<replacetoken>class CUP$HeapParser$actions</replacetoken>
+		<replace file="${src}/jminor/ast/JminorParser.java" value='@SuppressWarnings({"rawtypes", "unused", "unchecked"}) class CUP$JminorParser$actions'>
+			<replacetoken>class CUP$JminorParser$actions</replacetoken>
 		</replace>
-		<replace file="${src}/heap/ast/HeapParser.java" value='@SuppressWarnings({"rawtypes", "unused"}) public class HeapParser'>
-			<replacetoken>public class HeapParser</replacetoken>
+		<replace file="${src}/jminor/ast/JminorParser.java" value='@SuppressWarnings({"rawtypes", "unused"}) public class JminorParser'>
+			<replacetoken>public class JminorParser</replacetoken>
 		</replace>
 
 	</target>
 
 	<!--
 	       ===================================================================
-	         Generates the heap scanner
+	         Generates the Jminor scanner
 	       ===================================================================
 	  -->
 	<target name="jminor scanner" depends="init" description="-> generates the jminor scanner">
-		<delete file="${src}/heap/ast/HeapLexer.java" />
+		<delete file="${src}/jminor/ast/JminorLexer.java" />
 
 		<java classname="jflex.Main" classpath="${lib}/jflex-1.6.1.jar">
-			<arg value="${src}/heap/ast/heap.lex" />
+			<arg value="${src}/jminor/ast/jminor.lex" />
 		</java>
 
-		<replace file="${src}/heap/ast/HeapLexer.java" value='@SuppressWarnings(value={"all"}) public class HeapLexer'>
-			<replacetoken>public class HeapLexer</replacetoken>
+		<replace file="${src}/jminor/ast/JminorLexer.java" value='@SuppressWarnings(value={"all"}) public class JminorLexer'>
+			<replacetoken>public class JminorLexer</replacetoken>
 		</replace>
 	</target>
 
@@ -95,7 +95,7 @@
        ===================================================================
   -->
 	<target name="javadocs" depends="init" description="-> creates javadocs">
-		<javadoc packagenames="gp.*, heap*" sourcepath="src" classpath="${lib}/java_cup.jar; ${lib}/ST-4.0.8.jar; ${lib}/smtinterpol-2.1-335-g4c543a5.jar; ${lib}/commons-configuration2-2.0.jar; 
+		<javadoc packagenames="gp.*, jminor.*" sourcepath="src" classpath="${lib}/java_cup.jar; ${lib}/ST-4.0.8.jar; ${lib}/smtinterpol-2.1-335-g4c543a5.jar; ${lib}/commons-configuration2-2.0.jar; 
 			${lib}/commons-exec-1.3.jar; ${lib}/trove-3.0.3.jar; ${lib}/Util.jar" defaultexcludes="yes" destdir="${javadocs}" author="true" version="true" use="true" windowtitle="Program Extension Synthesizer">
 		</javadoc>
 	</target>
@@ -129,7 +129,7 @@
 		<!-- Create a manifest for the jar file -->
 		<manifest file="MANIFEST.MF">
 			<attribute name="Built-By" value="${user.name}" />
-			<attribute name="Main-Class" value="heap.Main" />
+			<attribute name="Main-Class" value="jminor.Main" />
 			<attribute name="Class-Path" value="${lib}/jflex-1.6.1.jar ${lib}/java_cup.jar ${lib}/java-cup-11b-runtime.jar ${lib}/commons-configuration2-2.0.jar ${lib}/commons-logging-1.2.jar ${lib}/commons-beanutils-1.9.2.jar ${lib}/commons-lang3-3.4.jar ${lib}/ST-4.0.8.jar ${lib}/trove-3.0.3.jar ${lib}/Util.jar" />
 			<section name="PexSyn">
 				<attribute name="Implementation-Version" value="${TODAY}" />

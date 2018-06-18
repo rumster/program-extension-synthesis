@@ -1,9 +1,9 @@
 package grammar;
 
-import heap.DerefExpr;
-import heap.EqExpr;
-import heap.LtExpr;
-import heap.NotExpr;
+import jminor.DerefExpr;
+import jminor.EqExpr;
+import jminor.LtExpr;
+import jminor.NotExpr;
 
 /**
  * A cost function that fines selected "bad" conditions by assigning them a very

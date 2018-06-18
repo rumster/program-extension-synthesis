@@ -1,0 +1,148 @@
+indexedExample(step, id, isTest) ::= <<
+<div id="example$id$" style="display:none;">
+<table>
+  <caption>Example $id$$if(isTest)$ (test)$else$ (training)$endif$</caption>
+  $step:{it|<tr><td>$it$</td></tr>}; separator="\n"$
+</table>
+</div>
+>>
+
+image(name) ::= <<
+<img src="$name$">
+>>
+
+code(txt) ::= <<
+<code>$txt$</code>
+>>
+
+examples(indexedExample, indices) ::= <<
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN"
+   "http://www.w3.org/TR/html4/frameset.dtd">
+<HTML>
+<HEAD>
+<TITLE>Examples</TITLE>
+
+<script type="text/javascript">
+var currOption = 0;
+var lastChosenId = null;
+var lastChosenStyle = null;
+
+function choose(id) {
+  var menu = [$indices:{it|"example$it$"}; separator=", "$];
+  lastChosenId = document.getElementById(id);
+
+  for (i = 0; i < menu.length; i++) {
+    currOption = menu[i];
+    var elt = document.getElementById(currOption);
+    var opElt = document.getElementById(currOption);
+    if (currOption == id && elt.style.display == "none") {
+      elt.style.display = "block";
+    }
+    else {
+      elt.style.display = "none";
+    }
+  }
+}
+</script>
+
+
+<style>
+table, th, td {
+    border: 1px solid black;
+    border-collapse: collapse;
+}
+</style>
+</HEAD>
+<BODY>
+
+<div id="menu" style="width:100%;">
+Examples: $indices:{it|<a id="$it$" href="#" onclick="choose('example$it$')">$it$</a>}; separator="\n"$
+</div>
+
+<hr>
+
+$indexedExample; separator="\n\n"$
+
+<script type="text/javascript">
+choose('example0');
+</script>
+</BODY>
+</HTML>
+>>
+
+plan(planIndex, indexedStore, indexedAction) ::= <<
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN"
+   "http://www.w3.org/TR/html4/frameset.dtd">
+<HTML>
+<HEAD>
+<TITLE>Plan</TITLE>
+
+<script type="text/javascript">
+var currOption = 0;
+var lastChosenId = null;
+var lastChosenStyle = null;
+
+function choose(id) {
+  var menu = [$indexedAction:{it|"store_$it.second$"}; separator=", "$];
+  lastChosenId = document.getElementById(id);
+
+  for (i = 0; i < menu.length; i++) {
+    currOption = menu[i];
+    var elt = document.getElementById(currOption);
+    var opElt = document.getElementById(currOption);
+    var actionElt = document.getElementById("action_" + i);
+    if (currOption == id && elt.style.display == "none") {
+      elt.style.display = "block";
+      actionElt.style.backgroundColor = "blue";
+      actionElt.style.color = "white";      
+    }
+    else {
+      elt.style.display = "none";
+      actionElt.style.backgroundColor = "white";
+      actionElt.style.color = "black";      
+    }
+  }
+}
+</script>
+
+<style>
+td, tr {
+    vertical-align: top;
+}
+</style>
+</HEAD>
+<BODY>
+
+<div style="overflow-y:auto; vertical-align: top;">
+<TABLE>
+<TR>
+<TH>Plan</TH>
+<TH align="center">Store</TH>
+</TR>
+<TR>
+<TD>
+<TABLE>
+$indexedAction:{it|<TR><TD><a id="$it.second$" href="#" onclick="choose('store_$it.second$')">$it.second$:</a></TD><TD id="action_$it.second$">$it.first$</TD></TR>}; separator="\n"$
+</TABLE>
+</TD>
+<TD align="center">
+$indexedStore:{it|$indexedStoreDiv(it.first, it.second)$}; separator="\n\n"$
+</TD>
+</TR>
+</TABLE>
+</div>
+
+<script type="text/javascript">
+choose('store_0');
+</script>
+
+</BODY>
+</HTML>
+>>
+
+indexedStoreDiv(filename, index) ::= <<
+<div id="store_$index$" style="display:none; border:solid;">
+<!-- <object data="$filename$" type="image/svg+xml"/> -->
+<img src="$filename$">
+</div>
+>>

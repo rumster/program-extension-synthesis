@@ -1,0 +1,29 @@
+Store(vars, refObjs, heap) ::= <<
+($vars, refObjs:{var, obj|$var$=$obj$}; separator=" "$$if(heap)$ $heap; separator=" "$$endif$)
+>>
+
+Fields(obj, fields, succs) ::= <<
+$fields, succs:{field, succ|$obj$.$field$=$succ$}; separator=" "$
+>>
+
+StoreDOT(objects, refVarNodes, refVarVals, nonRefVarVals, refFields) ::= <<
+digraph store {
+  $if(objects)$null [shape=plaintext];$endif$
+  $objects:{it|$it.first$ [label="$it.second$", shape=box];}; separator="\n"$
+  $refVarNodes:{it|$it$ [label="$it$", shape=plaintext];}; separator="\n"$
+  $refVarVals:{it|$it.first$ -> $it.second$;}; separator="\n"$
+  $nonRefVarVals:{it|$it.first$ [label="$it.second$", shape=plaintext];}; separator="\n"$
+  $refFields:{it|$it.e1$ -> $it.e2$ [label="$it.e3$"];}; separator="\n"$
+}
+>>
+
+objectContent(name, vals) ::= <<
+$name$
+$vals; separator="\n"$
+>>
+
+ErrorStore(message) ::= <<
+digraph error_store {
+ n [label="$message$", shape=plaintext]
+}
+>>

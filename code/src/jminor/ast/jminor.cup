@@ -1,0 +1,362 @@
+// @author Roman Manevich.
+package jminor.ast;
+
+import java.io.*;
+import java.util.*;
+
+import jminor.ast.Token;
+import jminor.IntBinOp;
+
+import java_cup.runtime.Symbol;
+
+/** A parser for Jminor synthesis problems.
+ * @author Roman Manevich
+ */
+parser code {:
+   private JminorLexer lexer;
+    
+   /**
+    * Parses the file with the given name and returns the corresponding abstract syntax tree.
+    */
+   public ASTProblem parseFile(String file) throws SyntaxError, FileNotFoundException, Exception {
+	lexer = new JminorLexer(new FileReader(file));
+	JminorParser parser = new JminorParser(lexer);
+	Symbol root = parser.parse();
+	return (ASTProblem) root.value;
+  }
+  	
+  @Override	
+  public void report_fatal_error(String message, Object info) throws SyntaxError {
+    Token token = (Token) info;
+    throw new SyntaxError("on " + token.text, token.line, token.column);
+  }
+:}
+
+terminal TYPE, VAR, NULL, EXAMPLE, TEST, MUT, GHOST;
+terminal IF, WHILE, ELSE;
+terminal COMMA, SEMI, DOT, ASSIGN, COLON, ARROW, ELLIPSIS, LP, RP, LB, RB, LCB, RCB;
+terminal EQ, NEQ, LT, LEQ, GT, GEQ, AND, OR, NOT, PLUS, MINUS, TIMES, DIVIDE;
+		
+terminal Integer INT_VAL; 
+terminal String ID;
+
+// Provides a list of statements the highest precedence.
+terminal STMT_LIST;
+
+// Unfortunately, CUP doesn't recognize generic types.
+// Therefore, all lists are untyped.
+		
+nonterminal ASTProblem problem;
+nonterminal List elemList; // <AST>
+nonterminal AST elem;
+nonterminal ASTRefType typeDef;
+nonterminal List fields; // <ASTDeclField>
+nonterminal List optionalFields; // <ASTDeclField>
+nonterminal ASTDeclField field;
+nonterminal ASTFun funDef;
+nonterminal ASTVarDecl inputArg;
+nonterminal List inputArgs; // <ASTVarDecl>
+nonterminal List outputArgs; // <ASTVarDecl>
+nonterminal List optionalInputArgs; // <ASTVarDecl>
+nonterminal List optionalOutputArgs; // <ASTVarDecl>
+nonterminal List temps; // <ASTVar>
+nonterminal List optionalTemps; // <ASTVarDecl>
+nonterminal ASTVarDecl temp;
+nonterminal ASTVarDecl var;
+nonterminal List examples; // <ASTExample>
+nonterminal List optionalExamples; // <ASTExample>
+nonterminal ASTExample example;
+nonterminal List exampleSteps; // <ASTStep>
+nonterminal ASTStep step;
+nonterminal ASTStmt stmt;
+nonterminal ASTExpr expr;
+nonterminal ASTStore store;
+nonterminal AST storeVal;
+nonterminal List jminorElems; // <ASTfieldVal>
+
+precedence nonassoc NOT;
+precedence left OR;
+precedence left AND;
+precedence left EQ;
+precedence nonassoc NEQ;
+precedence nonassoc GT;
+precedence nonassoc GEQ;
+precedence nonassoc LT;
+precedence nonassoc LEQ;
+precedence left DOT;
+precedence left MINUS;
+precedence left PLUS;
+precedence left TIMES;
+precedence left DIVIDE;
+precedence right SEMI;
+
+precedence right STMT_LIST;
+
+///////////////////////////////////////////////////
+// Productions
+
+problem ::= elemList:elements
+	{: RESULT = new ASTProblem(elements); :}
+;
+
+elemList ::= elem:e
+	{: RESULT = new ArrayList<AST>();
+	   RESULT.add(e);
+    :}
+	| elemList:prefix elem:e
+	{: prefix.add(e);
+	   RESULT = prefix;
+	:}
+;
+
+elem ::= typeDef:e
+	{: RESULT = e; :}
+	| funDef:e
+	{: RESULT = e; :}
+;
+
+typeDef ::= TYPE ID:name LCB optionalFields:fields RCB
+	{: RESULT = new ASTRefType(name, fields); :}
+;
+
+optionalFields ::= 
+	{: RESULT = new ArrayList<ASTDeclField>(); :}
+	| fields:fields
+	{: RESULT = fields; :}
+;
+
+fields ::= field:f
+	{: RESULT = new ArrayList<ASTDeclField>();
+	   RESULT.add(f);
+	:}
+	| fields:prefix field:f
+	{: prefix.add(f);
+	   RESULT = prefix;
+	:}
+;
+
+field ::= ID:name COLON ID:type
+	{: RESULT = new ASTDeclField(name, type, false); :}
+	| GHOST ID:name COLON ID:type
+	{: RESULT = new ASTDeclField(name, type, true); :}
+;
+
+funDef ::= ID:name LP optionalInputArgs:inargs RP ARROW 
+           LP optionalOutputArgs:outargs RP LCB
+           optionalTemps:temps
+           optionalExamples:examples
+           RCB
+	{: RESULT = new ASTFun(name, inargs, outargs, temps, null, examples); :}
+	| ID:name LP optionalInputArgs:inargs RP ARROW 
+           LP optionalOutputArgs:outargs RP LCB
+           optionalTemps:temps
+           stmt:prog 
+           optionalExamples:examples
+           RCB
+	{: RESULT = new ASTFun(name, inargs, outargs, temps, prog, examples); :}
+	
+;
+
+optionalInputArgs ::= 
+	{: RESULT = new ArrayList<ASTVarDecl>(); :}
+	| inputArgs:args
+	{: RESULT = args; :}
+;
+
+optionalOutputArgs ::= 
+	{: RESULT = new ArrayList<ASTVarDecl>(); :}
+	| outputArgs:args
+	{: RESULT = args; :}
+;
+
+inputArg ::= var:a
+	{: a.readonly = true;
+	   RESULT = a;
+	:}
+	| MUT var:a
+	{: a.readonly = false;
+	   RESULT = a;
+	:}
+;
+
+inputArgs ::= inputArg:a
+	{: RESULT = new ArrayList<ASTVarDecl>();
+	   RESULT.add(a);
+	:}
+	| inputArgs:prefix COMMA inputArg:a
+	{: prefix.add(a);
+	   RESULT = prefix;
+	:}
+;
+
+outputArgs ::= var:a
+	{: a.readonly = false;
+	   RESULT = new ArrayList<ASTVarDecl>();
+	   RESULT.add(a);
+	:}
+	| outputArgs:prefix COMMA var:a
+	{: prefix.add(a);
+	   RESULT = prefix;
+	:}
+;
+
+var ::= ID:name COLON ID:type
+	{: RESULT = new ASTVarDecl(name, type);
+	   RESULT.readonly = true;
+	:}
+;
+
+optionalTemps ::=  
+	{: RESULT = new ArrayList<ASTVarDecl>(); :}
+	| temps:temps
+	{: RESULT = temps; :}
+;
+
+temps ::= temp:t
+	{: RESULT = new ArrayList<ASTVarDecl>();
+	   RESULT.add(t);
+	:}
+	| temps:prefix temp:t
+	{: prefix.add(t);
+	   RESULT = prefix;
+	:}
+;
+
+temp ::= VAR var:v
+	{: RESULT = v;
+	   v.readonly = false;
+	:}
+;
+
+optionalExamples ::=
+	{: RESULT = new ArrayList<ASTExample>(); :}
+	| examples:examples
+	{: RESULT = examples; :}
+;
+
+examples ::= example:e
+	{: RESULT = new ArrayList<ASTExample>();
+	   RESULT.add(e);
+	:}
+	| TEST example:e
+	{: e.isTest = true;
+	   RESULT = new ArrayList<ASTExample>();
+	   RESULT.add(e);	   
+	:}
+	| examples:prefix example:e
+	{: prefix.add(e);
+	   RESULT = prefix;
+	:} 
+	| examples:prefix TEST example:e
+	{: prefix.add(e);
+	   e.isTest = true;
+	   RESULT = prefix;	   
+	:} 
+;
+
+example ::= EXAMPLE LCB store:s ARROW exampleSteps:steps RCB
+	{: exampleSteps:steps.add(0, s);
+	   RESULT = new ASTExample(steps);	    
+	:}
+	| EXAMPLE LCB store:s ARROW ELLIPSIS RCB
+	{: var steps = new ArrayList<ASTStep>();
+	   steps.add(s);
+	   RESULT = new ASTExample(steps);
+	:}
+;
+
+exampleSteps ::= step:s
+	{: RESULT = new ArrayList<ASTStep>();
+	   RESULT.add(s);
+	:}
+	| exampleSteps:prefix ARROW step:next
+	{: prefix.add(next);
+	   RESULT = prefix;
+	:} 
+;
+
+// A step is either a store or some type of basic statement.
+step ::= store:s
+	{: RESULT = s;	:}
+	| stmt:s
+	{: RESULT = s; :}
+;
+
+stmt ::= expr:lhs ASSIGN expr:rhs SEMI
+	{: RESULT = new ASTAssign(lhs, rhs); :}
+	| IF LP expr:cond RP LCB stmt:thenStmt RCB
+	{: RESULT = new ASTIf(cond, thenStmt); :}
+	| IF LP expr:cond RP LCB stmt:thenStmt RCB ELSE LCB stmt:elseStmt RCB
+	{: RESULT = new ASTIf(cond, thenStmt, elseStmt); :}
+	| WHILE LP expr:cond RP LCB stmt:body RCB
+	{: RESULT = new ASTWhile(cond, body); :}
+	| stmt:first stmt:second
+	{: RESULT = new ASTSeq(first, second); :}
+	%prec STMT_LIST	
+;
+
+expr ::= ID:varName
+	{: RESULT = new ASTVarExpr(varName); :}
+	| INT_VAL:val
+	{: RESULT = new ASTIntValExpr(val); :}
+	| NULL
+	{: RESULT = ASTNullExpr.v; :}
+	| expr:lhs PLUS expr:rhs
+	{: RESULT = new ASTIntBinOpExpr(IntBinOp.PLUS, lhs, rhs); :}
+	| expr:lhs MINUS expr:rhs
+	{: RESULT = new ASTIntBinOpExpr(IntBinOp.MINUS, lhs, rhs); :}
+	| expr:lhs TIMES expr:rhs
+	{: RESULT = new ASTIntBinOpExpr(IntBinOp.TIMES, lhs, rhs); :}
+	| expr:lhs DIVIDE expr:rhs
+	{: RESULT = new ASTIntBinOpExpr(IntBinOp.DIVIDE, lhs, rhs); :}
+	| expr:lhs DOT ID:field
+	{: RESULT = new ASTDerefExpr(lhs, field); :}
+	| expr:lhs EQ expr:rhs
+	{: RESULT = new ASTEqExpr(lhs, rhs); :}
+	| expr:lhs NEQ expr:rhs
+	{: RESULT = new ASTNotExpr(new ASTEqExpr(lhs, rhs)); :}
+	| expr:lhs LT expr:rhs
+	{: RESULT = new ASTIntBinOpExpr(IntBinOp.LT, lhs, rhs); :}
+	| expr:lhs LEQ expr:rhs
+	{: RESULT = new ASTIntBinOpExpr(IntBinOp.LEQ, lhs, rhs); :}
+	| expr:lhs GT expr:rhs
+	{: RESULT = new ASTIntBinOpExpr(IntBinOp.GT, lhs, rhs); :}
+	| expr:lhs GEQ expr:rhs
+	{: RESULT = new ASTIntBinOpExpr(IntBinOp.GEQ, lhs, rhs); :}
+	| expr:lhs AND expr:rhs
+	{: RESULT = new ASTAndExpr(lhs, rhs); :}
+	| expr:lhs OR expr:rhs
+	{: RESULT = new ASTOrExpr(lhs, rhs); :}
+	| NOT expr:sub
+	{: RESULT = new ASTNotExpr(sub); :}
+	| LP expr:e RP
+	{: RESULT = e; :}
+;
+
+store ::= LB jminorElems:elems RB
+	{: RESULT = new ASTStore(elems); :}
+;
+
+jminorElems ::= storeVal:v
+	{: RESULT = new ArrayList<ASTVal>();
+	   RESULT.add(v);
+	:}
+	| jminorElems:prefix AND storeVal:v
+	{: prefix.add(v);
+	   RESULT = prefix;
+	:} 
+;
+
+storeVal ::= ID:var EQ ID:val
+	{: RESULT = new ASTRefVarVal(var, val); :}
+	| ID:var EQ NULL
+	{: RESULT = new ASTRefVarVal(var, AST.NULL_VAL_NAME); :}
+	| ID:var EQ INT_VAL:val
+	{: RESULT = new ASTIntVarVal(var, val); :}
+	| ID:src DOT ID:field EQ ID:dst
+	{: RESULT = new ASTRefFieldVal(field, src, dst); :}
+	| ID:src DOT ID:field EQ NULL
+	{: RESULT = new ASTRefFieldVal(field, src, AST.NULL_VAL_NAME); :}
+	| ID:src DOT ID:field EQ INT_VAL:val
+	{: RESULT = new ASTIntFieldVal(field, src, val); :}
+;

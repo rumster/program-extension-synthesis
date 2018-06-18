@@ -1,2 +1,0 @@
-ASTAndExpr(lhs, rhs) ::= <<$lhs$ && $rhs$>>
-ASTAssign(lhs, rhs) ::= <<$lhs$ = $rhs$>>
