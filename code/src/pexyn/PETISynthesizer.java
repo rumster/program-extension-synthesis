@@ -12,18 +12,18 @@ import java.util.logging.Logger;
 import org.apache.commons.configuration2.Configuration;
 
 import bgu.cs.util.Timer;
+import guardInference.ConditionInferencer;
+import guardInference.DTreeInferencer;
+import guardInference.ID3Inferencer;
+import guardInference.LinearInferencer;
 import pexyn.Domain.Guard;
-import pexyn.Domain.Update;
-import pexyn.Domain.Value;
+import pexyn.Domain.Cmd;
+import pexyn.Domain.Store;
 import pexyn.generalization.Automaton;
 import pexyn.generalization.AutomatonInterpreter;
 import pexyn.generalization.Result;
 import pexyn.generalization.PETI;
 import pexyn.planning.Planner;
-import pexyn.separation.ConditionInferencer;
-import pexyn.separation.DTreeInferencer;
-import pexyn.separation.ID3Inferencer;
-import pexyn.separation.LinearInferencer;
 
 /**
  * Synthesizes an {@link Automaton} from a list of examples by using the given
@@ -33,23 +33,23 @@ import pexyn.separation.LinearInferencer;
  * 
  * @author romanm
  *
- * @param <ValueType>
+ * @param <StoreType>
  *            The type of program configurations.
- * @param <UpdateType>
+ * @param <CmdType>
  *            The type of program actions.
  * @param <GuardType>
  *            The type of condition in the program.
  */
-public class PETISynthesizer<ValueType extends Value, UpdateType extends Update, GuardType extends Guard> {
+public class PETISynthesizer<StoreType extends Store, CmdType extends Cmd, GuardType extends Guard> {
 	public final int maxTraceLength;
 
-	private final Planner<ValueType, UpdateType> planner;
+	private final Planner<StoreType, CmdType> planner;
 	private final Configuration config;
-	private final GPDebugger<ValueType, UpdateType, GuardType> debugger;
+	private final GPDebugger<StoreType, CmdType, GuardType> debugger;
 	private final Logger logger;
 
-	public PETISynthesizer(Planner<ValueType, UpdateType> planner, Configuration config, Logger logger,
-			GPDebugger<ValueType, UpdateType, GuardType> debugger) {
+	public PETISynthesizer(Planner<StoreType, CmdType> planner, Configuration config, Logger logger,
+			GPDebugger<StoreType, CmdType, GuardType> debugger) {
 		assert planner != null;
 		this.config = config;
 		this.planner = planner;
@@ -58,28 +58,28 @@ public class PETISynthesizer<ValueType extends Value, UpdateType extends Update,
 		maxTraceLength = config.getInt("pexyn.maxTraceLength", 200);
 	}
 
-	public Result synthesize(SynthesisProblem<ValueType, UpdateType, GuardType> problem) {
+	public Result synthesize(SynthesisProblem<StoreType, CmdType, GuardType> problem) {
 		var exampleToPlan = genPlans(problem);
-		var trainingPlans = new ArrayList<Plan<ValueType, UpdateType>>();
+		var trainingPlans = new ArrayList<Plan<StoreType, CmdType>>();
 		exampleToPlan.forEach((example, plan) -> {
 			if (!example.isTest) {
 				trainingPlans.add(plan);
 			}
 		});
 
-		ConditionInferencer<ValueType, UpdateType, GuardType> separator;
+		ConditionInferencer<StoreType, CmdType, GuardType> separator;
 		var guardInfAlgName = config.getString("pexyn.guardInferenceAlgorithm", "");
 		if (guardInfAlgName.equals("ID3")) {
-			separator = new ID3Inferencer<ValueType, UpdateType, GuardType>(problem.domain(), trainingPlans);
+			separator = new ID3Inferencer<StoreType, CmdType, GuardType>(problem.domain(), trainingPlans);
 		} else if (guardInfAlgName.equals("dtree")) {
-			separator = new DTreeInferencer<ValueType, UpdateType, GuardType>(problem.domain(), trainingPlans);
+			separator = new DTreeInferencer<StoreType, CmdType, GuardType>(problem.domain(), trainingPlans);
 		} else {
-			separator = new LinearInferencer<ValueType, UpdateType, GuardType>(problem.domain(), trainingPlans);
+			separator = new LinearInferencer<StoreType, CmdType, GuardType>(problem.domain(), trainingPlans);
 		}
 		debugPrintGuards(separator.guards());
 
 		logger.info("Generalizing " + trainingPlans.size() + " plans...");
-		var learner = new PETI<ValueType, UpdateType, GuardType>(problem.domain(), separator, debugger, logger);
+		var learner = new PETI<StoreType, CmdType, GuardType>(problem.domain(), separator, debugger, logger);
 		var learningTime = new Timer();
 		learningTime.start();
 		var learningResult = learner.infer(trainingPlans);
@@ -98,11 +98,11 @@ public class PETISynthesizer<ValueType extends Value, UpdateType extends Update,
 	/**
 	 * Converts examples to plans.
 	 */
-	protected Map<Example<ValueType, UpdateType>, Plan<ValueType, UpdateType>> genPlans(
-			SynthesisProblem<ValueType, UpdateType, GuardType> problem) {
-		var exampleToPlan = new LinkedHashMap<Example<ValueType, UpdateType>, Plan<ValueType, UpdateType>>();
-		for (Example<ValueType, UpdateType> example : problem.examples) {
-			Optional<Plan<ValueType, UpdateType>> optPlan;
+	protected Map<Example<StoreType, CmdType>, Plan<StoreType, CmdType>> genPlans(
+			SynthesisProblem<StoreType, CmdType, GuardType> problem) {
+		var exampleToPlan = new LinkedHashMap<Example<StoreType, CmdType>, Plan<StoreType, CmdType>>();
+		for (Example<StoreType, CmdType> example : problem.examples) {
+			Optional<Plan<StoreType, CmdType>> optPlan;
 			if (example.inputOnly()) {
 				if (problem.interpreter().isPresent()) {
 					var interpreter = problem.interpreter().get();
@@ -129,13 +129,13 @@ public class PETISynthesizer<ValueType extends Value, UpdateType extends Update,
 	}
 
 	protected boolean compareOnTestExamples(
-			Map<Example<ValueType, UpdateType>, Plan<ValueType, UpdateType>> exampleToPlan, Automaton automaton,
-			SynthesisProblem<ValueType, UpdateType, GuardType> problem) {
+			Map<Example<StoreType, CmdType>, Plan<StoreType, CmdType>> exampleToPlan, Automaton automaton,
+			SynthesisProblem<StoreType, CmdType, GuardType> problem) {
 		var message = new StringBuilder();
 		var result = true;
 		var numOfTests = 0;
 		var numOfTestsSucceeded = 0;
-		var exampleToCompareResult = new HashMap<Example<ValueType, UpdateType>, Boolean>();
+		var exampleToCompareResult = new HashMap<Example<StoreType, CmdType>, Boolean>();
 		for (var entry : exampleToPlan.entrySet()) {
 			var example = entry.getKey();
 			var plan = entry.getValue();
@@ -143,7 +143,7 @@ public class PETISynthesizer<ValueType extends Value, UpdateType extends Update,
 				continue;
 			}
 			++numOfTests;
-			var interpreter = new AutomatonInterpreter<ValueType, UpdateType, GuardType>(automaton, problem.domain());
+			var interpreter = new AutomatonInterpreter<StoreType, CmdType, GuardType>(automaton, problem.domain());
 			var optAutomatonTrace = interpreter.genTrace(example.input(), maxTraceLength);
 			if (!optAutomatonTrace.isPresent() || !optAutomatonTrace.get().eqDeterministic(plan)) {
 				{
@@ -170,8 +170,8 @@ public class PETISynthesizer<ValueType extends Value, UpdateType extends Update,
 		return result;
 	}
 
-	protected void visualizeDiff(Plan<ValueType, UpdateType> trace1, Plan<ValueType, UpdateType> trace2,
-			SynthesisProblem<ValueType, UpdateType, GuardType> problem, String description) {
+	protected void visualizeDiff(Plan<StoreType, CmdType> trace1, Plan<StoreType, CmdType> trace2,
+			SynthesisProblem<StoreType, CmdType, GuardType> problem, String description) {
 		var diffAutomaton = PETI.prefixAutomaton(List.of(trace1, trace2), problem.domain(), debugger);
 		debugger.printAutomaton(diffAutomaton.get(), "Difference on example " + description);
 	}

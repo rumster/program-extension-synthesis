@@ -4,7 +4,7 @@ import java.util.Optional;
 
 import grammar.Node;
 import grammar.Nonterminal;
-import jminor.Store.ErrorStore;
+import jminor.JmStore.ErrorStore;
 import pexyn.ArrayListPlan;
 import pexyn.Plan;
 
@@ -24,12 +24,12 @@ import pexyn.Plan;
 public class PWhileInterpreter extends PWhileVisitor {
 	public static final PWhileInterpreter v = new PWhileInterpreter();
 
-	protected Store state;
+	protected JmStore state;
 	protected boolean resultCond;
 	protected Val resultVal;
 	protected Field resulField;
 	protected RefType type;
-	protected Plan<Store, Stmt> trace;
+	protected Plan<JmStore, Stmt> trace;
 	protected int stepCounter;
 	protected int maxSteps;
 
@@ -39,7 +39,7 @@ public class PWhileInterpreter extends PWhileVisitor {
 	 * 
 	 * TODO: compute by taking the loop-depth into account.
 	 */
-	public int guessMaxSteps(Stmt stmt, Store store) {
+	public int guessMaxSteps(Stmt stmt, JmStore store) {
 		return store.objects.size() * store.objects.size() + 1000;
 	}
 
@@ -48,9 +48,9 @@ public class PWhileInterpreter extends PWhileVisitor {
 	 * the run terminates without exceeding the maximal number of steps, a return
 	 * statement is added.
 	 */
-	public Optional<Plan<Store, Stmt>> genTrace(Stmt n, Store input, int maxSteps) {
+	public Optional<Plan<JmStore, Stmt>> genTrace(Stmt n, JmStore input, int maxSteps) {
 		assert n.concrete();
-		this.trace = new ArrayListPlan<Store, Stmt>(input);
+		this.trace = new ArrayListPlan<JmStore, Stmt>(input);
 		run(n, input, maxSteps);
 		if (stepCounter <= maxSteps) {
 			updateTrace(state, state, RetStmt.v);
@@ -63,7 +63,7 @@ public class PWhileInterpreter extends PWhileVisitor {
 		}
 	}
 
-	public Optional<Store> run(Stmt n, Store input, int maxSteps) {
+	public Optional<JmStore> run(Stmt n, JmStore input, int maxSteps) {
 		assert n.concrete();
 		this.stepCounter = 0;
 		this.maxSteps = maxSteps;
@@ -73,7 +73,7 @@ public class PWhileInterpreter extends PWhileVisitor {
 		return Optional.of(state);
 	}
 
-	public Boolean test(BoolExpr n, Store input) {
+	public Boolean test(BoolExpr n, JmStore input) {
 		assert n.concrete();
 		reset();
 		state = input;
@@ -91,10 +91,10 @@ public class PWhileInterpreter extends PWhileVisitor {
 		this.resultVal = null;
 	}
 
-	protected void updateTrace(Store pre, Store post, Stmt label) {
+	protected void updateTrace(JmStore pre, JmStore post, Stmt label) {
 		++stepCounter;
 		if (stepCounter > maxSteps) {
-			state = Store.error("Exceeded maximal number of steps: " + maxSteps);
+			state = JmStore.error("Exceeded maximal number of steps: " + maxSteps);
 		}
 		if (trace != null) {
 			trace.append(label, post);
@@ -120,7 +120,7 @@ public class PWhileInterpreter extends PWhileVisitor {
 	 */
 	@Override
 	public void visit(AndExpr n) {
-		Store pre = state;
+		JmStore pre = state;
 		n.getLhs().accept(this);
 		if (state instanceof ErrorStore) {
 			state = pre;
@@ -138,7 +138,7 @@ public class PWhileInterpreter extends PWhileVisitor {
 	 */
 	@Override
 	public void visit(OrExpr n) {
-		Store pre = state;
+		JmStore pre = state;
 		n.getLhs().accept(this);
 		if (state instanceof ErrorStore) {
 			state = pre;
@@ -156,7 +156,7 @@ public class PWhileInterpreter extends PWhileVisitor {
 	 */
 	@Override
 	public void visit(NotExpr n) {
-		Store pre = state;
+		JmStore pre = state;
 		n.getSub().accept(this);
 		if (state instanceof ErrorStore) {
 			state = pre;
@@ -168,20 +168,20 @@ public class PWhileInterpreter extends PWhileVisitor {
 
 	@Override
 	public void visit(AssignStmt n) {
-		Store pre = state;
+		JmStore pre = state;
 		computeAssignStmt(n);
 		updateTrace(pre, state, n);
 		if (state instanceof ErrorStore) {
 			return;
 		}
 		if (state.containsGarbage()) {
-			state = Store.error("memory leak!");
+			state = JmStore.error("memory leak!");
 		}
 	}
 
 	@Override
 	public void visit(ParallelAssign n) {
-		Store pre = state;
+		JmStore pre = state;
 		var rexprs = (ExprList) n.rvals();
 		var rvals = new Val[rexprs.size()];
 		for (int i = 0; i < rvals.length; ++i) {
@@ -209,7 +209,7 @@ public class PWhileInterpreter extends PWhileVisitor {
 					return;
 				}
 				if (lobj == Obj.NULL) {
-					state = Store.error("illegal dereference by " + lhsDeref);
+					state = JmStore.error("illegal dereference by " + lhsDeref);
 					return;
 				}
 				state = state.assign(lobj, lhsDeref.getField(), rvals[i]);
@@ -222,7 +222,7 @@ public class PWhileInterpreter extends PWhileVisitor {
 			return;
 		}
 		if (state.containsGarbage()) {
-			state = Store.error("memory leak!");
+			state = JmStore.error("memory leak!");
 		}
 	}
 
@@ -246,7 +246,7 @@ public class PWhileInterpreter extends PWhileVisitor {
 				return;
 			}
 			if (lobj == Obj.NULL) {
-				state = Store.error("illegal dereference of " + n.getLhs());
+				state = JmStore.error("illegal dereference of " + n.getLhs());
 				return;
 			}
 			state = state.assign(lobj, lhsDeref.getField(), rval);
@@ -259,12 +259,12 @@ public class PWhileInterpreter extends PWhileVisitor {
 		if (state instanceof ErrorStore)
 			return;
 		if (resultVal == Obj.NULL) {
-			state = Store.error("null dereference of " + n.getLhs());
+			state = JmStore.error("null dereference of " + n.getLhs());
 		} else {
 			Obj lobj = (Obj) resultVal;
 			resultVal = state.eval(lobj, n.getField());
 			if (resultVal == null) {
-				state = Store.error("dereference of " + n.getLhs() + " is undefined!");
+				state = JmStore.error("dereference of " + n.getLhs() + " is undefined!");
 			}
 		}
 	}
@@ -276,7 +276,7 @@ public class PWhileInterpreter extends PWhileVisitor {
 	 */
 	@Override
 	public void visit(EqExpr n) {
-		Store pre = state;
+		JmStore pre = state;
 		n.getLhs().accept(this);
 		if (state instanceof ErrorStore) {
 			resultCond = false;
@@ -303,7 +303,7 @@ public class PWhileInterpreter extends PWhileVisitor {
 	 */
 	@Override
 	public void visit(LtExpr n) {
-		Store pre = state;
+		JmStore pre = state;
 		n.getLhs().accept(this);
 		if (state instanceof ErrorStore) {
 			resultCond = false;
@@ -325,7 +325,7 @@ public class PWhileInterpreter extends PWhileVisitor {
 
 	@Override
 	public void visit(IfStmt n) {
-		Store pre = state;
+		JmStore pre = state;
 		n.getCond().accept(this);
 		if (state instanceof ErrorStore) {
 			updateTrace(pre, state, n);
@@ -359,7 +359,7 @@ public class PWhileInterpreter extends PWhileVisitor {
 
 	@Override
 	public void visit(WhileStmt n) {
-		Store pre = state;
+		JmStore pre = state;
 		n.getCond().accept(this);
 		if (state instanceof ErrorStore) {
 			updateTrace(pre, state, n);

@@ -11,14 +11,14 @@ import pexyn.Domain.*;
  * 
  * @author romanm
  *
- * @param <ValueType>
- *            The type of domain values.
- * @param <UpdateType>
+ * @param <StoreType>
+ *            The type of stores.
+ * @param <CmdType>
  *            The type of domain updates.
  * @param <GuardType>
  *            The type of domain guards.
  */
-public abstract class SynthesisProblem<ValueType extends Value, UpdateType extends Update, GuardType extends Guard> {
+public abstract class SynthesisProblem<StoreType extends Store, CmdType extends Cmd, GuardType extends Guard> {
 	public final String name;
 
 	/**
@@ -47,11 +47,11 @@ public abstract class SynthesisProblem<ValueType extends Value, UpdateType exten
 	/**
 	 * Returns the problem domain for this synthesis problem.
 	 */
-	public abstract Domain<ValueType, UpdateType, GuardType> domain();
+	public abstract Domain<StoreType, CmdType, GuardType> domain();
 
-	public abstract Optional<LoadedInterpreter<ValueType, UpdateType, GuardType>> interpreter();
+	public abstract Optional<LoadedInterpreter<StoreType, CmdType, GuardType>> interpreter();
 
-	public Optional<Plan<ValueType, UpdateType>> generate(Example<ValueType, UpdateType> inputOnlyExample,
+	public Optional<Plan<StoreType, CmdType>> generate(Example<StoreType, CmdType> inputOnlyExample,
 			int maxSteps) {
 		var optInterpreter = interpreter();
 		if (optInterpreter.isPresent()) {
@@ -67,21 +67,21 @@ public abstract class SynthesisProblem<ValueType extends Value, UpdateType exten
 		this.name = name;
 	}
 
-	public final List<Example<ValueType, UpdateType>> examples = new ArrayList<>();
+	public final List<Example<StoreType, CmdType>> examples = new ArrayList<>();
 
-	public void addExample(Example<ValueType, UpdateType> example) {
+	public void addExample(Example<StoreType, CmdType> example) {
 		this.examples.add(example);
 	}
 
-	public void addExample(ValueType input, ValueType output) {
+	public void addExample(StoreType input, StoreType output) {
 		this.examples.add(new Example<>(input, output, examples.size()));
 	}
 
-	public boolean test(LoadedInterpreter<ValueType, UpdateType, GuardType> prog) {
-		for (Example<ValueType, UpdateType> example : this.examples) {
-			ValueType input = example.input();
-			ValueType goal = example.goal();
-			Optional<ValueType> finalState = prog.run(input, 100000);
+	public boolean test(LoadedInterpreter<StoreType, CmdType, GuardType> prog) {
+		for (Example<StoreType, CmdType> example : this.examples) {
+			StoreType input = example.input();
+			StoreType goal = example.goal();
+			Optional<StoreType> finalState = prog.run(input, 100000);
 			if (!finalState.isPresent() || !domain().match(finalState.get(), goal)) {
 				return false;
 			}

@@ -1,4 +1,4 @@
-HeapDomain(types, vars, actions) ::= <<
+JminorDomain(types, vars, actions) ::= <<
 Types = {
   $types:{it|$it.name$}; separator="\n"$
 }

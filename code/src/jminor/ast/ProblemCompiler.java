@@ -35,7 +35,7 @@ import jminor.RefVar;
 import jminor.RetStmt;
 import jminor.SeqStmt;
 import jminor.Stmt;
-import jminor.Store;
+import jminor.JmStore;
 import jminor.Type;
 import jminor.Val;
 import jminor.ValExpr;
@@ -101,7 +101,7 @@ public class ProblemCompiler {
 
 		int exampleId = 0;
 		for (ASTExample exampleAST : funAST.examples) {
-			Example<Store, Stmt> example = new ExampleBuilder(exampleAST, exampleId).build();
+			Example<JmStore, Stmt> example = new ExampleBuilder(exampleAST, exampleId).build();
 			result.addExample(example);
 			++exampleId;
 		}
@@ -470,7 +470,7 @@ public class ProblemCompiler {
 			this.exampleId = exampleId;
 		}
 
-		public Example<Store, Stmt> build() {
+		public Example<JmStore, Stmt> build() {
 			if (exampleAST.steps.size() == 0) {
 				throw new SemanticError("Examples must not be empty!", exampleAST);
 			}
@@ -511,7 +511,7 @@ public class ProblemCompiler {
 			Set<Obj> freeInputObjs = new HashSet<>(goalObjs);
 			freeInputObjs.removeAll(inputObjs);
 
-			List<Union2<Store, Stmt>> steps = new ArrayList<>(exampleAST.steps.size());
+			List<Union2<JmStore, Stmt>> steps = new ArrayList<>(exampleAST.steps.size());
 			var stmtBuilder = new StmtBuilder();
 			for (ASTStep stepAST : exampleAST.steps) {
 				if (stepAST instanceof ASTStore) {
@@ -530,7 +530,7 @@ public class ProblemCompiler {
 							storeObjs.add(obj);
 						}
 					}
-					Store store = new StoreBuilder(storeObjs, freeInputObjs, storeAST).build();
+					JmStore store = new StoreBuilder(storeObjs, freeInputObjs, storeAST).build();
 					steps.add(Union2.ofT1(store));
 				} else {
 					assert stepAST instanceof ASTStmt;
@@ -544,7 +544,7 @@ public class ProblemCompiler {
 			} else {
 				// This is an input-only example so the return statement will be added later.
 			}
-			var result = new Example<Store, Stmt>(steps, exampleId);
+			var result = new Example<JmStore, Stmt>(steps, exampleId);
 			result.isTest = exampleAST.isTest;
 			return result;
 		}
@@ -581,9 +581,9 @@ public class ProblemCompiler {
 				this.ast = ast;
 			}
 
-			public Store build() {
+			public JmStore build() {
 				ast.accept(this);
-				return new Store(objs, freeObjs, env, heap);
+				return new JmStore(objs, freeObjs, env, heap);
 			}
 
 			public void visit(ASTRefFieldVal n) {

@@ -10,7 +10,7 @@ import java.util.Optional;
 import bgu.cs.util.Pair;
 import bgu.cs.util.graph.HashMultiGraph;
 import bgu.cs.util.rel.HashRel2;
-import pexyn.Domain.Update;
+import pexyn.Domain.Cmd;
 
 /**
  * A program automaton.
@@ -94,7 +94,7 @@ public class Automaton extends HashMultiGraph<State, Action> {
 	 * Finds a transition outgoing from the given state and labelled with the given
 	 * update.
 	 */
-	public Optional<Pair<Action, State>> findTransition(State src, Update update) {
+	public Optional<Pair<Action, State>> findTransition(State src, Cmd update) {
 		Action foundAction = null;
 		State foundState = null;
 		for (Edge<State, Action> transition : succEdges(src)) {
@@ -128,7 +128,7 @@ public class Automaton extends HashMultiGraph<State, Action> {
 	 * Tests whether all outgoing transitions are labeled by unique updates.
 	 */
 	public boolean isUpdateDeterministic(State state) {
-		final var stateUpdates = new HashSet<Update>();
+		final var stateUpdates = new HashSet<Cmd>();
 		for (final var transition : this.succEdges(state)) {
 			final var freshUpdate = stateUpdates.add(transition.getLabel().update);
 			if (!freshUpdate) {
@@ -170,7 +170,7 @@ public class Automaton extends HashMultiGraph<State, Action> {
 		var result = new ArrayList<State>();
 		result.add(state);
 
-		var updateToTargetState = new HashRel2<Update, State>();
+		var updateToTargetState = new HashRel2<Cmd, State>();
 		for (Edge<State, Action> transition : this.succEdges(state)) {
 			var transitionAction = transition.getLabel();
 			updateToTargetState.add(transitionAction.update, transition.getDst());
@@ -195,7 +195,7 @@ public class Automaton extends HashMultiGraph<State, Action> {
 		if (!containsNode(state)) {
 			return;
 		}
-		var updateToAction = new HashRel2<Update, Edge<State, Action>>();
+		var updateToAction = new HashRel2<Cmd, Edge<State, Action>>();
 		for (var transition : this.succEdges(state)) {
 			var transitionAction = transition.getLabel();
 			updateToAction.add(transitionAction.update, transition);

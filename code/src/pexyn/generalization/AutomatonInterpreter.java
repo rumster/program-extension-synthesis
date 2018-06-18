@@ -8,34 +8,34 @@ import pexyn.Domain;
 import pexyn.LoadedInterpreter;
 import pexyn.Plan;
 import pexyn.Domain.Guard;
-import pexyn.Domain.Update;
-import pexyn.Domain.Value;
+import pexyn.Domain.Cmd;
+import pexyn.Domain.Store;
 
 /**
  * An interpreter for automata.
  * 
  * @author romanm
  *
- * @param <ValueType>
+ * @param <StoreType>
  *            The type of values in the underlying domain.
- * @param <UpdateType>
+ * @param <CmdType>
  *            The type of updates in the underlying domain.
  * @param <GuardType>
  *            The type of guards in the underlying domain.
  */
-public class AutomatonInterpreter<ValueType extends Value, UpdateType extends Update, GuardType extends Guard>
-		implements LoadedInterpreter<ValueType, UpdateType, GuardType> {
+public class AutomatonInterpreter<StoreType extends Store, CmdType extends Cmd, GuardType extends Guard>
+		implements LoadedInterpreter<StoreType, CmdType, GuardType> {
 	private final Automaton automaton;
-	private final Domain<ValueType, UpdateType, GuardType> domain;
-	private Plan<ValueType, UpdateType> trace;
+	private final Domain<StoreType, CmdType, GuardType> domain;
+	private Plan<StoreType, CmdType> trace;
 
-	public AutomatonInterpreter(Automaton automaton, Domain<ValueType, UpdateType, GuardType> domain) {
+	public AutomatonInterpreter(Automaton automaton, Domain<StoreType, CmdType, GuardType> domain) {
 		this.automaton = automaton;
 		this.domain = domain;
 	}
 
 	@Override
-	public Optional<ValueType> run(ValueType input, int maxSteps) {
+	public Optional<StoreType> run(StoreType input, int maxSteps) {
 		var currState = automaton.getInitial();
 		var stepCounter = 0;
 		var currValue = input;
@@ -56,13 +56,13 @@ public class AutomatonInterpreter<ValueType extends Value, UpdateType extends Up
 				return Optional.empty();
 			} else {
 				@SuppressWarnings("unchecked")
-				var edgeUpdate = (UpdateType) matchedAction.update;
+				var edgeUpdate = (CmdType) matchedAction.update;
 				var optNextVal = domain.apply(edgeUpdate, currValue);
 				if (optNextVal.isPresent()) {
 					currValue = optNextVal.get();
 					if (trace != null) {
 						@SuppressWarnings("unchecked")
-						UpdateType update = (UpdateType) matchedAction.update;
+						CmdType update = (CmdType) matchedAction.update;
 						trace.append(update, currValue);
 					}
 					++stepCounter;
@@ -80,7 +80,7 @@ public class AutomatonInterpreter<ValueType extends Value, UpdateType extends Up
 	}
 
 	@Override
-	public Optional<Plan<ValueType, UpdateType>> genTrace(ValueType input, int maxSteps) {
+	public Optional<Plan<StoreType, CmdType>> genTrace(StoreType input, int maxSteps) {
 		trace = new ArrayListPlan<>(input);
 		var optVal = run(input, maxSteps);
 		if (optVal.isPresent()) {

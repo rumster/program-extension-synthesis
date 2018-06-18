@@ -5,21 +5,21 @@ import java.util.Iterator;
 import java.util.List;
 
 import bgu.cs.util.Union2;
-import pexyn.Domain.Update;
-import pexyn.Domain.Value;
+import pexyn.Domain.Cmd;
+import pexyn.Domain.Store;
 
 /**
  * An example used to drive the synthesis algorithm.
  * 
  * @author romanm
  *
- * @param <ValueType>
- *            The type of domain values.
- * @param <UpdateType>
+ * @param <StoreType>
+ *            The type of stores.
+ * @param <CmdType>
  *            The type of domain updates.
  */
-public class Example<ValueType extends Value, UpdateType extends Update>
-		implements Iterable<Union2<ValueType, UpdateType>> {
+public class Example<StoreType extends Store, CmdType extends Cmd>
+		implements Iterable<Union2<StoreType, CmdType>> {
 	public final String name;
 	public final int id;
 
@@ -33,9 +33,9 @@ public class Example<ValueType extends Value, UpdateType extends Update>
 	 * A list of intermediate steps. The first step is always a state, while the
 	 * following steps may be either partial states or actions.
 	 */
-	protected final List<Union2<ValueType, UpdateType>> steps;
+	protected final List<Union2<StoreType, CmdType>> steps;
 
-	public Example(ValueType input, ValueType goal, int id, String name) {
+	public Example(StoreType input, StoreType goal, int id, String name) {
 		assert id >= 0;
 		assert name != null && name.length() > 0;
 		this.id = id;
@@ -45,11 +45,11 @@ public class Example<ValueType extends Value, UpdateType extends Update>
 		steps.add(Union2.ofT1(goal));
 	}
 
-	public Example(ValueType input, ValueType goal, int id) {
+	public Example(StoreType input, StoreType goal, int id) {
 		this(input, goal, id, "example_" + id);
 	}
 
-	public Example(List<Union2<ValueType, UpdateType>> steps, int id, String name) {
+	public Example(List<Union2<StoreType, CmdType>> steps, int id, String name) {
 		assert id >= 0;
 		assert name != null && name.length() > 0;
 		assert steps != null && !steps.isEmpty();
@@ -58,7 +58,7 @@ public class Example<ValueType extends Value, UpdateType extends Update>
 		this.steps = steps;
 	}
 
-	public Example(List<Union2<ValueType, UpdateType>> steps, int id) {
+	public Example(List<Union2<StoreType, CmdType>> steps, int id) {
 		this(steps, id, "example_" + id);
 	}
 
@@ -69,7 +69,7 @@ public class Example<ValueType extends Value, UpdateType extends Update>
 	/**
 	 * Returns the step at the given index, which is either a state of an action.
 	 */
-	public Union2<ValueType, UpdateType> step(int i) {
+	public Union2<StoreType, CmdType> step(int i) {
 		return steps.get(i);
 	}
 
@@ -77,16 +77,16 @@ public class Example<ValueType extends Value, UpdateType extends Update>
 		return steps.size() == 1;
 	}
 
-	public ValueType input() {
+	public StoreType input() {
 		return steps.get(0).getT1();
 	}
 
-	public ValueType goal() {
+	public StoreType goal() {
 		return steps.get(steps.size() - 1).getT1();
 	}
 
 	@Override
-	public Iterator<Union2<ValueType, UpdateType>> iterator() {
+	public Iterator<Union2<StoreType, CmdType>> iterator() {
 		return steps.iterator();
 	}
 

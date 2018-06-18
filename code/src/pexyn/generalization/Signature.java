@@ -10,7 +10,7 @@ import java.util.Set;
 import bgu.cs.util.graph.MultiGraph.Edge;
 import bgu.cs.util.rel.HashRel2;
 import bgu.cs.util.rel.Rel2;
-import pexyn.Domain.Update;
+import pexyn.Domain.Cmd;
 
 /**
  * A set of lookaheads for a given length.
@@ -19,9 +19,9 @@ import pexyn.Domain.Update;
  */
 public class Signature {
 	public final int length;
-	public Set<List<Update>> lookaheads;
+	public Set<List<Cmd>> lookaheads;
 
-	public Signature(final Set<List<Update>> lookaheads, final int length) {
+	public Signature(final Set<List<Cmd>> lookaheads, final int length) {
 		this.lookaheads = lookaheads;
 		this.length = length;
 	}
@@ -76,34 +76,34 @@ public class Signature {
 
 	public static Signature from(final Automaton m, final State s, final int length) {
 		var lookaheadList = getLookaheads(m, s, length);
-		var lookaheads = new HashSet<List<Update>>(lookaheadList);
+		var lookaheads = new HashSet<List<Cmd>>(lookaheadList);
 		var result = new Signature(lookaheads, length);
 		return result;
 	}
 
-	protected static Collection<List<Update>> getLookaheads(final Automaton automaton, State s, final int length) {
+	protected static Collection<List<Cmd>> getLookaheads(final Automaton automaton, State s, final int length) {
 		if (s == automaton.getFinal()) {
-			var finalStateUpdateList = new ArrayList<Update>(length);
+			var finalStateUpdateList = new ArrayList<Cmd>(length);
 			bgu.cs.util.Collections.addCopies(finalStateUpdateList, HaltUpdate.v, length);
-			Collection<List<Update>> result = Collections.singletonList(finalStateUpdateList);
+			Collection<List<Cmd>> result = Collections.singletonList(finalStateUpdateList);
 			return result;
 		} else {
 			return getLookaheadsHelper(automaton, s, length, length);
 		}
 	}
 
-	protected static Collection<List<Update>> getLookaheadsHelper(final Automaton automaton, State s, final int length,
+	protected static Collection<List<Cmd>> getLookaheadsHelper(final Automaton automaton, State s, final int length,
 			final int k) {
 		assert k >= 1;
-		var result = new ArrayList<List<Update>>();
+		var result = new ArrayList<List<Cmd>>();
 		if (s == automaton.getFinal()) {
-			var singleUpdateList = new ArrayList<Update>(length);
+			var singleUpdateList = new ArrayList<Cmd>(length);
 			bgu.cs.util.Collections.addCopies(singleUpdateList, HaltUpdate.v, length);
 			result.add(singleUpdateList);
 		} else if (k == 1) {
 			for (Edge<State, Action> transition : automaton.succEdges(s)) {
 				Action transitionAction = transition.getLabel();
-				var singleUpdateList = new ArrayList<Update>(length);
+				var singleUpdateList = new ArrayList<Cmd>(length);
 				bgu.cs.util.Collections.addCopies(singleUpdateList, HaltUpdate.v, length);
 				singleUpdateList.set(length - k, transitionAction.update);
 				result.add(singleUpdateList);

@@ -3,22 +3,22 @@ package pexyn;
 import java.util.Optional;
 
 import pexyn.Domain.Guard;
-import pexyn.Domain.Update;
-import pexyn.Domain.Value;
+import pexyn.Domain.Cmd;
+import pexyn.Domain.Store;
 
 /**
  * An interpreter for a loaded program.
  * 
- * @param <ValueType>
- *            The type of domain values.
- * @param <UpdateType>
+ * @param <StoreType>
+ *            The type of stores.
+ * @param <CmdType>
  *            The type of domain updates.
  * @param <GuardType>
  *            The type of domain guards.
  * 
  * @author romanm
  */
-public interface LoadedInterpreter<ValueType extends Value, UpdateType extends Update, GuardType extends Guard> {
+public interface LoadedInterpreter<StoreType extends Store, CmdType extends Cmd, GuardType extends Guard> {
 	/**
 	 * Applies the interpreter to the given input state for at most the given number
 	 * of steps.
@@ -31,7 +31,7 @@ public interface LoadedInterpreter<ValueType extends Value, UpdateType extends U
 	 * @return The output value or empty if the maximal number of steps has been
 	 *         exceeded.
 	 */
-	public Optional<ValueType> run(ValueType input, int maxSteps);
+	public Optional<StoreType> run(StoreType input, int maxSteps);
 
 	/**
 	 * Applies the interpreter to the given input state and returns the resulting
@@ -45,5 +45,5 @@ public interface LoadedInterpreter<ValueType extends Value, UpdateType extends U
 	 * @return The resulting trace or empty if the maximal number of steps has been
 	 *         exceeded.
 	 */
-	public Optional<Plan<ValueType, UpdateType>> genTrace(ValueType input, int maxSteps);
+	public Optional<Plan<StoreType, CmdType>> genTrace(StoreType input, int maxSteps);
 }

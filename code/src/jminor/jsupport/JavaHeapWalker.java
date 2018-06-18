@@ -19,13 +19,13 @@ import jminor.Obj;
 import jminor.RefField;
 import jminor.RefType;
 import jminor.RefVar;
-import jminor.Store;
+import jminor.JmStore;
 import jminor.Val;
 import jminor.Var;
 import jminor.Var.VarRole;
 
 /**
- * Converts a Java state into a {@link Store}. The heap is traversed, starting
+ * Converts a Java state into a {@link JmStore}. The heap is traversed, starting
  * from a {@link JavaEnv} object whose fields represent the arguments and local
  * variables of a method to be synthesized, the objects reachable from the
  * {@link JavaEnv} object, which are discovered by reflection, constitute the
@@ -103,7 +103,7 @@ public class JavaHeapWalker {
 		javaObjectToSynthObj.clear();
 	}
 
-	public Store walk(JavaEnv env) throws IllegalArgumentException, IllegalAccessException {
+	public JmStore walk(JavaEnv env) throws IllegalArgumentException, IllegalAccessException {
 		resultEnv = new HashMap<>();
 		resultHeap = new HashMap<>();
 		processEnv(env);
@@ -149,7 +149,7 @@ public class JavaHeapWalker {
 			}
 		}
 
-		Store result = new Store(resultHeap.keySet(), new HashSet<>(), resultEnv, resultHeap);
+		JmStore result = new JmStore(resultHeap.keySet(), new HashSet<>(), resultEnv, resultHeap);
 		return result;
 	}
 

@@ -45,7 +45,7 @@ public class JavaProblemGenerator {
 		for (JavaEnv input : inputs) {
 			try {
 				heapWalker.reset();
-				Store inputState = heapWalker.walk(input);
+				JmStore inputState = heapWalker.walk(input);
 
 				Field[] envFields = envType.getFields();
 				int numOfParameters = m.getParameters().length;
@@ -64,7 +64,7 @@ public class JavaProblemGenerator {
 				JavaEnv output = input;
 				if (ReflectionUtils.fieldExists(output, RET_PARAM))
 					output.setParam(RET_PARAM, resultObj);
-				Store outputState = heapWalker.walk(output);
+				JmStore outputState = heapWalker.walk(output);
 				HashSet<Obj> freeObjects = new HashSet<>();
 				freeObjects.addAll(outputState.getObjects());
 				freeObjects.removeAll(inputState.getObjects());

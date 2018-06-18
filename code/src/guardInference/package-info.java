@@ -4,4 +4,4 @@
  * 
  * @author romanm
  */
-package pexyn.separation;
+package guardInference;

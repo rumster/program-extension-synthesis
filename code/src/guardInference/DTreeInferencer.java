@@ -1,4 +1,4 @@
-package pexyn.separation;
+package guardInference;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -12,46 +12,51 @@ import bgu.cs.util.rel.Rel2;
 import pexyn.Domain;
 import pexyn.Plan;
 import pexyn.Domain.Guard;
-import pexyn.Domain.Update;
-import pexyn.Domain.Value;
+import pexyn.Domain.Cmd;
+import pexyn.Domain.Store;
 
 /**
- * An inferencer based on learning a decision tree. The updates serve as the
- * labels of the learned classifier and the values store as the samples that
- * need to be classified.
+ * A greedy procedure for learning a decision tree.
  * 
  * @author romanm
  *
- * @param <ValueType>
- * @param <UpdateType>
- * @param <GuardType>
+ * @param <ExampleType>
+ *            The type of examples to classify.
+ * @param <LabelType>
+ *            The type of class labels.
+ * @param <FeatureType>
+ *            The type of (Boolean) features.
+ * 
+ * @TODO Make this class generic: separate from Cmd and other domain related
+ *       type parameters.
  */
-public class DTreeInferencer<ValueType extends Value, UpdateType extends Update, GuardType extends Guard>
-		extends ConditionInferencer<ValueType, UpdateType, GuardType> {
+public class DTreeInferencer<ExampleType extends Store, LabelType extends Cmd, FeatureType extends Guard>
+		extends ConditionInferencer<ExampleType, LabelType, FeatureType> {
 	/**
 	 * The set of Boolean attributes used to compute the classifier.
 	 */
-	protected final List<GuardType> propositions;
+	protected final List<FeatureType> propositions;
 
-	protected final Domain<ValueType, UpdateType, GuardType> domain;
+	protected final Domain<ExampleType, LabelType, FeatureType> domain;
 
-	public DTreeInferencer(Domain<ValueType, UpdateType, GuardType> domain, List<Plan<ValueType, UpdateType>> plans) {
+	public DTreeInferencer(Domain<ExampleType, LabelType, FeatureType> domain,
+			List<Plan<ExampleType, LabelType>> plans) {
 		this.propositions = domain.generateBasicGuards(plans);
 		this.domain = domain;
 	}
 
 	@Override
-	public List<Optional<GuardType>> inferList(List<Collection<? extends Value>> classes) {
+	public List<Optional<FeatureType>> inferList(List<Collection<? extends Store>> classes) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public Optional<GuardType> infer(Collection<? extends Value> first, Collection<? extends Value> second) {
+	public Optional<FeatureType> infer(Collection<? extends Store> first, Collection<? extends Store> second) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public Optional<Map<Update, ? extends Guard>> infer(Rel2<Update, Value> updateToValue) {
+	public Optional<Map<Cmd, ? extends Guard>> infer(Rel2<Cmd, Store> updateToValue) {
 		Node root = new Node(updateToValue);
 		var foundTree = refineNode(root);
 		if (foundTree) {
@@ -71,10 +76,10 @@ public class DTreeInferencer<ValueType extends Value, UpdateType extends Update,
 	 *            The set of updates, which serve as the labels for the classifier.
 	 * @return A mapping from an update to the respective guard.
 	 */
-	protected Map<Update, ? extends Guard> compileGuards(Node root, Collection<Update> updates) {
-		var result = new HashMap<Update, GuardType>();
+	protected Map<Cmd, ? extends Guard> compileGuards(Node root, Collection<Cmd> updates) {
+		var result = new HashMap<Cmd, FeatureType>();
 		for (var update : updates) {
-			GuardType guard = compileGuard(root, update);
+			FeatureType guard = compileGuard(root, update);
 			result.put(update, guard);
 		}
 		return result;
@@ -83,8 +88,8 @@ public class DTreeInferencer<ValueType extends Value, UpdateType extends Update,
 	/**
 	 * Generates the Boolean expression for the given update at the given node.
 	 */
-	protected GuardType compileGuard(Node node, Update update) {
-		GuardType result;
+	protected FeatureType compileGuard(Node node, Cmd update) {
+		FeatureType result;
 		if (node.pure()) {
 			if (node.pureLabel() == update) {
 				return domain.getTrue();
@@ -92,8 +97,8 @@ public class DTreeInferencer<ValueType extends Value, UpdateType extends Update,
 				return null;
 			}
 		} else {
-			var posGuard = compileGuard(node.pos, update);
-			var negGuard = compileGuard(node.neg, update);
+			FeatureType posGuard = compileGuard(node.pos, update);
+			FeatureType negGuard = compileGuard(node.neg, update);
 			if (posGuard == null && negGuard != null) {
 				result = simplifiedAnd(domain.not(node.splitter), negGuard);
 			} else if (negGuard == null && posGuard != null) {
@@ -112,7 +117,7 @@ public class DTreeInferencer<ValueType extends Value, UpdateType extends Update,
 	/**
 	 * A conjunction with simplification for trivial formulas.
 	 */
-	protected GuardType simplifiedAnd(GuardType first, GuardType second) {
+	protected FeatureType simplifiedAnd(FeatureType first, FeatureType second) {
 		if (first == domain.getTrue()) {
 			return second;
 		} else if (second == domain.getTrue()) {
@@ -148,20 +153,20 @@ public class DTreeInferencer<ValueType extends Value, UpdateType extends Update,
 	}
 
 	@Override
-	public List<GuardType> guards() {
+	public List<FeatureType> guards() {
 		return propositions;
 	}
 
-	protected Optional<GuardType> findBestSplitter(Rel2<Update, Value> updateToValue, Update updateToSplit) {
+	protected Optional<FeatureType> findBestSplitter(Rel2<Cmd, Store> updateToValue, Cmd updateToSplit) {
 		// double numOfValues = updateToValue.size();
 		var bestScore = 0d;
-		GuardType bestGuard = null;
-		for (var guard : propositions) {
+		FeatureType bestGuard = null;
+		for (FeatureType guard : propositions) {
 			// var gini = 0d;
 			// int numOfSatisfiedValues = 0;
 			// for (var val : updateToValue.all2()) {
 			// @SuppressWarnings("unchecked")
-			// boolean holds = domain.test(guard, (ValueType) val);
+			// boolean holds = domain.test(guard, (StoreType) val);
 			// if (holds) {
 			// ++numOfSatisfiedValues;
 			// }
@@ -173,7 +178,7 @@ public class DTreeInferencer<ValueType extends Value, UpdateType extends Update,
 			var numPosNonUpdateToSplitPairs = 0d;
 			for (var pair : updateToValue.all()) {
 				@SuppressWarnings("unchecked")
-				var val = (ValueType) pair.second;
+				ExampleType val = (ExampleType) pair.second;
 				boolean holds = domain.test(guard, val);
 				if (pair.first == updateToSplit) {
 					++numUpdateToSplitPairs;
@@ -189,8 +194,7 @@ public class DTreeInferencer<ValueType extends Value, UpdateType extends Update,
 			}
 			var updateToSplitRatio = numPosUpdateToSplitPairs / numUpdateToSplitPairs;
 			var nonUpdateToSplitRatio = numPosNonUpdateToSplitPairs / numNonUpdateToSplitPairs;
-			var score = updateToSplitRatio
-					* (1 - nonUpdateToSplitRatio);
+			var score = updateToSplitRatio * (1 - nonUpdateToSplitRatio);
 			// var p = numOfSatisfiedValues / numOfValues;
 			// gini = p * (1 - p);
 			if (score > bestScore) {
@@ -209,9 +213,9 @@ public class DTreeInferencer<ValueType extends Value, UpdateType extends Update,
 	/**
 	 * Populates the sub-nodes of the given node with the given splitter.
 	 */
-	protected void split(Node node, GuardType splitter) {
-		var posVals = new HashRel2<Update, Value>();
-		var negVals = new HashRel2<Update, Value>();
+	protected void split(Node node, FeatureType splitter) {
+		var posVals = new HashRel2<Cmd, Store>();
+		var negVals = new HashRel2<Cmd, Store>();
 		var posNode = new Node(posVals);
 		var negNode = new Node(negVals);
 		node.splitter = splitter;
@@ -221,7 +225,7 @@ public class DTreeInferencer<ValueType extends Value, UpdateType extends Update,
 			var update = updateValue.first;
 			var value = updateValue.second;
 			@SuppressWarnings("unchecked")
-			boolean holds = domain.test(splitter, (ValueType) value);
+			boolean holds = domain.test(splitter, (ExampleType) value);
 			if (holds) {
 				posVals.add(update, value);
 			} else {
@@ -239,13 +243,13 @@ public class DTreeInferencer<ValueType extends Value, UpdateType extends Update,
 		/**
 		 * The subset of labeled values that need to be classified at this node.
 		 */
-		Rel2<Update, Value> updateToValue;
+		Rel2<Cmd, Store> updateToValue;
 
 		/**
 		 * The basic proposition used to split the values at this node into the
 		 * sub-nodes.
 		 */
-		public GuardType splitter;
+		public FeatureType splitter;
 
 		/**
 		 * The node into which the subset of value that satisfy the splitter are sent.
@@ -258,7 +262,7 @@ public class DTreeInferencer<ValueType extends Value, UpdateType extends Update,
 		 */
 		public Node neg;
 
-		public Node(Rel2<Update, Value> updateToValue) {
+		public Node(Rel2<Cmd, Store> updateToValue) {
 			this.updateToValue = updateToValue;
 		}
 
@@ -268,11 +272,11 @@ public class DTreeInferencer<ValueType extends Value, UpdateType extends Update,
 
 		public boolean pure() {
 			assert updateToValue.size() > 0;
-			int uniqueKeys = new HashSet<Update>(updateToValue.all1()).size();
+			int uniqueKeys = new HashSet<Cmd>(updateToValue.all1()).size();
 			return uniqueKeys == 1;
 		}
 
-		public Update pureLabel() {
+		public Cmd pureLabel() {
 			assert pure();
 			var result = updateToValue.all1().iterator().next();
 			return result;

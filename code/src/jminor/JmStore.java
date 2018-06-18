@@ -12,7 +12,7 @@ import org.stringtemplate.v4.ST;
 
 import bgu.cs.util.STGLoader;
 import grammar.Node;
-import pexyn.Domain.Value;
+import pexyn.Domain.Store;
 
 /**
  * Represents a concrete state of a PWhile program. Uninitialized variables and
@@ -20,8 +20,8 @@ import pexyn.Domain.Value;
  * 
  * @author romanm
  */
-public class Store implements Value {
-	public static final STGLoader templates = new STGLoader(Store.class, "Store");
+public class JmStore implements Store {
+	public static final STGLoader templates = new STGLoader(JmStore.class, JmStore.class.getSimpleName());
 
 	/**
 	 * The set of allocated objects.
@@ -41,14 +41,14 @@ public class Store implements Value {
 	 */
 	protected final Map<Obj, Map<Field, Val>> heap;
 
-	public static Store error(String description) {
+	public static JmStore error(String description) {
 		return new ErrorStore(description);
 	}
 
 	/**
 	 * Constructs an empty state.
 	 */
-	public Store() {
+	public JmStore() {
 		this.objects = new HashSet<>();
 		this.freeObjects = Set.of();
 		this.env = new HashMap<>();
@@ -68,7 +68,7 @@ public class Store implements Value {
 	 * @param heap
 	 *            A heap mapping objects and fields to other objects.
 	 */
-	public Store(Set<Obj> objects, Set<Obj> freeObjects, Map<Var, Val> env, Map<Obj, Map<Field, Val>> heap) {
+	public JmStore(Set<Obj> objects, Set<Obj> freeObjects, Map<Var, Val> env, Map<Obj, Map<Field, Val>> heap) {
 		assert objects != null && !objects.contains(Obj.NULL);
 		assert freeObjects != null && !freeObjects.contains(Obj.NULL);
 		assert Collections.disjoint(objects, freeObjects);
@@ -105,11 +105,11 @@ public class Store implements Value {
 	 */
 	@Override
 	public boolean equals(Object o) {
-		if (o == null || !(o instanceof Store))
+		if (o == null || !(o instanceof JmStore))
 			return false;
 		if (this == o)
 			return true;
-		Store other = (Store) o;
+		JmStore other = (JmStore) o;
 		if (!objects.equals(other.objects))
 			return false;
 		if (!freeObjects.equals(other.freeObjects))
@@ -121,12 +121,12 @@ public class Store implements Value {
 		return true;
 	}
 
-	public boolean equalHeap(Store other) {
+	public boolean equalHeap(JmStore other) {
 		assert objects.equals(other.objects);
 		return heap.equals(other.heap);
 	}
 
-	public boolean equalEnv(Store other) {
+	public boolean equalEnv(JmStore other) {
 		return env.equals(other.env);
 	}
 
@@ -145,8 +145,8 @@ public class Store implements Value {
 	 * @param deadVars
 	 *            A collection of out-of-scope variables.
 	 */
-	public Store clean(Iterable<Var> deadVars) {
-		Store result = new Store(new HashSet<>(this.objects), Set.of(), new HashMap<>(this.env), this.heap);
+	public JmStore clean(Iterable<Var> deadVars) {
+		JmStore result = new JmStore(new HashSet<>(this.objects), Set.of(), new HashMap<>(this.env), this.heap);
 		for (Var deadVar : deadVars) {
 			result.env.remove(deadVar);
 		}
@@ -156,7 +156,7 @@ public class Store implements Value {
 
 	public boolean containsGarbage() {
 		int numObjects = objects.size();
-		Store gfree = removeGarbage();
+		JmStore gfree = removeGarbage();
 		int numObjectsAfterGC = gfree.getObjects().size();
 		return numObjects != numObjectsAfterGC;
 	}
@@ -289,19 +289,19 @@ public class Store implements Value {
 	 * Returns a new state, resulting from assigning the given variable to the given
 	 * value.
 	 */
-	public Store assign(Var lvar, Val v) {
+	public JmStore assign(Var lvar, Val v) {
 		assert lvar != null && v != null && StoreUtils.typecheck(lvar, v);
 		Map<Var, Val> newEnv = new HashMap<>(this.env);
 		newEnv.put(lvar, v);
-		Store newState = new Store(this.objects, this.freeObjects, newEnv, this.heap);
+		JmStore newState = new JmStore(this.objects, this.freeObjects, newEnv, this.heap);
 		return newState;
 	}
 
-	public Store assign(Var t1, RefVar x) {
+	public JmStore assign(Var t1, RefVar x) {
 		return assign(t1, eval(x));
 	}
 
-	public Store assign(Obj lobj, Field field, Val v) {
+	public JmStore assign(Obj lobj, Field field, Val v) {
 		assert lobj != null && field != null && v != null;
 		assert StoreUtils.typecheck(field, v);
 		assert StoreUtils.typecheck(field, lobj);
@@ -313,19 +313,19 @@ public class Store implements Value {
 		newHeap.put(lobj, lobjFields);
 		lobjFields.put(field, v);
 
-		Store newState = new Store(this.objects, this.freeObjects, this.env, newHeap);
+		JmStore newState = new JmStore(this.objects, this.freeObjects, this.env, newHeap);
 		return newState;
 	}
 
-	public Store assign(RefVar lref, Field field, Val v) {
+	public JmStore assign(RefVar lref, Field field, Val v) {
 		return assign(eval(lref), field, v);
 	}
 
-	public Store assign(RefVar lref, IntField field, IntVar var) {
+	public JmStore assign(RefVar lref, IntField field, IntVar var) {
 		return assign(eval(lref), field, eval(var));
 	}
 
-	public Store assign(RefVar lref, Field field, RefVar rref) {
+	public JmStore assign(RefVar lref, Field field, RefVar rref) {
 		return assign(eval(lref), field, eval(rref));
 	}
 
@@ -340,7 +340,7 @@ public class Store implements Value {
 	 * Performs garbage collection for removing objects unreachable from the
 	 * environment variables.
 	 */
-	protected Store removeGarbage() {
+	protected JmStore removeGarbage() {
 		Set<Obj> reachable = new HashSet<>(env.values().size());
 		for (Val v : env.values()) {
 			if (v instanceof Obj)
@@ -373,7 +373,7 @@ public class Store implements Value {
 		for (Obj reachhObj : reachable) {
 			newHeap.put(reachhObj, this.heap.get(reachhObj));
 		}
-		Store result = new Store(newObjs, this.freeObjects, this.env, newHeap);
+		JmStore result = new JmStore(newObjs, this.freeObjects, this.env, newHeap);
 		return result;
 	}
 
@@ -402,7 +402,7 @@ public class Store implements Value {
 	 * @author romanm
 	 *
 	 */
-	public static class ErrorStore extends Store {
+	public static class ErrorStore extends JmStore {
 		public final String description;
 
 		protected ErrorStore(String description) {
@@ -421,7 +421,7 @@ public class Store implements Value {
 		}
 
 		@Override
-		public Store clean(Iterable<Var> deadVars) {
+		public JmStore clean(Iterable<Var> deadVars) {
 			return this;
 		}
 
@@ -476,37 +476,37 @@ public class Store implements Value {
 		}
 
 		@Override
-		public Store assign(Var lvar, Val v) {
+		public JmStore assign(Var lvar, Val v) {
 			throw new Error("Illegal access to error store!");
 		}
 
 		@Override
-		public Store assign(Var t1, RefVar x) {
+		public JmStore assign(Var t1, RefVar x) {
 			throw new Error("Illegal access to error store!");
 		}
 
 		@Override
-		public Store assign(Obj lobj, Field field, Val v) {
+		public JmStore assign(Obj lobj, Field field, Val v) {
 			throw new Error("Illegal access to error store!");
 		}
 
 		@Override
-		public Store assign(RefVar lref, Field field, Val v) {
+		public JmStore assign(RefVar lref, Field field, Val v) {
 			throw new Error("Illegal access to error store!");
 		}
 
 		@Override
-		public Store assign(RefVar lref, IntField field, IntVar var) {
+		public JmStore assign(RefVar lref, IntField field, IntVar var) {
 			throw new Error("Illegal access to error store!");
 		}
 
 		@Override
-		public Store assign(RefVar lref, Field field, RefVar rref) {
+		public JmStore assign(RefVar lref, Field field, RefVar rref) {
 			throw new Error("Illegal access to error store!");
 		}
 
 		@Override
-		protected Store removeGarbage() {
+		protected JmStore removeGarbage() {
 			throw new Error("Illegal access to error store!");
 		}
 	}

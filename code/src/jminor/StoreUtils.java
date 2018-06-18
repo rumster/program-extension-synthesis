@@ -22,7 +22,7 @@ import bgu.cs.util.graph.MultiGraph;
 import bgu.cs.util.graph.visualization.GraphizVisualizer;
 import gnu.trove.map.TObjectIntMap;
 import gnu.trove.map.hash.TObjectIntHashMap;
-import jminor.Store.ErrorStore;
+import jminor.JmStore.ErrorStore;
 
 /**
  * Store-related utility methods.
@@ -30,7 +30,7 @@ import jminor.Store.ErrorStore;
  * @author romanm
  */
 public class StoreUtils {
-	protected static STGLoader templates = new STGLoader(Store.class);
+	protected static STGLoader templates = new STGLoader(JmStore.class);
 
 	private static Map<Obj, String> objToName = new HashMap<>();
 
@@ -60,7 +60,7 @@ public class StoreUtils {
 	/**
 	 * Renders the given store into an image file with the given base name.
 	 */
-	public static void printStore(Store store, String filename, Logger logger) {
+	public static void printStore(JmStore store, String filename, Logger logger) {
 		String dotStr;
 		if (store instanceof ErrorStore) {
 			ErrorStore errorStore = (ErrorStore) store;
@@ -77,7 +77,7 @@ public class StoreUtils {
 	 * Returns a representation of the given store in the DOT (graph language)
 	 * format.
 	 */
-	public static String storeToDOT(Store store) {
+	public static String storeToDOT(JmStore store) {
 		ST template = templates.load("StoreDOT");
 
 		// Assign objects names and render their non-reference values.
@@ -144,7 +144,7 @@ public class StoreUtils {
 	 * Returns a multigraph whose nodes are the objects of the state and the edges
 	 * are labeled by the corresponding {@link RefField} fields.
 	 */
-	public static MultiGraph<Obj, RefField> storeToObjMultiGraph(Store state) {
+	public static MultiGraph<Obj, RefField> storeToObjMultiGraph(JmStore state) {
 		HashMultiGraph<Obj, RefField> result = new HashMultiGraph<>();
 		result.addNode(Obj.NULL);
 		for (Obj o : state.getObjects()) {
@@ -164,30 +164,30 @@ public class StoreUtils {
 		return result;
 	}
 
-	public static boolean reachableObjects(Store state) {
+	public static boolean reachableObjects(JmStore state) {
 		return reachableObjects(state, new LinkedList<Var>());
 	}
 
-	public static boolean reachableObjects(Store state, Collection<Var> excludeSet) {
+	public static boolean reachableObjects(JmStore state, Collection<Var> excludeSet) {
 		int reachableObjects = StoreUtils.search(state, false, excludeSet).size();
 		int totalObjects = state.getObjects().size();
 		return (reachableObjects == totalObjects);
 	}
 
-	public static List<Obj> dfs(Store state) {
+	public static List<Obj> dfs(JmStore state) {
 		return search(state, true);
 	}
 
-	public static List<Obj> bfs(Store state) {
+	public static List<Obj> bfs(JmStore state) {
 		return search(state, false);
 
 	}
 
-	public static List<Obj> search(Store state, boolean depth) {
+	public static List<Obj> search(JmStore state, boolean depth) {
 		return search(state, depth, new LinkedList<Var>());
 	}
 
-	public static List<Obj> search(Store state, boolean depth, Collection<Var> excludeSet) {
+	public static List<Obj> search(JmStore state, boolean depth, Collection<Var> excludeSet) {
 		List<Obj> result = new ArrayList<>(state.getObjects().size());
 		LinkedList<Obj> open = new LinkedList<>();
 
@@ -234,7 +234,7 @@ public class StoreUtils {
 	 * @param sources
 	 *            A set of objects in the given state.
 	 */
-	public static TObjectIntMap<Obj> bfsMap(Store state, Set<Obj> sources) {
+	public static TObjectIntMap<Obj> bfsMap(JmStore state, Set<Obj> sources) {
 		Set<Obj> open = sources;
 		TObjectIntHashMap<Obj> result = new TObjectIntHashMap<>(state.objects.size(), 0.7f, -1);
 		for (Obj o : sources) {

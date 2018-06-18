@@ -9,44 +9,44 @@ import java.util.logging.Logger;
 
 import bgu.cs.util.graph.MultiGraph.Edge;
 import bgu.cs.util.rel.HashRel2;
+import guardInference.ConditionInferencer;
 import pexyn.Domain;
 import pexyn.GPDebugger;
 import pexyn.Plan;
 import pexyn.Domain.Guard;
-import pexyn.Domain.Update;
-import pexyn.Domain.Value;
-import pexyn.separation.ConditionInferencer;
+import pexyn.Domain.Cmd;
+import pexyn.Domain.Store;
 
 /**
  * An algorithm for inferring program automata from input traces.
  * 
  * @author romanm
  *
- * @param <ValueType>
- *            The type of domain values.
- * @param <UpdateType>
+ * @param <StoreType>
+ *            The type of stores.
+ * @param <CmdType>
  *            The type of domain updates.
  * @param <GuardType>
  *            The type of domain guards.
  */
-public class PETI<ValueType extends Value, UpdateType extends Update, GuardType extends Guard> {
-	private final GPDebugger<ValueType, UpdateType, GuardType> debugger;
+public class PETI<StoreType extends Store, CmdType extends Cmd, GuardType extends Guard> {
+	private final GPDebugger<StoreType, CmdType, GuardType> debugger;
 
 	@SuppressWarnings("unused")
 	private final Logger logger;
 
-	private final Domain<ValueType, UpdateType, GuardType> domain;
+	private final Domain<StoreType, CmdType, GuardType> domain;
 
-	private final ConditionInferencer<ValueType, UpdateType, GuardType> separator;
+	private final ConditionInferencer<StoreType, CmdType, GuardType> separator;
 
 	/**
 	 * Constructs an instance of the algorithm.
 	 * 
 	 * @param debugger
 	 */
-	public PETI(Domain<ValueType, UpdateType, GuardType> domain,
-			ConditionInferencer<ValueType, UpdateType, GuardType> separator,
-			GPDebugger<ValueType, UpdateType, GuardType> debugger, Logger logger) {
+	public PETI(Domain<StoreType, CmdType, GuardType> domain,
+			ConditionInferencer<StoreType, CmdType, GuardType> separator,
+			GPDebugger<StoreType, CmdType, GuardType> debugger, Logger logger) {
 		assert debugger != null && domain != null && separator != null;
 		this.debugger = debugger;
 		this.logger = logger;
@@ -57,7 +57,7 @@ public class PETI<ValueType extends Value, UpdateType extends Update, GuardType 
 	/**
 	 * Runs the algorithm on the given collection of example traces.
 	 */
-	public Result infer(Collection<Plan<ValueType, UpdateType>> traces) {
+	public Result infer(Collection<Plan<StoreType, CmdType>> traces) {
 		var optPrefixAutomaton = prefixAutomaton(traces, domain, debugger);
 		if (!optPrefixAutomaton.isPresent()) {
 			return null;
@@ -174,9 +174,9 @@ public class PETI<ValueType extends Value, UpdateType extends Update, GuardType 
 	/**
 	 * Attempts to constructs a prefix automaton out of a collection of traces.
 	 */
-	public static <ValueType extends Value, UpdateType extends Update, GuardType extends Guard> Optional<Automaton> prefixAutomaton(
-			Collection<Plan<ValueType, UpdateType>> traces, Domain<ValueType, UpdateType, GuardType> domain,
-			GPDebugger<ValueType, UpdateType, GuardType> debugger) {
+	public static <StoreType extends Store, CmdType extends Cmd, GuardType extends Guard> Optional<Automaton> prefixAutomaton(
+			Collection<Plan<StoreType, CmdType>> traces, Domain<StoreType, CmdType, GuardType> domain,
+			GPDebugger<StoreType, CmdType, GuardType> debugger) {
 		var stateCounter = 0;
 		var result = new Automaton();
 		var traceCounter = 0;
@@ -225,7 +225,7 @@ public class PETI<ValueType extends Value, UpdateType extends Update, GuardType 
 			if (automaton.outDegree(state) <= 1)
 				continue;
 
-			var updateToValue = new HashRel2<Update, Value>();
+			var updateToValue = new HashRel2<Cmd, Store>();
 			state.updateToValues().forEach((update, values) -> {				
 				for (var value : values) {
 					updateToValue.add(update, value);
@@ -252,14 +252,14 @@ public class PETI<ValueType extends Value, UpdateType extends Update, GuardType 
 			if (automaton.outDegree(state) <= 1)
 				continue;
 
-			var updates = new ArrayList<Update>();
-			List<Collection<? extends Value>> updateValues = new ArrayList<>();
+			var updates = new ArrayList<Cmd>();
+			List<Collection<? extends Store>> updateValues = new ArrayList<>();
 			state.updateToValues().forEach((update, values) -> {
 				updates.add(update);
 				updateValues.add(values);
 			});
 			var optGuards = separator.inferList(updateValues);
-			var updateToGuard = new HashMap<Update, GuardType>();
+			var updateToGuard = new HashMap<Cmd, GuardType>();
 			for (int i = 0; i < optGuards.size(); ++i) {
 				var optGuard = optGuards.get(i);
 				if (optGuard.isPresent()) {

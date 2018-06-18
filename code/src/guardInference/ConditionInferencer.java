@@ -1,4 +1,4 @@
-package pexyn.separation;
+package guardInference;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -8,29 +8,29 @@ import java.util.Optional;
 
 import bgu.cs.util.rel.Rel2;
 import pexyn.Domain.Guard;
-import pexyn.Domain.Update;
-import pexyn.Domain.Value;
+import pexyn.Domain.Cmd;
+import pexyn.Domain.Store;
 
 /**
  * An algorithm for inferring predicates that separate sets of states.
  * 
  * @author romanm
  *
- * @param <ValueType>
+ * @param <StoreType>
  *            The type of states.
  * @param <GuardType>
  *            The type of predicates.
  */
-public abstract class ConditionInferencer<ValueType extends Value, UpdateType extends Update, GuardType extends Guard> {
+public abstract class ConditionInferencer<StoreType extends Store, CmdType extends Cmd, GuardType extends Guard> {
 	/**
 	 * Attempts to infer a predicate that holds for all values in the first
 	 * collection and none of the values in the second collection.
 	 */
-	public abstract Optional<GuardType> infer(Collection<? extends Value> first, Collection<? extends Value> second);
+	public abstract Optional<GuardType> infer(Collection<? extends Store> first, Collection<? extends Store> second);
 
 	public abstract List<GuardType> guards();
 
-	public Optional<Map<Update, ? extends Guard>> infer(Rel2<Update, Value> updateToValue) {
+	public Optional<Map<Cmd, ? extends Guard>> infer(Rel2<Cmd, Store> updateToValue) {
 		throw new UnsupportedOperationException();
 	}
 
@@ -38,11 +38,11 @@ public abstract class ConditionInferencer<ValueType extends Value, UpdateType ex
 	 * Attempts to infer a predicate that holds for all values at a given index of
 	 * the given list and none of the values at any other index.
 	 */
-	public List<Optional<GuardType>> inferList(List<Collection<? extends Value>> setsOfValues) {
+	public List<Optional<GuardType>> inferList(List<Collection<? extends Store>> setsOfValues) {
 		var result = new ArrayList<Optional<GuardType>>(setsOfValues.size());
 		for (int i = 0; i < setsOfValues.size(); ++i) {
 			var first = setsOfValues.get(i);
-			var unionOfAllOtherValues = new ArrayList<Value>();
+			var unionOfAllOtherValues = new ArrayList<Store>();
 			for (int j = 0; j < setsOfValues.size(); ++j) {
 				if (i != j) {
 					unionOfAllOtherValues.addAll(setsOfValues.get(j));

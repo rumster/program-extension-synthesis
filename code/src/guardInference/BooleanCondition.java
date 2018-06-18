@@ -1,4 +1,4 @@
-package pexyn.separation;
+package guardInference;
 
 public interface BooleanCondition {
 	public BooleanCondition not(BooleanCondition sub);

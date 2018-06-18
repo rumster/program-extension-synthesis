@@ -1,13 +1,13 @@
 package pexyn.generalization;
 
-import pexyn.Domain.Update;
+import pexyn.Domain.Cmd;
 
 /**
  * An update signifying that the automaton has arrived to the final state.
  * 
  * @author romanm
  */
-class HaltUpdate implements Update {
+class HaltUpdate implements Cmd {
 	public static final HaltUpdate v = new HaltUpdate();
 
 	@Override

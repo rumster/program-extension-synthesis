@@ -17,7 +17,7 @@ import bgu.cs.util.STHierarchyRenderer;
 import bgu.cs.util.rel.HashRel2;
 import bgu.cs.util.rel.Rel2;
 import grammar.CostSize;
-import jminor.Store.ErrorStore;
+import jminor.JmStore.ErrorStore;
 import jminor.Var.VarRole;
 import pexyn.Domain;
 import pexyn.Plan;
@@ -27,7 +27,7 @@ import pexyn.Plan;
  * 
  * @author romanm
  */
-public class JminorDomain implements Domain<Store, Stmt, BoolExpr> {
+public class JminorDomain implements Domain<JmStore, Stmt, BoolExpr> {
 	public final Set<Field> fields = new LinkedHashSet<>();
 
 	/**
@@ -56,7 +56,7 @@ public class JminorDomain implements Domain<Store, Stmt, BoolExpr> {
 
 	@Override
 	public String name() {
-		return "HeapDomain";
+		return "JminorDomain";
 	}
 
 	@Override
@@ -65,13 +65,13 @@ public class JminorDomain implements Domain<Store, Stmt, BoolExpr> {
 	}
 
 	@Override
-	public boolean test(BoolExpr expr, Store state) {
+	public boolean test(BoolExpr expr, JmStore state) {
 		Boolean result = PWhileInterpreter.v.test(expr, state);
 		return result != null && result.booleanValue();
 	}
 
 	@Override
-	public boolean match(Store first, Store second) {
+	public boolean match(JmStore first, JmStore second) {
 		for (Map.Entry<Var, Val> entry : second.getEnvMap().entrySet()) {
 			Var var = entry.getKey();
 			Val val = entry.getValue();
@@ -95,11 +95,11 @@ public class JminorDomain implements Domain<Store, Stmt, BoolExpr> {
 	}
 
 	@Override
-	public Optional<Store> apply(Stmt stmt, Store store) {
-		Optional<Store> result = Optional.empty();
-		Collection<Store> succs = BasicJminorTR.applier.apply(store, stmt);
+	public Optional<JmStore> apply(Stmt stmt, JmStore store) {
+		Optional<JmStore> result = Optional.empty();
+		Collection<JmStore> succs = BasicJminorTR.applier.apply(store, stmt);
 		if (succs.size() == 1) {
-			Store next = succs.iterator().next();
+			JmStore next = succs.iterator().next();
 			if (!(next instanceof ErrorStore)) {
 				result = Optional.of(next);
 			}
@@ -241,7 +241,7 @@ public class JminorDomain implements Domain<Store, Stmt, BoolExpr> {
 	 * possible) constants.
 	 */
 	@Override
-	public List<BoolExpr> generateGuards(List<Plan<Store, Stmt>> plans) {
+	public List<BoolExpr> generateGuards(List<Plan<JmStore, Stmt>> plans) {
 		var posLiterals = generateBasicGuards(plans);
 		var negLiterals = new ArrayList<BoolExpr>();
 		for (var e : posLiterals) {
@@ -300,10 +300,10 @@ public class JminorDomain implements Domain<Store, Stmt, BoolExpr> {
 		return result;
 	}
 
-	public static Set<IntVal> collectIntValsFromStores(List<Plan<Store, Stmt>> plans) {
+	public static Set<IntVal> collectIntValsFromStores(List<Plan<JmStore, Stmt>> plans) {
 		final var result = new HashSet<IntVal>();
 		for (final var plan : plans) {
-			for (final Store store : plan.states()) {
+			for (final JmStore store : plan.states()) {
 				for (final Val v : store.env.values()) {
 					if (v instanceof IntVal) {
 						result.add((IntVal) v);
@@ -325,9 +325,9 @@ public class JminorDomain implements Domain<Store, Stmt, BoolExpr> {
 		return result;
 	}
 
-	public static Set<IntVal> collectIntValsFromStmts(List<Plan<Store, Stmt>> plans) {
+	public static Set<IntVal> collectIntValsFromStmts(List<Plan<JmStore, Stmt>> plans) {
 		final var result = new HashSet<IntVal>();
-		for (final Plan<Store, Stmt> plan : plans) {
+		for (final Plan<JmStore, Stmt> plan : plans) {
 			for (final Stmt stmt : plan.actions()) {
 				stmt.accept(new PWhileVisitor() {
 					public void visit(IntVal val) {
@@ -339,7 +339,7 @@ public class JminorDomain implements Domain<Store, Stmt, BoolExpr> {
 		return result;
 	}
 
-	protected void addBasicIntGuards(List<Plan<Store, Stmt>> plans, List<BoolExpr> result) {
+	protected void addBasicIntGuards(List<Plan<JmStore, Stmt>> plans, List<BoolExpr> result) {
 		// Collect all of the integers constants into a single set.
 		final var storeVals = collectIntValsFromStores(plans);
 		final var stmtVals = collectIntValsFromStmts(plans);
@@ -433,7 +433,7 @@ public class JminorDomain implements Domain<Store, Stmt, BoolExpr> {
 	/**
 	 * TODO: prune out incorrectly-typed expressions.
 	 */
-	protected void addBasicRefGuards(List<Plan<Store, Stmt>> plans, List<BoolExpr> result) {
+	protected void addBasicRefGuards(List<Plan<JmStore, Stmt>> plans, List<BoolExpr> result) {
 		boolean storesWithObjects = false;
 		for (var plan : plans) {
 			for (var store : plan.states()) {
@@ -489,7 +489,7 @@ public class JminorDomain implements Domain<Store, Stmt, BoolExpr> {
 	}
 
 	@Override
-	public List<BoolExpr> generateBasicGuards(List<Plan<Store, Stmt>> plans) {
+	public List<BoolExpr> generateBasicGuards(List<Plan<JmStore, Stmt>> plans) {
 		final var result = new ArrayList<BoolExpr>();
 		addBasicIntGuards(plans, result);
 		addBasicRefGuards(plans, result);
@@ -503,7 +503,7 @@ public class JminorDomain implements Domain<Store, Stmt, BoolExpr> {
 	}
 
 	@Override
-	public List<BoolExpr> generateCompleteBasicGuards(List<Plan<Store, Stmt>> plans) {
+	public List<BoolExpr> generateCompleteBasicGuards(List<Plan<JmStore, Stmt>> plans) {
 		var guards = new ArrayList<BoolExpr>();
 		for (var e : generateBasicGuards(plans)) {
 			guards.add(e);
@@ -538,7 +538,7 @@ public class JminorDomain implements Domain<Store, Stmt, BoolExpr> {
 	 */
 	@Override
 	public String toString() {
-		ST template = templates.load("HeapDomain");
+		ST template = templates.load("JminorDomain");
 		for (Type type : types) {
 			if (type instanceof RefType) {
 				ST refTypeTemplate = templates.load("RefType");

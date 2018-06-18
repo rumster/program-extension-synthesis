@@ -1,4 +1,4 @@
-package pexyn.separation;
+package guardInference;
 
 import java.util.Collection;
 import java.util.List;
@@ -7,8 +7,8 @@ import java.util.Optional;
 import pexyn.Domain;
 import pexyn.Plan;
 import pexyn.Domain.Guard;
-import pexyn.Domain.Update;
-import pexyn.Domain.Value;
+import pexyn.Domain.Cmd;
+import pexyn.Domain.Store;
 
 /**
  * An inferencer that simply iterates over a list of given predicates and
@@ -17,27 +17,27 @@ import pexyn.Domain.Value;
  * @author romanm
  */
 @Deprecated
-public class LinearInferencer<ValueType extends Value, UpdateType extends Update, GuardType extends Guard>
-		extends ConditionInferencer<ValueType, UpdateType, GuardType> {
+public class LinearInferencer<StoreType extends Store, CmdType extends Cmd, GuardType extends Guard>
+		extends ConditionInferencer<StoreType, CmdType, GuardType> {
 	/**
 	 * The domain comprised of values and predicates.
 	 */
-	public Domain<ValueType, UpdateType, GuardType> domain;
+	public Domain<StoreType, CmdType, GuardType> domain;
 
 	private final List<GuardType> guards;
 
-	public LinearInferencer(Domain<ValueType, UpdateType, GuardType> domain, List<Plan<ValueType, UpdateType>> plans) {
+	public LinearInferencer(Domain<StoreType, CmdType, GuardType> domain, List<Plan<StoreType, CmdType>> plans) {
 		this.domain = domain;
 		this.guards = domain.generateGuards(plans);
 	}
 
 	@Override
-	public Optional<GuardType> infer(Collection<? extends Value> first, Collection<? extends Value> second) {
+	public Optional<GuardType> infer(Collection<? extends Store> first, Collection<? extends Store> second) {
 		for (var guard : guards) {
 			var separates = true;
 			for (var val1 : first) {
 				@SuppressWarnings("unchecked")
-				var val1Typed = (ValueType) val1;
+				var val1Typed = (StoreType) val1;
 				if (!domain.test(guard, val1Typed)) {
 					separates = false;
 					break;
@@ -48,7 +48,7 @@ public class LinearInferencer<ValueType extends Value, UpdateType extends Update
 			}
 			for (var val2 : second) {
 				@SuppressWarnings("unchecked")
-				var val2Typed = (ValueType) val2;
+				var val2Typed = (StoreType) val2;
 				if (domain.test(guard, val2Typed)) {
 					separates = false;
 					break;

@@ -12,7 +12,7 @@ import pexyn.planning.TR;
  * 
  * @author romanm
  */
-public class BasicJminorTR implements TR<Store, Stmt> {
+public class BasicJminorTR implements TR<JmStore, Stmt> {
 	public static final BasicJminorTR applier = new BasicJminorTR(
 			JminorDomain.fromVarsAndTypes(Collections.emptyList(), Collections.emptyList()));
 
@@ -23,7 +23,7 @@ public class BasicJminorTR implements TR<Store, Stmt> {
 	}
 
 	@Override
-	public Collection<Stmt> enabledActions(Store store) {
+	public Collection<Stmt> enabledActions(JmStore store) {
 		Collection<Stmt> result = new ArrayList<>(domain.stmts.size());
 		for (var stmt : domain.stmts) {
 			if (stmt.enabled(store)) {
@@ -34,13 +34,13 @@ public class BasicJminorTR implements TR<Store, Stmt> {
 	}
 
 	@Override
-	public float transitionCost(Store src, Stmt action, Store dst) {
+	public float transitionCost(JmStore src, Stmt action, JmStore dst) {
 		return 1;
 	}
 
 	@Override
-	public Collection<Store> apply(Store store, Stmt stmt) {
-		Store result = PWhileInterpreter.v.run(stmt, store, PWhileInterpreter.v.guessMaxSteps(stmt, store)).get();
+	public Collection<JmStore> apply(JmStore store, Stmt stmt) {
+		JmStore result = PWhileInterpreter.v.run(stmt, store, PWhileInterpreter.v.guessMaxSteps(stmt, store)).get();
 		return List.of(result);
 	}
 }

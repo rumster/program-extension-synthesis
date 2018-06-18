@@ -6,14 +6,14 @@ import java.util.Collections;
 import java.util.List;
 
 import grammar.Node;
-import pexyn.Domain.Update;
+import pexyn.Domain.Cmd;
 
 /**
  * A base class for PWhile statements.
  * 
  * @author romanm
  */
-public abstract class Stmt extends Node implements Update {
+public abstract class Stmt extends Node implements Cmd {
 	protected final List<Node> args;
 
 	@Override
@@ -24,9 +24,9 @@ public abstract class Stmt extends Node implements Update {
 	/**
 	 * Tests whether this statement can be applied to the given state.
 	 */
-	public boolean enabled(Store store) {
-		Store result = PWhileInterpreter.v.run(this, store, PWhileInterpreter.v.guessMaxSteps(this, store)).get();
-		return !(result instanceof Store.ErrorStore);
+	public boolean enabled(JmStore store) {
+		JmStore result = PWhileInterpreter.v.run(this, store, PWhileInterpreter.v.guessMaxSteps(this, store)).get();
+		return !(result instanceof JmStore.ErrorStore);
 	}
 
 	@Override

@@ -8,8 +8,8 @@ import bgu.cs.util.graph.visualization.EdgeDataProperties;
 import bgu.cs.util.graph.visualization.GraphicProperties;
 import bgu.cs.util.graph.visualization.NodeProperties;
 import pexyn.Domain.Guard;
-import pexyn.Domain.Update;
-import pexyn.Domain.Value;
+import pexyn.Domain.Cmd;
+import pexyn.Domain.Store;
 import pexyn.generalization.Action;
 import pexyn.generalization.Automaton;
 import pexyn.generalization.State;
@@ -17,7 +17,7 @@ import pexyn.generalization.State;
 /**
  * A debugger for generalized planning.
  */
-public abstract class GPDebugger<ValueType extends Value, UpdateType extends Update, GuardType extends Guard>
+public abstract class GPDebugger<StoreType extends Store, CmdType extends Cmd, GuardType extends Guard>
 		extends HTMLPrinter {
 	/**
 	 * Constructs a debugger for generalized planning tasks.
@@ -36,7 +36,7 @@ public abstract class GPDebugger<ValueType extends Value, UpdateType extends Upd
 	/**
 	 * Prints a plan.
 	 */
-	public abstract void printPlan(Plan<ValueType, UpdateType> plan, int planIndex);
+	public abstract void printPlan(Plan<StoreType, CmdType> plan, int planIndex);
 
 	/**
 	 * Prints the given automaton with the given description.
@@ -66,7 +66,7 @@ public abstract class GPDebugger<ValueType extends Value, UpdateType extends Upd
 	/**
 	 * Returns a textual representation for the given update.
 	 */
-	public abstract String renderUpdate(Update update);
+	public abstract String renderUpdate(Cmd update);
 
 	/**
 	 * Returns a textual representation for the given guard.

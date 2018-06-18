@@ -1,4 +1,4 @@
-package pexyn.separation;
+package guardInference;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -9,17 +9,17 @@ import java.util.stream.Collectors;
 import pexyn.Domain;
 import pexyn.Plan;
 import pexyn.Domain.Guard;
-import pexyn.Domain.Update;
-import pexyn.Domain.Value;
+import pexyn.Domain.Cmd;
+import pexyn.Domain.Store;
 
 /**
  * An inferencer is loosely based on ID3 algorithm.
  * 
  * @author alexanders
  */
-public class ID3Inferencer<ValueType extends Value, UpdateType extends Update, GuardType extends Guard>
-		extends ConditionInferencer<ValueType, UpdateType, GuardType> {
-	private Domain<ValueType, UpdateType, GuardType> domain;
+public class ID3Inferencer<StoreType extends Store, CmdType extends Cmd, GuardType extends Guard>
+		extends ConditionInferencer<StoreType, CmdType, GuardType> {
+	private Domain<StoreType, CmdType, GuardType> domain;
 	private final List<GuardType> basicGuards;
 
 	/**
@@ -27,13 +27,13 @@ public class ID3Inferencer<ValueType extends Value, UpdateType extends Update, G
 	 * @param guards,
 	 *            sorted list of basic predicates
 	 */
-	public ID3Inferencer(Domain<ValueType, UpdateType, GuardType> domain, List<Plan<ValueType, UpdateType>> plans) {
+	public ID3Inferencer(Domain<StoreType, CmdType, GuardType> domain, List<Plan<StoreType, CmdType>> plans) {
 		this.domain = domain;
 		this.basicGuards = domain.generateCompleteBasicGuards(plans);
 	}
 
 	@Override
-	public Optional<GuardType> infer(Collection<? extends Value> first, Collection<? extends Value> second) {
+	public Optional<GuardType> infer(Collection<? extends Store> first, Collection<? extends Store> second) {
 		return inferHelper(first, second, basicGuards);
 	}
 
@@ -45,29 +45,29 @@ public class ID3Inferencer<ValueType extends Value, UpdateType extends Update, G
 	 * separate (false)negative first and negative second - P3 2.3. Combine the
 	 * result as (P1 & P2) | (~P1 & P3)
 	 */
-	private Optional<GuardType> inferHelper(Collection<? extends Value> first, Collection<? extends Value> second,
+	private Optional<GuardType> inferHelper(Collection<? extends Store> first, Collection<? extends Store> second,
 			List<GuardType> guards) {
 		if (guards.isEmpty()) {
 			return Optional.empty();
 		}
 
-		Collection<? extends Value> bestPositiveFirst = null;
-		Collection<? extends Value> bestNegativeFirst = null;
-		Collection<? extends Value> bestPositiveSecond = null;
-		Collection<? extends Value> bestNegativeSecond = null;
+		Collection<? extends Store> bestPositiveFirst = null;
+		Collection<? extends Store> bestNegativeFirst = null;
+		Collection<? extends Store> bestPositiveSecond = null;
+		Collection<? extends Store> bestNegativeSecond = null;
 		GuardType bestGuard = null;
 		int bestScore = 0;
 		for (GuardType guard : guards) {
 			@SuppressWarnings("unchecked")
-			Collection<? extends Value> positiveFirst = first.stream().filter(e -> domain.test(guard, (ValueType) e))
+			Collection<? extends Store> positiveFirst = first.stream().filter(e -> domain.test(guard, (StoreType) e))
 					.collect(Collectors.toList());
-			Collection<? extends Value> negativeFirst = new ArrayList<>(first);
+			Collection<? extends Store> negativeFirst = new ArrayList<>(first);
 			negativeFirst.removeAll(positiveFirst);
 
 			@SuppressWarnings("unchecked")
-			Collection<? extends Value> positiveSecond = second.stream().filter(e -> domain.test(guard, (ValueType) e))
+			Collection<? extends Store> positiveSecond = second.stream().filter(e -> domain.test(guard, (StoreType) e))
 					.collect(Collectors.toList());
-			Collection<? extends Value> negativeSecond = new ArrayList<>(second);
+			Collection<? extends Store> negativeSecond = new ArrayList<>(second);
 			negativeSecond.removeAll(positiveSecond);
 
 			if ((positiveFirst.size() + negativeSecond.size()) > bestScore) {

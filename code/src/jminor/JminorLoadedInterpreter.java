@@ -10,7 +10,7 @@ import pexyn.Plan;
  * 
  * @author romanm
  */
-public class JminorLoadedInterpreter implements LoadedInterpreter<Store, Stmt, BoolExpr> {
+public class JminorLoadedInterpreter implements LoadedInterpreter<JmStore, Stmt, BoolExpr> {
 	private final Stmt prog;
 
 	public JminorLoadedInterpreter(Stmt prog) {
@@ -18,12 +18,12 @@ public class JminorLoadedInterpreter implements LoadedInterpreter<Store, Stmt, B
 	}
 
 	@Override
-	public Optional<Store> run(Store input, int maxSteps) {
+	public Optional<JmStore> run(JmStore input, int maxSteps) {
 		return PWhileInterpreter.v.run(prog, input, maxSteps);
 	}
 
 	@Override
-	public Optional<Plan<Store, Stmt>> genTrace(Store input, int maxSteps) {
+	public Optional<Plan<JmStore, Stmt>> genTrace(JmStore input, int maxSteps) {
 		return PWhileInterpreter.v.genTrace(prog, input, maxSteps);
 	}
 }

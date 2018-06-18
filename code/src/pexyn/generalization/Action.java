@@ -1,7 +1,7 @@
 package pexyn.generalization;
 
 import pexyn.Domain.Guard;
-import pexyn.Domain.Update;
+import pexyn.Domain.Cmd;
 
 /**
  * An action labeling an automaton transition.
@@ -9,10 +9,10 @@ import pexyn.Domain.Update;
  * @author romanm
  */
 public class Action {
-	public final Update update;
+	public final Cmd update;
 	private Guard guard;
 
-	public Action(Guard guard, Update update) {
+	public Action(Guard guard, Cmd update) {
 		assert guard != null && update != null;
 		this.guard = guard;
 		this.update = update;

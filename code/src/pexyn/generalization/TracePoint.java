@@ -1,8 +1,8 @@
 package pexyn.generalization;
 
 import pexyn.Plan;
-import pexyn.Domain.Update;
-import pexyn.Domain.Value;
+import pexyn.Domain.Cmd;
+import pexyn.Domain.Store;
 
 /**
  * A point along a trace. Trace points are immutable.
@@ -10,10 +10,10 @@ import pexyn.Domain.Value;
  * @author romanm
  */
 public class TracePoint {
-	public final Plan<? extends Value, ? extends Update> plan;
+	public final Plan<? extends Store, ? extends Cmd> plan;
 	public final int pos;
 
-	public TracePoint(Plan<? extends Value, ? extends Update> plan, int pos) {
+	public TracePoint(Plan<? extends Store, ? extends Cmd> plan, int pos) {
 		assert plan != null;
 		assert pos >= 0 && pos < plan.size();
 		this.plan = plan;

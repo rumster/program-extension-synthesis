@@ -15,7 +15,7 @@ import pexyn.Example;
 import pexyn.GPDebugger;
 import pexyn.Plan;
 import pexyn.Domain.Guard;
-import pexyn.Domain.Update;
+import pexyn.Domain.Cmd;
 import pexyn.generalization.Automaton;
 
 /**
@@ -23,7 +23,7 @@ import pexyn.generalization.Automaton;
  * 
  * @author romanm
  */
-public class JminorDebugger extends GPDebugger<Store, Stmt, BoolExpr> {
+public class JminorDebugger extends GPDebugger<JmStore, Stmt, BoolExpr> {
 	public static String STATE_IMAGE_FILE_POSTFIX = "svg";
 
 	public boolean logDetailedExampleRendering = false;
@@ -49,19 +49,19 @@ public class JminorDebugger extends GPDebugger<Store, Stmt, BoolExpr> {
 		super.printAutomaton(automaton, description);
 	}
 
-	public boolean printExamples(List<Example<Store, Stmt>> examples) {
+	public boolean printExamples(List<Example<JmStore, Stmt>> examples) {
 		if (!printExamples) {
 			return true;
 		}
 		logger.info("Visualizing examples...");
 		Logger examplesLogger = logDetailedExampleRendering ? logger : null;
 		ST exampleListTemplate = heapTemplates.load("examples");
-		for (Example<Store, Stmt> example : examples) {
+		for (Example<JmStore, Stmt> example : examples) {
 			ST indexedExampleTemplate = heapTemplates.load("indexedExample");
 			for (int stepIndex = 0; stepIndex < example.size(); ++stepIndex) {
-				Union2<? extends Store, ? extends Stmt> step = example.step(stepIndex);
+				Union2<? extends JmStore, ? extends Stmt> step = example.step(stepIndex);
 				if (step.isT1()) {
-					Store stage = step.getT1();
+					JmStore stage = step.getT1();
 					String storeImageFileName = "example_" + example.id + "_" + stepIndex + "."
 							+ STATE_IMAGE_FILE_POSTFIX;
 					String storeImageAbsoluteFileName = outputDirPath + File.separator + storeImageFileName;
@@ -90,7 +90,7 @@ public class JminorDebugger extends GPDebugger<Store, Stmt, BoolExpr> {
 	}
 
 	@Override
-	public void printPlan(Plan<Store, Stmt> plan, int planIndex) {		
+	public void printPlan(Plan<JmStore, Stmt> plan, int planIndex) {		
 		if (!printPlans) {
 			return;
 		}
@@ -99,7 +99,7 @@ public class JminorDebugger extends GPDebugger<Store, Stmt, BoolExpr> {
 		ST planTemplate = heapTemplates.load("plan");
 		planTemplate.add("planIndex", planIndex);
 		{
-			Store store = plan.stateAt(0);
+			JmStore store = plan.stateAt(0);
 			String filename = "Plan" + planIndex + "_" + 0 + "." + STATE_IMAGE_FILE_POSTFIX;
 			String filePath = outputDirPath + File.separator + filename;
 			StoreUtils.printStore(store, filePath, logger);
@@ -107,7 +107,7 @@ public class JminorDebugger extends GPDebugger<Store, Stmt, BoolExpr> {
 			planTemplate.add("indexedAction", new Pair<String, String>("initial", "" + 0));
 		}
 		for (int actionIndex = 0; actionIndex < plan.size() - 1; ++actionIndex) {
-			Store store = plan.stateAt(actionIndex + 1);
+			JmStore store = plan.stateAt(actionIndex + 1);
 			int storeIndex = actionIndex + 1;
 			Stmt action = plan.actionAt(actionIndex);
 			String filename = "Plan" + planIndex + "_" + storeIndex + "." + STATE_IMAGE_FILE_POSTFIX;
@@ -124,7 +124,7 @@ public class JminorDebugger extends GPDebugger<Store, Stmt, BoolExpr> {
 	}
 
 	@Override
-	public String renderUpdate(Update update) {
+	public String renderUpdate(Cmd update) {
 		Stmt stmt = (Stmt) update;
 		return Renderer.render(stmt);
 	}

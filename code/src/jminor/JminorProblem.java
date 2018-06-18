@@ -12,7 +12,7 @@ import pexyn.SynthesisProblem;
  * 
  * @author romanm
  */
-public class JminorProblem extends SynthesisProblem<Store, Stmt, BoolExpr> {
+public class JminorProblem extends SynthesisProblem<JmStore, Stmt, BoolExpr> {
 	public final JminorDomain domain;
 	public final Optional<Stmt> optProg;
 	public final List<Var> inputArgs;
@@ -42,12 +42,12 @@ public class JminorProblem extends SynthesisProblem<Store, Stmt, BoolExpr> {
 	}
 
 	@Override
-	public Domain<Store, Stmt, BoolExpr> domain() {
+	public Domain<JmStore, Stmt, BoolExpr> domain() {
 		return domain;
 	}
 
 	@Override
-	public Optional<LoadedInterpreter<Store, Stmt, BoolExpr>> interpreter() {
+	public Optional<LoadedInterpreter<JmStore, Stmt, BoolExpr>> interpreter() {
 		if (optProg.isPresent()) {
 			return Optional.of(new JminorLoadedInterpreter(optProg.get()));
 		} else {

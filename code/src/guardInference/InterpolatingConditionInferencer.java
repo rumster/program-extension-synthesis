@@ -1,4 +1,4 @@
-package pexyn.separation;
+package guardInference;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -11,9 +11,9 @@ import java.util.Optional;
 import grammar.CachedLanguageIterator;
 import jminor.BoolExpr;
 import jminor.Stmt;
-import jminor.Store;
+import jminor.JmStore;
 import pexyn.Domain;
-import pexyn.Domain.Value;
+import pexyn.Domain.Store;
 
 /**
  * An inferencer based on finding a Boolean Craig interpolant.
@@ -23,18 +23,18 @@ import pexyn.Domain.Value;
  * @param <StateType>
  *            The type of states over which conditions range.
  */
-public class InterpolatingConditionInferencer extends ConditionInferencer<Store, Stmt, BoolExpr> {
+public class InterpolatingConditionInferencer extends ConditionInferencer<JmStore, Stmt, BoolExpr> {
 	private String outputDir;
-	public Map<Store, List<Boolean>> predicates;
+	public Map<JmStore, List<Boolean>> predicates;
 	/**
 	 * The domain comprised of values and predicates.
 	 */
-	public Domain<Store, Stmt, BoolExpr> domain;	
+	public Domain<JmStore, Stmt, BoolExpr> domain;	
 
 	private final CachedLanguageIterator citer;
 
 	// TODO - remove @outputDir (env variables?)
-	public InterpolatingConditionInferencer(Domain<Store, Stmt, BoolExpr> domain, CachedLanguageIterator citer,
+	public InterpolatingConditionInferencer(Domain<JmStore, Stmt, BoolExpr> domain, CachedLanguageIterator citer,
 			String outputDir) {
 		this.domain = domain;
 		this.outputDir = outputDir;
@@ -43,15 +43,15 @@ public class InterpolatingConditionInferencer extends ConditionInferencer<Store,
 	}
 
 	@Override
-	public Optional<BoolExpr> infer(Collection<? extends Value> first, Collection<? extends Value> second) {
+	public Optional<BoolExpr> infer(Collection<? extends Store> first, Collection<? extends Store> second) {
 		BoolExpr result = null;
 		Interpolator intp = new Interpolator(outputDir);
 
 		int maxPredicateIndx = 0;
-		for (Collection<? extends Value> states : Arrays.asList(first, second)) {
+		for (Collection<? extends Store> states : Arrays.asList(first, second)) {
 			initStatePredicates(states);
 			for (var v : states) {
-				Store state = (Store) v;
+				JmStore state = (JmStore) v;
 				if (maxPredicateIndx < this.predicates.get(state).size()) {
 					maxPredicateIndx = this.predicates.get(state).size();
 				}
@@ -63,11 +63,11 @@ public class InterpolatingConditionInferencer extends ConditionInferencer<Store,
 			List<List<Boolean>> othersTerm = new ArrayList<>();
 
 			for (var v : first) {
-				Store state = (Store) v;
+				JmStore state = (JmStore) v;
 				thisTerm.add(predicates.get(state));
 			}
 			for (var v : second) {
-				Store state = (Store) v;
+				JmStore state = (JmStore) v;
 				othersTerm.add(predicates.get(state));
 			}
 
@@ -79,9 +79,9 @@ public class InterpolatingConditionInferencer extends ConditionInferencer<Store,
 				// 2) when the lists have the same length - generate a NEW predicate
 				boolean updateall = true;
 				while (updateall) {
-					for (Collection<? extends Value> states : Arrays.asList(first, second)) {
+					for (Collection<? extends Store> states : Arrays.asList(first, second)) {
 						for (var v : states) {
-							Store state = (Store) v;
+							JmStore state = (JmStore) v;
 							int nextPredIndx = this.predicates.get(state).size();
 							if (nextPredIndx < maxPredicateIndx) {
 								updateall = false;
@@ -105,7 +105,7 @@ public class InterpolatingConditionInferencer extends ConditionInferencer<Store,
 		return Optional.of(result);
 	}
 
-	private boolean extendStatePredicates(Store state) {
+	private boolean extendStatePredicates(JmStore state) {
 		List<Boolean> statePredicates = this.predicates.get(state);
 		int nextPredIndx = statePredicates.size();
 		Boolean test = null;
@@ -123,9 +123,9 @@ public class InterpolatingConditionInferencer extends ConditionInferencer<Store,
 		return (test != null);
 	}
 
-	private void initStatePredicates(Collection<? extends Value> states) {
+	private void initStatePredicates(Collection<? extends Store> states) {
 		for (var v : states) {
-			Store state = (Store) v;
+			JmStore state = (JmStore) v;
 			Boolean initialized = false;
 			List<Boolean> preds = this.predicates.get(state);
 			if (preds == null) {

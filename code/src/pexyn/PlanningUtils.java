@@ -4,10 +4,10 @@ import java.util.Optional;
 import java.util.logging.Logger;
 
 import bgu.cs.util.Union2;
-import jminor.Store.ErrorStore;
+import jminor.JmStore.ErrorStore;
 import pexyn.Domain.Guard;
-import pexyn.Domain.Update;
-import pexyn.Domain.Value;
+import pexyn.Domain.Cmd;
+import pexyn.Domain.Store;
 import pexyn.planning.Planner;
 import pexyn.planning.SearchResultType;
 
@@ -17,17 +17,17 @@ import pexyn.planning.SearchResultType;
  * @author romanm
  */
 public class PlanningUtils {
-	public static <ValueType extends Value, UpdateType extends Update, GuardType extends Guard> Optional<Plan<ValueType, UpdateType>> exampleToPlan(
-			Domain<ValueType, UpdateType, GuardType> domain, Planner<ValueType, UpdateType> planner,
-			Example<ValueType, UpdateType> example, Logger logger) {
+	public static <StoreType extends Store, CmdType extends Cmd, GuardType extends Guard> Optional<Plan<StoreType, CmdType>> exampleToPlan(
+			Domain<StoreType, CmdType, GuardType> domain, Planner<StoreType, CmdType> planner,
+			Example<StoreType, CmdType> example, Logger logger) {
 		assert example.size() > 0;
 		if (example.size() == 1 && example.step(0).isT1()) {
 			// An example for a possible input.
 			return Optional.empty();
 		}
 
-		ValueType current;
-		Union2<ValueType, UpdateType> firstStep = example.step(0);
+		StoreType current;
+		Union2<StoreType, CmdType> firstStep = example.step(0);
 		if (firstStep.isT1()) {
 			current = example.input();
 		} else {
@@ -35,9 +35,9 @@ public class PlanningUtils {
 		}
 
 		logger.info("Planning for example " + example.name + "...");
-		Plan<ValueType, UpdateType> plan = new ArrayListPlan<>(current);
+		Plan<StoreType, CmdType> plan = new ArrayListPlan<>(current);
 		for (int i = 1; i < example.steps.size(); ++i) {
-			Union2<ValueType, UpdateType> step = example.steps.get(i);
+			Union2<StoreType, CmdType> step = example.steps.get(i);
 			if (step.isT1()) {
 				var stateGoal = step.getT1();
 				SearchResultType planResult = planner.findPlan(current, state -> {
@@ -59,8 +59,8 @@ public class PlanningUtils {
 					return Optional.empty();
 				}
 			} else {
-				UpdateType action = step.getT2();
-				Optional<ValueType> next = domain.apply(action, current);
+				CmdType action = step.getT2();
+				Optional<StoreType> next = domain.apply(action, current);
 				if (next.isPresent() && !(next.get() instanceof ErrorStore)) {
 					current = next.get();
 					plan.append(action, current);

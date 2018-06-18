@@ -8,8 +8,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import pexyn.Domain.Update;
-import pexyn.Domain.Value;
+import pexyn.Domain.Cmd;
+import pexyn.Domain.Store;
 
 /**
  * An automaton control state.
@@ -24,7 +24,7 @@ public class State {
 	 * Partitions the values in the set of trace points relative to their next
 	 * update.
 	 */
-	private Map<Update, Collection<Value>> updateToValues = new HashMap<>();
+	private Map<Cmd, Collection<Store>> updateToValues = new HashMap<>();
 
 	public State(String id) {
 		this.id = id;
@@ -42,7 +42,7 @@ public class State {
 		}
 	}
 
-	public Map<Update, Collection<Value>> updateToValues() {
+	public Map<Cmd, Collection<Store>> updateToValues() {
 		return Collections.unmodifiableMap(updateToValues);
 	}
 
