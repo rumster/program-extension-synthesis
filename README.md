@@ -1,4 +1,4 @@
-# Program Extension Synthesis via Learning and Planning
+# Program Extension Synthesizer
 
 The goal of this project project is to drive research in example-based synthesis.
 
