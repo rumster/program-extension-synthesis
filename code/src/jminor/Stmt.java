@@ -25,7 +25,7 @@ public abstract class Stmt extends Node implements Cmd {
 	 * Tests whether this statement can be applied to the given state.
 	 */
 	public boolean enabled(JmStore store) {
-		JmStore result = PWhileInterpreter.v.run(this, store, PWhileInterpreter.v.guessMaxSteps(this, store)).get();
+		JmStore result = JminorInterpreter.v.run(this, store, JminorInterpreter.v.guessMaxSteps(this, store)).get();
 		return !(result instanceof JmStore.ErrorStore);
 	}
 

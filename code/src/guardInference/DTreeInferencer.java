@@ -10,9 +10,8 @@ import java.util.Optional;
 import bgu.cs.util.rel.HashRel2;
 import bgu.cs.util.rel.Rel2;
 import pexyn.Domain;
-import pexyn.Plan;
-import pexyn.Domain.Guard;
 import pexyn.Domain.Cmd;
+import pexyn.Domain.Guard;
 import pexyn.Domain.Store;
 
 /**
@@ -39,10 +38,13 @@ public class DTreeInferencer<ExampleType extends Store, LabelType extends Cmd, F
 
 	protected final Domain<ExampleType, LabelType, FeatureType> domain;
 
-	public DTreeInferencer(Domain<ExampleType, LabelType, FeatureType> domain,
-			List<Plan<ExampleType, LabelType>> plans) {
-		this.propositions = domain.generateBasicGuards(plans);
+	private final boolean shortCiruitEvaluationSemantics;
+
+	public DTreeInferencer(Domain<ExampleType, LabelType, FeatureType> domain, List<FeatureType> propositions,
+			boolean shortCiruitEvaluationSemantics) {
+		this.propositions = propositions;
 		this.domain = domain;
+		this.shortCiruitEvaluationSemantics = shortCiruitEvaluationSemantics;
 	}
 
 	@Override
@@ -60,7 +62,7 @@ public class DTreeInferencer<ExampleType extends Store, LabelType extends Cmd, F
 		Node root = new Node(updateToValue);
 		var foundTree = refineNode(root);
 		if (foundTree) {
-			var result = compileGuards(root, updateToValue.all1());
+			var result = generateAllClassifiers(root, updateToValue.all1());
 			return Optional.of(result);
 		} else {
 			return Optional.empty();
@@ -68,7 +70,7 @@ public class DTreeInferencer<ExampleType extends Store, LabelType extends Cmd, F
 	}
 
 	/**
-	 * Generates a Boolean expression for each update from the tree.
+	 * Generates a Boolean expression from the tree for each label.
 	 * 
 	 * @param root
 	 *            A decision tree.
@@ -76,10 +78,10 @@ public class DTreeInferencer<ExampleType extends Store, LabelType extends Cmd, F
 	 *            The set of updates, which serve as the labels for the classifier.
 	 * @return A mapping from an update to the respective guard.
 	 */
-	protected Map<Cmd, ? extends Guard> compileGuards(Node root, Collection<Cmd> updates) {
+	protected Map<Cmd, ? extends Guard> generateAllClassifiers(Node root, Collection<Cmd> updates) {
 		var result = new HashMap<Cmd, FeatureType>();
 		for (var update : updates) {
-			FeatureType guard = compileGuard(root, update);
+			FeatureType guard = generateClassifierForLabel(root, update);
 			result.put(update, guard);
 		}
 		return result;
@@ -88,7 +90,7 @@ public class DTreeInferencer<ExampleType extends Store, LabelType extends Cmd, F
 	/**
 	 * Generates the Boolean expression for the given update at the given node.
 	 */
-	protected FeatureType compileGuard(Node node, Cmd update) {
+	protected FeatureType generateClassifierForLabel(Node node, Cmd update) {
 		FeatureType result;
 		if (node.pure()) {
 			if (node.pureLabel() == update) {
@@ -97,8 +99,8 @@ public class DTreeInferencer<ExampleType extends Store, LabelType extends Cmd, F
 				return null;
 			}
 		} else {
-			FeatureType posGuard = compileGuard(node.pos, update);
-			FeatureType negGuard = compileGuard(node.neg, update);
+			FeatureType posGuard = generateClassifierForLabel(node.pos, update);
+			FeatureType negGuard = generateClassifierForLabel(node.neg, update);
 			if (posGuard == null && negGuard != null) {
 				result = simplifiedAnd(domain.not(node.splitter), negGuard);
 			} else if (negGuard == null && posGuard != null) {
@@ -106,8 +108,12 @@ public class DTreeInferencer<ExampleType extends Store, LabelType extends Cmd, F
 			} else if (posGuard == null && negGuard == null) {
 				result = null;
 			} else {
-				result = domain.or(simplifiedAnd(node.splitter, posGuard),
-						simplifiedAnd(domain.not(node.splitter), negGuard));
+				if (shortCiruitEvaluationSemantics) {
+					result = domain.or(simplifiedAnd(node.splitter, posGuard), negGuard);
+				} else {
+					result = domain.or(simplifiedAnd(node.splitter, posGuard),
+							simplifiedAnd(domain.not(node.splitter), negGuard));
+				}
 			}
 		}
 
@@ -129,6 +135,8 @@ public class DTreeInferencer<ExampleType extends Store, LabelType extends Cmd, F
 
 	/**
 	 * Computes the classifier at the given node.
+	 * 
+	 * @return true if refinement succeeded and false otherwise.
 	 */
 	protected boolean refineNode(Node root) {
 		if (root.pure()) {
@@ -158,24 +166,17 @@ public class DTreeInferencer<ExampleType extends Store, LabelType extends Cmd, F
 	}
 
 	protected Optional<FeatureType> findBestSplitter(Rel2<Cmd, Store> updateToValue, Cmd updateToSplit) {
-		// double numOfValues = updateToValue.size();
-		var bestScore = 0d;
+		var bestScore = 0f;
 		FeatureType bestGuard = null;
 		for (FeatureType guard : propositions) {
-			// var gini = 0d;
-			// int numOfSatisfiedValues = 0;
-			// for (var val : updateToValue.all2()) {
-			// @SuppressWarnings("unchecked")
-			// boolean holds = domain.test(guard, (StoreType) val);
-			// if (holds) {
-			// ++numOfSatisfiedValues;
-			// }
-			// }
-			// var score = numOfSatisfiedValues;
-			var numUpdateToSplitPairs = 0d;
-			var numNonUpdateToSplitPairs = 0d;
-			var numPosUpdateToSplitPairs = 0d;
-			var numPosNonUpdateToSplitPairs = 0d;
+			var numUpdateToSplitPairs = 0f;
+			var numNonUpdateToSplitPairs = 0f;
+			
+			var numPosUpdateToSplitPairs = 0f;
+			var numNegUpdateToSplitPairs = 0f;
+			
+			var numPosNonUpdateToSplitPairs = 0f;
+			var numNegNonUpdateToSplitPairs = 0f;
 			for (var pair : updateToValue.all()) {
 				@SuppressWarnings("unchecked")
 				ExampleType val = (ExampleType) pair.second;
@@ -185,22 +186,33 @@ public class DTreeInferencer<ExampleType extends Store, LabelType extends Cmd, F
 					if (holds) {
 						++numPosUpdateToSplitPairs;
 					}
+					else {
+						++numNegUpdateToSplitPairs;
+					}
 				} else {
 					++numNonUpdateToSplitPairs;
 					if (holds) {
 						++numPosNonUpdateToSplitPairs;
+					} else {
+						++numNegNonUpdateToSplitPairs;
 					}
 				}
 			}
-			var updateToSplitRatio = numPosUpdateToSplitPairs / numUpdateToSplitPairs;
-			var nonUpdateToSplitRatio = numPosNonUpdateToSplitPairs / numNonUpdateToSplitPairs;
-			var score = updateToSplitRatio * (1 - nonUpdateToSplitRatio);
-			// var p = numOfSatisfiedValues / numOfValues;
-			// gini = p * (1 - p);
-			if (score > bestScore) {
-				bestScore = score;
+			//float updateToSplitRatio = numPosUpdateToSplitPairs / numUpdateToSplitPairs;
+			//float nonUpdateToSplitRatio = numPosNonUpdateToSplitPairs / numNonUpdateToSplitPairs;
+			// float score = updateToSplitRatio;// * (1 - nonUpdateToSplitRatio);
+			// score = score / domain.guardCost(guard);
+			float score1 = numPosUpdateToSplitPairs + numNegNonUpdateToSplitPairs;
+			float score2 = numNegUpdateToSplitPairs + numPosNonUpdateToSplitPairs;
+			if (score1 > bestScore) {
+				bestScore = score1;
 				bestGuard = guard;
 			}
+			else if (score2 > bestScore) {
+				bestScore = score2;
+				bestGuard = guard;
+			}
+			
 		}
 
 		if (bestScore > 0) {

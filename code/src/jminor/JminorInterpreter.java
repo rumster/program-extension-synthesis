@@ -21,8 +21,8 @@ import pexyn.Plan;
  * 
  * @author romanm
  */
-public class PWhileInterpreter extends PWhileVisitor {
-	public static final PWhileInterpreter v = new PWhileInterpreter();
+public class JminorInterpreter extends JminorVisitor {
+	public static final JminorInterpreter v = new JminorInterpreter();
 
 	protected JmStore state;
 	protected boolean resultCond;

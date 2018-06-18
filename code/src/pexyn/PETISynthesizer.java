@@ -69,10 +69,13 @@ public class PETISynthesizer<StoreType extends Store, CmdType extends Cmd, Guard
 
 		ConditionInferencer<StoreType, CmdType, GuardType> separator;
 		var guardInfAlgName = config.getString("pexyn.guardInferenceAlgorithm", "");
+		var shortCiruitEvaluationSemantics = config.getBoolean("pexyn.shortCiruitEvaluationSemantics", true);
 		if (guardInfAlgName.equals("ID3")) {
 			separator = new ID3Inferencer<StoreType, CmdType, GuardType>(problem.domain(), trainingPlans);
 		} else if (guardInfAlgName.equals("dtree")) {
-			separator = new DTreeInferencer<StoreType, CmdType, GuardType>(problem.domain(), trainingPlans);
+			var basicGuards = problem.domain().generateBasicGuards(trainingPlans);
+			separator = new DTreeInferencer<StoreType, CmdType, GuardType>(problem.domain(), basicGuards,
+					shortCiruitEvaluationSemantics);
 		} else {
 			separator = new LinearInferencer<StoreType, CmdType, GuardType>(problem.domain(), trainingPlans);
 		}
@@ -128,9 +131,8 @@ public class PETISynthesizer<StoreType extends Store, CmdType extends Cmd, Guard
 		return exampleToPlan;
 	}
 
-	protected boolean compareOnTestExamples(
-			Map<Example<StoreType, CmdType>, Plan<StoreType, CmdType>> exampleToPlan, Automaton automaton,
-			SynthesisProblem<StoreType, CmdType, GuardType> problem) {
+	protected boolean compareOnTestExamples(Map<Example<StoreType, CmdType>, Plan<StoreType, CmdType>> exampleToPlan,
+			Automaton automaton, SynthesisProblem<StoreType, CmdType, GuardType> problem) {
 		var message = new StringBuilder();
 		var result = true;
 		var numOfTests = 0;

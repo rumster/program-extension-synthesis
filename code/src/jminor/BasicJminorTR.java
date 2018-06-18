@@ -40,7 +40,7 @@ public class BasicJminorTR implements TR<JmStore, Stmt> {
 
 	@Override
 	public Collection<JmStore> apply(JmStore store, Stmt stmt) {
-		JmStore result = PWhileInterpreter.v.run(stmt, store, PWhileInterpreter.v.guessMaxSteps(stmt, store)).get();
+		JmStore result = JminorInterpreter.v.run(stmt, store, JminorInterpreter.v.guessMaxSteps(stmt, store)).get();
 		return List.of(result);
 	}
 }

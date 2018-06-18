@@ -44,6 +44,12 @@ public interface Domain<StoreType extends Store, CmdType extends Cmd, GuardType 
 	public boolean test(GuardType guard, StoreType val);
 
 	/**
+	 * Returns the cost of the given guard, which is used as a preference for guard
+	 * inference.
+	 */
+	public float guardCost(GuardType guard);
+
+	/**
 	 * Tests whether the first value matches (i.e., subsumed by) the second value.
 	 */
 	public boolean match(StoreType first, StoreType second);

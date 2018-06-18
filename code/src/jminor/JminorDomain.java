@@ -17,6 +17,7 @@ import bgu.cs.util.STHierarchyRenderer;
 import bgu.cs.util.rel.HashRel2;
 import bgu.cs.util.rel.Rel2;
 import grammar.CostSize;
+import grammar.Node;
 import jminor.JmStore.ErrorStore;
 import jminor.Var.VarRole;
 import pexyn.Domain;
@@ -54,6 +55,8 @@ public class JminorDomain implements Domain<JmStore, Stmt, BoolExpr> {
 	protected STGLoader templates = new STGLoader(JminorDomain.class);
 	protected STHierarchyRenderer renderer = new STHierarchyRenderer(templates);
 
+	protected GuardCostEvaluator guardCostEvaluator = new GuardCostEvaluator();
+
 	@Override
 	public String name() {
 		return "JminorDomain";
@@ -66,7 +69,7 @@ public class JminorDomain implements Domain<JmStore, Stmt, BoolExpr> {
 
 	@Override
 	public boolean test(BoolExpr expr, JmStore state) {
-		Boolean result = PWhileInterpreter.v.test(expr, state);
+		Boolean result = JminorInterpreter.v.test(expr, state);
 		return result != null && result.booleanValue();
 	}
 
@@ -329,7 +332,7 @@ public class JminorDomain implements Domain<JmStore, Stmt, BoolExpr> {
 		final var result = new HashSet<IntVal>();
 		for (final Plan<JmStore, Stmt> plan : plans) {
 			for (final Stmt stmt : plan.actions()) {
-				stmt.accept(new PWhileVisitor() {
+				stmt.accept(new JminorVisitor() {
 					public void visit(IntVal val) {
 						result.add(val);
 					}
@@ -494,9 +497,8 @@ public class JminorDomain implements Domain<JmStore, Stmt, BoolExpr> {
 		addBasicIntGuards(plans, result);
 		addBasicRefGuards(plans, result);
 
-		var sizeFun = new CostSize();
 		Collections.sort(result, (e1, e2) -> {
-			var diff = sizeFun.apply(e1) - sizeFun.apply(e2);
+			var diff = guardCostEvaluator.apply(e1) - guardCostEvaluator.apply(e2);
 			return (int) diff;
 		});
 		return result;
@@ -568,5 +570,101 @@ public class JminorDomain implements Domain<JmStore, Stmt, BoolExpr> {
 		}
 
 		return template.render();
+	}
+
+	@Override
+	public float guardCost(BoolExpr guard) {
+		return guardCostEvaluator.apply(guard);
+	}
+
+	class GuardCostEvaluator extends JminorVisitor {
+		private float result;
+
+		public float apply(BoolExpr guard) {
+			result = 0;
+			guard.accept(this);
+			assert result != 0;
+			return result;
+		}
+
+		public void visit(True n) {
+			result = 100;
+		}
+
+		public void visit(AndExpr n) {
+			evalTree(n);
+		}
+
+		public void visit(OrExpr n) {
+			evalTree(n);
+		}
+
+		public void visit(DerefExpr n) {
+			evalTree(n);
+		}
+
+		public void visit(EqExpr n) {
+			evalTree(n);
+		}
+
+		public void visit(LtExpr n) {
+			evalTree(n);
+		}
+
+		public void visit(NotExpr n) {
+			for (var sub : n.getArgs()) {
+				sub.accept(this);
+			}
+		}
+
+		public void visit(NullExpr n) {
+			result = 1;
+		}
+
+		public void visit(IntVal n) {
+			result = 1;
+		}
+
+		public void visit(IntBinOpExpr n) {
+			evalTree(n);
+		}
+
+		public void visit(RefField n) {
+			result = 1;
+		}
+
+		public void visit(IntField n) {
+			result = 1;
+		}
+
+		public void visit(VarExpr n) {
+			result = 1;
+		}
+
+		public void visit(RefVar n) {
+			result = 1;
+		}
+
+		public void visit(IntVar n) {
+			result = 1;
+		}
+
+		public void visit(RefType n) {
+			result = 1;
+		}
+
+		public void visit(ValExpr n) {
+			result = 1.2f;
+		}
+
+		private void evalTree(Node n) {
+			var acc = 0f;
+			for (var sub : n.getArgs()) {
+				sub.accept(this);
+				acc += result;
+			}
+			result = acc + 1;
+		}
+
 	}
 }

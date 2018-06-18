@@ -57,7 +57,7 @@ public class RefType extends Type {
 	@Override
 	public void accept(Visitor v) {
 		mutable = false;
-		PWhileVisitor whileVisitor = (PWhileVisitor) v;
+		JminorVisitor whileVisitor = (JminorVisitor) v;
 		whileVisitor.visit(this);
 	}
 

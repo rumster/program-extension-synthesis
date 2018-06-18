@@ -2,22 +2,22 @@
  * via binary search.
  */ 
 sqrt(n:int) -> (res:int) {
-  var l:int
-  var h:int
-  var m:int
+  var low:int
+  var high:int
+  var middle:int
   
-  l = 0;
-  h = n;
-  while (h - l > 1) {	
-    m = (l + h) / 2;
-	if (m * m > n) {
-      h = m;
+  low = 0;
+  high = n;
+  while (high - low > 1) {	
+    middle = (low + high) / 2;
+	if (middle * middle > n) {
+      high = middle;
 	}
 	else {
-      l = m;
+      low = middle;
     }
   }
-  res = h;
+  res = high;
   if (res * res > n) {
     res = res - 1;
   }

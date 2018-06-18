@@ -19,11 +19,11 @@ public class JminorLoadedInterpreter implements LoadedInterpreter<JmStore, Stmt,
 
 	@Override
 	public Optional<JmStore> run(JmStore input, int maxSteps) {
-		return PWhileInterpreter.v.run(prog, input, maxSteps);
+		return JminorInterpreter.v.run(prog, input, maxSteps);
 	}
 
 	@Override
 	public Optional<Plan<JmStore, Stmt>> genTrace(JmStore input, int maxSteps) {
-		return PWhileInterpreter.v.genTrace(prog, input, maxSteps);
+		return JminorInterpreter.v.genTrace(prog, input, maxSteps);
 	}
 }

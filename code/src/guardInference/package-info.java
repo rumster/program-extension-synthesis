@@ -1,6 +1,5 @@
 /**
- * Classes and interfaces for learning Boolean expressions that classify domain
- * values into a finite number of labels.
+ * Classes and interfaces for inferring program guards.
  * 
  * @author romanm
  */

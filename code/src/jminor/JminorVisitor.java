@@ -7,7 +7,7 @@ import grammar.*;
  * 
  * @author romanm
  */
-public class PWhileVisitor implements Visitor {
+public class JminorVisitor implements Visitor {
 	public void visit(True n) {
 	}
 

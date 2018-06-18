@@ -12,7 +12,7 @@ import grammar.Nonterminal;
  * 
  * @author romanm
  */
-public class PWhileGrammarGen {
+public class JminorGrammarGen {
 	public static final Nonterminal ncond = new Nonterminal("NCond");
 
 	/**

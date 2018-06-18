@@ -50,7 +50,7 @@ public class SeqStmt extends Stmt {
 
 	@Override
 	public void accept(Visitor v) {
-		PWhileVisitor whileVisitor = (PWhileVisitor) v;
+		JminorVisitor whileVisitor = (JminorVisitor) v;
 		whileVisitor.visit(this);
 	}
 }
