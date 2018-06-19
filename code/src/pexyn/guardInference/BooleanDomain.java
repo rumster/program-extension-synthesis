@@ -1,7 +1,7 @@
 package pexyn.guardInference;
 
 /**
- * A builder of Boolean formulae.
+ * A domain for Boolean formulae.
  * 
  * @author romanm
  *

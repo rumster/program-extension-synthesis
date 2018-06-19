@@ -169,12 +169,12 @@ public class DTreeInferencer<ExampleType extends Store, LabelType extends Cmd, F
 		var bestScore = 0f;
 		FeatureType bestGuard = null;
 		for (FeatureType guard : propositions) {
-			var numUpdateToSplitPairs = 0f;
-			var numNonUpdateToSplitPairs = 0f;
-			
+			// var numUpdateToSplitPairs = 0f;
+			// var numNonUpdateToSplitPairs = 0f;
+
 			var numPosUpdateToSplitPairs = 0f;
 			var numNegUpdateToSplitPairs = 0f;
-			
+
 			var numPosNonUpdateToSplitPairs = 0f;
 			var numNegNonUpdateToSplitPairs = 0f;
 			for (var pair : updateToValue.all()) {
@@ -182,15 +182,14 @@ public class DTreeInferencer<ExampleType extends Store, LabelType extends Cmd, F
 				ExampleType val = (ExampleType) pair.second;
 				boolean holds = domain.test(guard, val);
 				if (pair.first == updateToSplit) {
-					++numUpdateToSplitPairs;
+					// ++numUpdateToSplitPairs;
 					if (holds) {
 						++numPosUpdateToSplitPairs;
-					}
-					else {
+					} else {
 						++numNegUpdateToSplitPairs;
 					}
 				} else {
-					++numNonUpdateToSplitPairs;
+					// ++numNonUpdateToSplitPairs;
 					if (holds) {
 						++numPosNonUpdateToSplitPairs;
 					} else {
@@ -198,8 +197,9 @@ public class DTreeInferencer<ExampleType extends Store, LabelType extends Cmd, F
 					}
 				}
 			}
-			//float updateToSplitRatio = numPosUpdateToSplitPairs / numUpdateToSplitPairs;
-			//float nonUpdateToSplitRatio = numPosNonUpdateToSplitPairs / numNonUpdateToSplitPairs;
+			// float updateToSplitRatio = numPosUpdateToSplitPairs / numUpdateToSplitPairs;
+			// float nonUpdateToSplitRatio = numPosNonUpdateToSplitPairs /
+			// numNonUpdateToSplitPairs;
 			// float score = updateToSplitRatio;// * (1 - nonUpdateToSplitRatio);
 			// score = score / domain.guardCost(guard);
 			float score1 = numPosUpdateToSplitPairs + numNegNonUpdateToSplitPairs;
@@ -207,12 +207,11 @@ public class DTreeInferencer<ExampleType extends Store, LabelType extends Cmd, F
 			if (score1 > bestScore) {
 				bestScore = score1;
 				bestGuard = guard;
-			}
-			else if (score2 > bestScore) {
+			} else if (score2 > bestScore) {
 				bestScore = score2;
 				bestGuard = guard;
 			}
-			
+
 		}
 
 		if (bestScore > 0) {
@@ -220,7 +219,7 @@ public class DTreeInferencer<ExampleType extends Store, LabelType extends Cmd, F
 		} else {
 			return Optional.empty();
 		}
-	}	
+	}
 
 	/**
 	 * Populates the sub-nodes of the given node with the given splitter.
