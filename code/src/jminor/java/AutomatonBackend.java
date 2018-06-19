@@ -1,4 +1,4 @@
-package jminor.jsupport;
+package jminor.java;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -24,15 +24,15 @@ import pexyn.generalization.State;
  * 
  * @author romanm
  */
-public class AutomatonJavaBackend {
-	private final STGLoader templates = new STGLoader(AutomatonJavaBackend.class);
+public class AutomatonBackend {
+	private final STGLoader templates = new STGLoader(AutomatonBackend.class);
 
 	private final Automaton automaton;
 	private final JminorProblem problem;
 	private final Configuration config;
 	private final JminorDebugger debugger;
 
-	public AutomatonJavaBackend(Automaton automaton, JminorProblem problem, Configuration config, JminorDebugger debugger) {
+	public AutomatonBackend(Automaton automaton, JminorProblem problem, Configuration config, JminorDebugger debugger) {
 		this.automaton = automaton;
 		this.problem = problem;
 		this.config = config;
@@ -98,7 +98,7 @@ public class AutomatonJavaBackend {
 					transST = templates.load("ElseTransition");
 					break;
 				}
-				transST.add("update", transition.update);
+				transST.add("update", transition.command);
 				transST.add("succ", transition.succ);
 				stateCodeST.add("transitions", transST.render());
 			}
@@ -118,7 +118,7 @@ public class AutomatonJavaBackend {
 	public final class Transition {
 		public final String succ;
 		public final String guard;
-		public final String update;
+		public final String command;
 		public TransitionType type;
 
 		public Transition(Edge<State, Action> e) {
@@ -131,9 +131,9 @@ public class AutomatonJavaBackend {
 			}
 			var update = e.getLabel().update;
 			if (update.toString().equals("return")) {
-				this.update = "// finish";
+				this.command = "// finish";
 			} else {
-				this.update = update.toString();
+				this.command = update.toString();
 			}
 		}
 	}

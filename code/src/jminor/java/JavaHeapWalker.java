@@ -1,4 +1,4 @@
-package jminor.jsupport;
+package jminor.java;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;

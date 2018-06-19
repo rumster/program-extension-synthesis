@@ -3,4 +3,4 @@
  * 
  * @author romanm
  */
-package jminor.jsupport;
+package jminor.java;

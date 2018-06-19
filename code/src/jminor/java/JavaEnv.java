@@ -1,4 +1,4 @@
-package jminor.jsupport;
+package jminor.java;
 
 import bgu.cs.util.ReflectionUtils;
 

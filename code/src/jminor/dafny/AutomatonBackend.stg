@@ -1,0 +1,50 @@
+ClassFile(className, methodName, returnArg, args, locals, states, stateCodes) ::= <<
+/** Automatically-generated code.
+ */
+datatype State = $states; separator=" | "$
+
+/** Synthesized method.
+ */
+method $methodName$($args:{it|$it.name$ : $it.type$}; separator=", "$) $if(returnArg)$returns ($returnArg.name$ : $returnArg.type$) $else$void$endif$ {
+  $locals:{it|var $it.name$ : $it.type$ = $it.defaultVal$;}; separator="\n"$
+  $if(returnArg)$$returnArg.name$  := $returnArg.defaultVal$;$else$$endif$
+  
+  var automatonState : State := ENTRY;
+  while (automatonState != State.EXIT) {
+    $stateCodes; separator="\n"$
+  }
+  $if(returnArg)$return $returnArg.name$;$endif$
+}
+>>
+
+StateCode(name, transitions) ::= <<
+if (automatonState == $name$) {
+  $transitions; separator="\n"$
+}
+>>
+
+IfTransition(succ, guard, update) ::= <<
+if ($guard$) {
+  $update$
+  automatonState := $succ$;
+}
+>>
+
+ElseIfTransition(succ, guard, update) ::= <<
+else if ($guard$) {
+  $update$
+  automatonState := $succ$;
+}
+>>
+
+ElseTransition(succ, update) ::= <<
+else {
+  $update$
+  automatonState := $succ$;
+}
+>>
+
+UpdateTransition(succ, update) ::= <<
+$update$
+automatonState := $succ$;
+>>
