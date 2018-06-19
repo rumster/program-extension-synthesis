@@ -18,6 +18,21 @@ find(head:SLL, val:int) -> (t:SLL) {
      o0.d==1 && o1.d==2] -> ...
   }
 
+  test example {
+    [val==0 && head==o0 && o0.n==o1 && o1.n==null &&
+     o0.d==1 && o1.d==0] -> ...
+  }
+
+  test example {
+    [val==0 && head==o0 && o0.n==o1 && o1.n==null &&
+     o0.d==0 && o1.d==1] -> ...
+  }
+
+  test example {
+    [val==0 && head==o0 && o0.n==o1 && o1.n==null &&
+     o0.d==1 && o1.d==2] -> ...
+  }
+
   example {
     [val==3 && head==o0 && o0.n==o1 && o1.n==o2 && o2.n==null &&
      o0.d==1 && o1.d==3 && o2.d==4] -> ...

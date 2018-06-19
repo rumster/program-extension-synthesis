@@ -14,7 +14,8 @@ import bgu.cs.util.Timer;
 import jminor.ast.ASTProblem;
 import jminor.ast.JminorParser;
 import jminor.ast.ProblemCompiler;
-import jminor.jsupport.AutomatonBackend;
+import jminor.jsupport.AutomatonDafnyBackend;
+import jminor.jsupport.AutomatonJavaBackend;
 import pexyn.PETISynthesizer;
 import pexyn.planning.AStar;
 
@@ -106,8 +107,10 @@ public class Main {
 			if (synthesisResult.success()) {
 				logger.info("success!");
 				if (config.getBoolean("jminor.generateJavaImplementation", true)) {
-					var backend = new AutomatonBackend(synthesisResult.get(), problem, config, debugger);
+					var backend = new AutomatonJavaBackend(synthesisResult.get(), problem, config, debugger);
 					backend.generate();
+					var dfYbackend = new AutomatonDafnyBackend(synthesisResult.get(), problem, config, debugger);
+					dfYbackend.generate();
 				}
 			} else {
 				logger.info("fail!");

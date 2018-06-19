@@ -220,7 +220,7 @@ public class DTreeInferencer<ExampleType extends Store, LabelType extends Cmd, F
 		} else {
 			return Optional.empty();
 		}
-	}
+	}	
 
 	/**
 	 * Populates the sub-nodes of the given node with the given splitter.

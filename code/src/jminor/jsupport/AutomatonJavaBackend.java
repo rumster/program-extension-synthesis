@@ -24,15 +24,15 @@ import pexyn.generalization.State;
  * 
  * @author romanm
  */
-public class AutomatonBackend {
-	private final STGLoader templates = new STGLoader(AutomatonBackend.class);
+public class AutomatonJavaBackend {
+	private final STGLoader templates = new STGLoader(AutomatonJavaBackend.class);
 
 	private final Automaton automaton;
 	private final JminorProblem problem;
 	private final Configuration config;
 	private final JminorDebugger debugger;
 
-	public AutomatonBackend(Automaton automaton, JminorProblem problem, Configuration config, JminorDebugger debugger) {
+	public AutomatonJavaBackend(Automaton automaton, JminorProblem problem, Configuration config, JminorDebugger debugger) {
 		this.automaton = automaton;
 		this.problem = problem;
 		this.config = config;
