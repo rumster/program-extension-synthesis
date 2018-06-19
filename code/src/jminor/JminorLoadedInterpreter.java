@@ -3,7 +3,7 @@ package jminor;
 import java.util.Optional;
 
 import pexyn.LoadedInterpreter;
-import pexyn.Plan;
+import pexyn.Trace;
 
 /**
  * A loaded interpreter for a heap-manipulating program.
@@ -23,7 +23,7 @@ public class JminorLoadedInterpreter implements LoadedInterpreter<JmStore, Stmt,
 	}
 
 	@Override
-	public Optional<Plan<JmStore, Stmt>> genTrace(JmStore input, int maxSteps) {
+	public Optional<Trace<JmStore, Stmt>> genTrace(JmStore input, int maxSteps) {
 		return JminorInterpreter.v.genTrace(prog, input, maxSteps);
 	}
 }

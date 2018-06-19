@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Optional;
 
 import pexyn.Domain;
-import pexyn.Plan;
+import pexyn.Trace;
 import pexyn.Domain.Guard;
 import pexyn.Domain.Cmd;
 import pexyn.Domain.Store;
@@ -26,7 +26,7 @@ public class LinearInferencer<StoreType extends Store, CmdType extends Cmd, Guar
 
 	private final List<GuardType> guards;
 
-	public LinearInferencer(Domain<StoreType, CmdType, GuardType> domain, List<Plan<StoreType, CmdType>> plans) {
+	public LinearInferencer(Domain<StoreType, CmdType, GuardType> domain, List<Trace<StoreType, CmdType>> plans) {
 		this.domain = domain;
 		this.guards = domain.generateGuards(plans);
 	}

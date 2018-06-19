@@ -32,16 +32,16 @@ public interface Domain<StoreType extends Store, CmdType extends Cmd, GuardType 
 	public GuardType getTrue();
 
 	/**
-	 * Tests whether the given predicate holds for the given state.
+	 * Tests whether the given predicate holds for the given store.
 	 * 
 	 * @param guard
 	 *            A value of type {@link GuardType}. A case down should be safe for
 	 *            the instantiating domain.
-	 * @param val
+	 * @param store
 	 *            A value of type {@link StoreType}. A cast down should be safe for
 	 *            the instantiating domain.
 	 */
-	public boolean test(GuardType guard, StoreType val);
+	public boolean test(GuardType guard, StoreType store);
 
 	/**
 	 * Returns the cost of the given guard, which is used as a preference for guard
@@ -50,7 +50,7 @@ public interface Domain<StoreType extends Store, CmdType extends Cmd, GuardType 
 	public float guardCost(GuardType guard);
 
 	/**
-	 * Tests whether the first value matches (i.e., subsumed by) the second value.
+	 * Tests whether the first store matches (i.e., subsumed by) the second store.
 	 */
 	public boolean match(StoreType first, StoreType second);
 
@@ -69,12 +69,12 @@ public interface Domain<StoreType extends Store, CmdType extends Cmd, GuardType 
 	/**
 	 * Returns a list of likely predicates for the given plans.
 	 */
-	public List<GuardType> generateGuards(List<Plan<StoreType, CmdType>> plans);
+	public List<GuardType> generateGuards(List<Trace<StoreType, CmdType>> plans);
 
 	/**
 	 * Returns a list of likely atomic predicates for the given plans.
 	 */
-	public List<GuardType> generateBasicGuards(List<Plan<StoreType, CmdType>> plans);
+	public List<GuardType> generateBasicGuards(List<Trace<StoreType, CmdType>> plans);
 
 	/**
 	 * Constructs a disjunction of guards.
@@ -95,7 +95,7 @@ public interface Domain<StoreType extends Store, CmdType extends Cmd, GuardType 
 	 * Returns a complete list (including Boolean negation) of likely atomic
 	 * predicates for the given plans
 	 */
-	public default List<GuardType> generateCompleteBasicGuards(List<Plan<StoreType, CmdType>> plans) {
+	public default List<GuardType> generateCompleteBasicGuards(List<Trace<StoreType, CmdType>> plans) {
 		var result = new ArrayList<GuardType>();
 		var basicGuards = generateBasicGuards(plans);
 		result.addAll(basicGuards);

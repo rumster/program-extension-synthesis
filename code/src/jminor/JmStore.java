@@ -15,7 +15,7 @@ import bgu.cs.util.treeGrammar.Node;
 import pexyn.Domain.Store;
 
 /**
- * Represents a concrete state of a PWhile program. Uninitialized variables and
+ * Represents a concrete store of a Jminor program. Uninitialized variables and
  * fields are treated as null.
  * 
  * @author romanm
@@ -46,7 +46,7 @@ public class JmStore implements Store {
 	}
 
 	/**
-	 * Constructs an empty state.
+	 * Constructs an empty store.
 	 */
 	public JmStore() {
 		this.objects = new HashSet<>();
@@ -57,7 +57,7 @@ public class JmStore implements Store {
 	}
 
 	/**
-	 * Constructs a state with the specified set of objects, environment, and heap.
+	 * Constructs a store with the specified set of objects, environment, and heap.
 	 * 
 	 * @param objects
 	 *            The set of allocated objects.
@@ -139,7 +139,7 @@ public class JmStore implements Store {
 	}
 
 	/**
-	 * Returns the state obtained by unmapping the given set of variables and
+	 * Returns the store obtained by unmapping the given set of variables and
 	 * performing garbage collections.
 	 * 
 	 * @param deadVars
@@ -171,7 +171,7 @@ public class JmStore implements Store {
 	}
 
 	/**
-	 * Evaluates an expression in this state returning its value or null if the
+	 * Evaluates an expression in this store returning its value or null if the
 	 * expression is illegal (e.g., a null dereference or an access to an
 	 * uninitialized variable).
 	 */
@@ -286,7 +286,7 @@ public class JmStore implements Store {
 	}
 
 	/**
-	 * Returns a new state, resulting from assigning the given variable to the given
+	 * Returns a new store, resulting from assigning the given variable to the given
 	 * value.
 	 */
 	public JmStore assign(Var lvar, Val v) {
@@ -396,7 +396,7 @@ public class JmStore implements Store {
 	}
 
 	/**
-	 * An immutable error state. A description of the error is given by the
+	 * An immutable error store. A description of the error is given by the
 	 * description string.
 	 * 
 	 * @author romanm

@@ -45,5 +45,5 @@ public interface LoadedInterpreter<StoreType extends Store, CmdType extends Cmd,
 	 * @return The resulting trace or empty if the maximal number of steps has been
 	 *         exceeded.
 	 */
-	public Optional<Plan<StoreType, CmdType>> genTrace(StoreType input, int maxSteps);
+	public Optional<Trace<StoreType, CmdType>> genTrace(StoreType input, int maxSteps);
 }

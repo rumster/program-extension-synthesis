@@ -3,7 +3,7 @@ package jminor.ast;
 import java.util.List;
 
 /**
- * An example is a sequence of steps, the first of which must be a state.
+ * An example is a sequence of steps, the first of which must be a store.
  * 
  * @author romanm
  */

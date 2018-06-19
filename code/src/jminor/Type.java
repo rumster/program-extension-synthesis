@@ -4,7 +4,7 @@ import bgu.cs.util.treeGrammar.Token;
 import bgu.cs.util.treeGrammar.Visitor;
 
 /**
- * The base class of PWhile types.
+ * The base class of Jminor types.
  * 
  * @author romanm
  */

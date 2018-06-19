@@ -2,8 +2,8 @@ package pexyn.planning;
 
 import java.util.function.Predicate;
 
-import pexyn.ArrayListPlan;
-import pexyn.Plan;
+import pexyn.ArrayListTrace;
+import pexyn.Trace;
 
 /**
  * An algorithm that finds a path of actions from the given input state to a
@@ -32,11 +32,11 @@ public interface Planner<StateType, ActionType> extends Searcher<StateType, Acti
 	 * @return The result of the search.
 	 */
 	public SearchResultType findPlan(StateType input, Predicate<StateType> goalTest,
-			Plan<StateType, ActionType> addToPlan);
+			Trace<StateType, ActionType> addToPlan);
 
 	@Override
 	public default SearchResult<StateType> findState(StateType input, Predicate<StateType> goalTest) {
-		Plan<StateType, ActionType> plan = new ArrayListPlan<>(input);
+		Trace<StateType, ActionType> plan = new ArrayListTrace<>(input);
 		SearchResultType result = findPlan(input, goalTest, plan);
 		switch (result) {
 		case OK:

@@ -11,7 +11,7 @@ import bgu.cs.util.graph.MultiGraph.Edge;
 import bgu.cs.util.rel.HashRel2;
 import pexyn.Domain;
 import pexyn.GPDebugger;
-import pexyn.Plan;
+import pexyn.Trace;
 import pexyn.Domain.Guard;
 import pexyn.Domain.Cmd;
 import pexyn.Domain.Store;
@@ -57,7 +57,7 @@ public class PETI<StoreType extends Store, CmdType extends Cmd, GuardType extend
 	/**
 	 * Runs the algorithm on the given collection of example traces.
 	 */
-	public Result infer(Collection<Plan<StoreType, CmdType>> traces) {
+	public Result infer(Collection<Trace<StoreType, CmdType>> traces) {
 		var optPrefixAutomaton = prefixAutomaton(traces, domain, debugger);
 		if (!optPrefixAutomaton.isPresent()) {
 			return null;
@@ -175,7 +175,7 @@ public class PETI<StoreType extends Store, CmdType extends Cmd, GuardType extend
 	 * Attempts to constructs a prefix automaton out of a collection of traces.
 	 */
 	public static <StoreType extends Store, CmdType extends Cmd, GuardType extends Guard> Optional<Automaton> prefixAutomaton(
-			Collection<Plan<StoreType, CmdType>> traces, Domain<StoreType, CmdType, GuardType> domain,
+			Collection<Trace<StoreType, CmdType>> traces, Domain<StoreType, CmdType, GuardType> domain,
 			GPDebugger<StoreType, CmdType, GuardType> debugger) {
 		var stateCounter = 0;
 		var result = new Automaton();

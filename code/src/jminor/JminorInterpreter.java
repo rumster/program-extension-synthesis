@@ -5,31 +5,27 @@ import java.util.Optional;
 import bgu.cs.util.treeGrammar.Node;
 import bgu.cs.util.treeGrammar.Nonterminal;
 import jminor.JmStore.ErrorStore;
-import pexyn.ArrayListPlan;
-import pexyn.Plan;
+import pexyn.ArrayListTrace;
+import pexyn.Trace;
 
 /**
  * Interprets a program for a given store. The interpreter attempts to run even
  * on abstract programs (programs containing nonterminals) and may return the
- * top state if it cannot evaluate assignments or expressions.
+ * top store if it cannot evaluate assignments or expressions.
  * 
- * TODO: handle non-terminating loops. Currently, if the number of iterations is
- * more than the number of heap objects, we can consider the loop to be
- * non-terminating.
- * 
- * TODO: handle states with garbage as erroneous by returning an error state.
+ * TODO: handle stores with garbage as erroneous by returning an error store.
  * 
  * @author romanm
  */
 public class JminorInterpreter extends JminorVisitor {
 	public static final JminorInterpreter v = new JminorInterpreter();
 
-	protected JmStore state;
+	protected JmStore store;
 	protected boolean resultCond;
 	protected Val resultVal;
 	protected Field resulField;
 	protected RefType type;
-	protected Plan<JmStore, Stmt> trace;
+	protected Trace<JmStore, Stmt> trace;
 	protected int stepCounter;
 	protected int maxSteps;
 
@@ -48,12 +44,12 @@ public class JminorInterpreter extends JminorVisitor {
 	 * the run terminates without exceeding the maximal number of steps, a return
 	 * statement is added.
 	 */
-	public Optional<Plan<JmStore, Stmt>> genTrace(Stmt n, JmStore input, int maxSteps) {
+	public Optional<Trace<JmStore, Stmt>> genTrace(Stmt n, JmStore input, int maxSteps) {
 		assert n.concrete();
-		this.trace = new ArrayListPlan<JmStore, Stmt>(input);
+		this.trace = new ArrayListTrace<JmStore, Stmt>(input);
 		run(n, input, maxSteps);
 		if (stepCounter <= maxSteps) {
-			updateTrace(state, state, RetStmt.v);
+			updateTrace(store, store, RetStmt.v);
 			var result = this.trace;
 			this.trace = null;
 			return Optional.of(result);
@@ -68,17 +64,17 @@ public class JminorInterpreter extends JminorVisitor {
 		this.stepCounter = 0;
 		this.maxSteps = maxSteps;
 		reset();
-		state = input;
+		store = input;
 		n.accept(this);
-		return Optional.of(state);
+		return Optional.of(store);
 	}
 
 	public Boolean test(BoolExpr n, JmStore input) {
 		assert n.concrete();
 		reset();
-		state = input;
+		store = input;
 		n.accept(this);
-		if (state instanceof ErrorStore) {
+		if (store instanceof ErrorStore) {
 			return null;
 		} else {
 			return resultCond ? Boolean.TRUE : Boolean.FALSE;
@@ -87,14 +83,14 @@ public class JminorInterpreter extends JminorVisitor {
 
 	protected void reset() {
 		this.resultCond = false;
-		this.state = null;
+		this.store = null;
 		this.resultVal = null;
 	}
 
 	protected void updateTrace(JmStore pre, JmStore post, Stmt label) {
 		++stepCounter;
 		if (stepCounter > maxSteps) {
-			state = JmStore.error("Exceeded maximal number of steps: " + maxSteps);
+			store = JmStore.error("Exceeded maximal number of steps: " + maxSteps);
 		}
 		if (trace != null) {
 			trace.append(label, post);
@@ -103,9 +99,9 @@ public class JminorInterpreter extends JminorVisitor {
 
 	@Override
 	public void visit(Nonterminal n) {
-		if (state instanceof ErrorStore)
+		if (store instanceof ErrorStore)
 			return;
-		state = null;
+		store = null;
 	}
 
 	@Override
@@ -120,10 +116,10 @@ public class JminorInterpreter extends JminorVisitor {
 	 */
 	@Override
 	public void visit(AndExpr n) {
-		JmStore pre = state;
+		JmStore pre = store;
 		n.getLhs().accept(this);
-		if (state instanceof ErrorStore) {
-			state = pre;
+		if (store instanceof ErrorStore) {
+			store = pre;
 			resultCond = false;
 		}
 		if (resultCond) {
@@ -138,10 +134,10 @@ public class JminorInterpreter extends JminorVisitor {
 	 */
 	@Override
 	public void visit(OrExpr n) {
-		JmStore pre = state;
+		JmStore pre = store;
 		n.getLhs().accept(this);
-		if (state instanceof ErrorStore) {
-			state = pre;
+		if (store instanceof ErrorStore) {
+			store = pre;
 			resultCond = false;
 		}
 		if (!resultCond) {
@@ -156,10 +152,10 @@ public class JminorInterpreter extends JminorVisitor {
 	 */
 	@Override
 	public void visit(NotExpr n) {
-		JmStore pre = state;
+		JmStore pre = store;
 		n.getSub().accept(this);
-		if (state instanceof ErrorStore) {
-			state = pre;
+		if (store instanceof ErrorStore) {
+			store = pre;
 			resultCond = false;
 		} else {
 			resultCond = !resultCond;
@@ -168,26 +164,26 @@ public class JminorInterpreter extends JminorVisitor {
 
 	@Override
 	public void visit(AssignStmt n) {
-		JmStore pre = state;
+		JmStore pre = store;
 		computeAssignStmt(n);
-		updateTrace(pre, state, n);
-		if (state instanceof ErrorStore) {
+		updateTrace(pre, store, n);
+		if (store instanceof ErrorStore) {
 			return;
 		}
-		if (state.containsGarbage()) {
-			state = JmStore.error("memory leak!");
+		if (store.containsGarbage()) {
+			store = JmStore.error("memory leak!");
 		}
 	}
 
 	@Override
 	public void visit(ParallelAssign n) {
-		JmStore pre = state;
+		JmStore pre = store;
 		var rexprs = (ExprList) n.rvals();
 		var rvals = new Val[rexprs.size()];
 		for (int i = 0; i < rvals.length; ++i) {
 			var rexpr = rexprs.get(i);
 			rexpr.accept(this);
-			if (state instanceof ErrorStore) {
+			if (store instanceof ErrorStore) {
 				return;
 			}
 			rvals[i] = resultVal;
@@ -199,36 +195,36 @@ public class JminorInterpreter extends JminorVisitor {
 			if (lexpr instanceof VarExpr) {
 				var lvarExpr = (VarExpr) lexpr;
 				var lvar = lvarExpr.getVar();
-				state.assign(lvar, rvals[i]);
+				store.assign(lvar, rvals[i]);
 			} else {
 				assert lexpr instanceof DerefExpr;
 				var lhsDeref = (DerefExpr) lexpr;
 				lhsDeref.getLhs().accept(this);
 				Obj lobj = (Obj) resultVal;
-				if (state instanceof ErrorStore) {
+				if (store instanceof ErrorStore) {
 					return;
 				}
 				if (lobj == Obj.NULL) {
-					state = JmStore.error("illegal dereference by " + lhsDeref);
+					store = JmStore.error("illegal dereference by " + lhsDeref);
 					return;
 				}
-				state = state.assign(lobj, lhsDeref.getField(), rvals[i]);
+				store = store.assign(lobj, lhsDeref.getField(), rvals[i]);
 
 			}
 		}
 
-		updateTrace(pre, state, n);
-		if (state instanceof ErrorStore) {
+		updateTrace(pre, store, n);
+		if (store instanceof ErrorStore) {
 			return;
 		}
-		if (state.containsGarbage()) {
-			state = JmStore.error("memory leak!");
+		if (store.containsGarbage()) {
+			store = JmStore.error("memory leak!");
 		}
 	}
 
 	private void computeAssignStmt(AssignStmt n) {
 		n.getRhs().accept(this);
-		if (state instanceof ErrorStore) {
+		if (store instanceof ErrorStore) {
 			return;
 		}
 		Val rval = resultVal;
@@ -236,35 +232,35 @@ public class JminorInterpreter extends JminorVisitor {
 		Node lhs = n.getLhs();
 		if (lhs instanceof VarExpr) {
 			VarExpr lhsVar = (VarExpr) lhs;
-			state = state.assign(lhsVar.getVar(), rval);
+			store = store.assign(lhsVar.getVar(), rval);
 		} else {
 			assert lhs instanceof DerefExpr;
 			DerefExpr lhsDeref = (DerefExpr) lhs;
 			lhsDeref.getLhs().accept(this);
 			Obj lobj = (Obj) resultVal;
-			if (state instanceof ErrorStore) {
+			if (store instanceof ErrorStore) {
 				return;
 			}
 			if (lobj == Obj.NULL) {
-				state = JmStore.error("illegal dereference of " + n.getLhs());
+				store = JmStore.error("illegal dereference of " + n.getLhs());
 				return;
 			}
-			state = state.assign(lobj, lhsDeref.getField(), rval);
+			store = store.assign(lobj, lhsDeref.getField(), rval);
 		}
 	}
 
 	@Override
 	public void visit(DerefExpr n) {
 		n.getLhs().accept(this);
-		if (state instanceof ErrorStore)
+		if (store instanceof ErrorStore)
 			return;
 		if (resultVal == Obj.NULL) {
-			state = JmStore.error("null dereference of " + n.getLhs());
+			store = JmStore.error("null dereference of " + n.getLhs());
 		} else {
 			Obj lobj = (Obj) resultVal;
-			resultVal = state.eval(lobj, n.getField());
+			resultVal = store.eval(lobj, n.getField());
 			if (resultVal == null) {
-				state = JmStore.error("dereference of " + n.getLhs() + " is undefined!");
+				store = JmStore.error("dereference of " + n.getLhs() + " is undefined!");
 			}
 		}
 	}
@@ -276,19 +272,19 @@ public class JminorInterpreter extends JminorVisitor {
 	 */
 	@Override
 	public void visit(EqExpr n) {
-		JmStore pre = state;
+		JmStore pre = store;
 		n.getLhs().accept(this);
-		if (state instanceof ErrorStore) {
+		if (store instanceof ErrorStore) {
 			resultCond = false;
-			state = pre;
+			store = pre;
 			return;
 		}
 		Val lval = resultVal;
 
 		n.getRhs().accept(this);
-		if (state instanceof ErrorStore) {
+		if (store instanceof ErrorStore) {
 			resultCond = false;
-			state = pre;
+			store = pre;
 			return;
 		}
 		Val rval = resultVal;
@@ -303,19 +299,19 @@ public class JminorInterpreter extends JminorVisitor {
 	 */
 	@Override
 	public void visit(LtExpr n) {
-		JmStore pre = state;
+		JmStore pre = store;
 		n.getLhs().accept(this);
-		if (state instanceof ErrorStore) {
+		if (store instanceof ErrorStore) {
 			resultCond = false;
-			state = pre;
+			store = pre;
 			return;
 		}
 		IntVal lval = (IntVal) resultVal;
 
 		n.getRhs().accept(this);
-		if (state instanceof ErrorStore) {
+		if (store instanceof ErrorStore) {
 			resultCond = false;
-			state = pre;
+			store = pre;
 			return;
 		}
 		IntVal rval = (IntVal) resultVal;
@@ -325,10 +321,10 @@ public class JminorInterpreter extends JminorVisitor {
 
 	@Override
 	public void visit(IfStmt n) {
-		JmStore pre = state;
+		JmStore pre = store;
 		n.getCond().accept(this);
-		if (state instanceof ErrorStore) {
-			updateTrace(pre, state, n);
+		if (store instanceof ErrorStore) {
+			updateTrace(pre, store, n);
 			return;
 		}
 		if (resultCond)
@@ -339,11 +335,11 @@ public class JminorInterpreter extends JminorVisitor {
 
 	@Override
 	public void visit(NewExpr n) {
-		var allocResult = state.allocate(n.getType());
+		var allocResult = store.allocate(n.getType());
 		if (allocResult.isPresent()) {
 			resultVal = allocResult.get();
 		} else {
-			state = ErrorStore.error("Allocation error, out of " + n.getType().getName() + " objects!");
+			store = ErrorStore.error("Allocation error, out of " + n.getType().getName() + " objects!");
 		}
 	}
 
@@ -351,7 +347,7 @@ public class JminorInterpreter extends JminorVisitor {
 	public void visit(SeqStmt n) {
 		for (Node sub : n.getArgs()) {
 			sub.accept(this);
-			if (state instanceof ErrorStore) {
+			if (store instanceof ErrorStore) {
 				return;
 			}
 		}
@@ -359,28 +355,28 @@ public class JminorInterpreter extends JminorVisitor {
 
 	@Override
 	public void visit(WhileStmt n) {
-		JmStore pre = state;
+		JmStore pre = store;
 		n.getCond().accept(this);
-		if (state instanceof ErrorStore) {
-			updateTrace(pre, state, n);
+		if (store instanceof ErrorStore) {
+			updateTrace(pre, store, n);
 			return;
 		}
 		while (resultCond) {
 			n.getBody().accept(this);
-			if (state instanceof ErrorStore)
+			if (store instanceof ErrorStore)
 				return;
-			if (pre.equals(state)) {
-				state = ErrorStore.error("Possibly non-terminating loop!");
+			if (pre.equals(store)) {
+				store = ErrorStore.error("Possibly non-terminating loop!");
 				stepCounter = maxSteps + 1;
 				return;
 			}
-			pre = state;
+			pre = store;
 			n.getCond().accept(this);
-			if (state instanceof ErrorStore) {
+			if (store instanceof ErrorStore) {
 				return;
 			}
 			if (stepCounter > maxSteps) {
-				state = ErrorStore.error("Possibly non-terminating loop!");
+				store = ErrorStore.error("Possibly non-terminating loop!");
 				return;
 			}
 		}
@@ -408,17 +404,17 @@ public class JminorInterpreter extends JminorVisitor {
 	@Override
 	public void visit(IntBinOpExpr n) {
 		n.getLhs().accept(this);
-		if (state instanceof ErrorStore)
+		if (store instanceof ErrorStore)
 			return;
 		Val lval = resultVal;
 
 		n.getRhs().accept(this);
-		if (state instanceof ErrorStore)
+		if (store instanceof ErrorStore)
 			return;
 		Val rval = resultVal;
 
 		if (!(lval instanceof IntVal) || !(rval instanceof IntVal)) {
-			state = ErrorStore.error("non-integer operands " + n);
+			store = ErrorStore.error("non-integer operands " + n);
 		} else {
 			var lhsNum = ((IntVal) lval).num;
 			var rhsNum = ((IntVal) rval).num;
@@ -434,7 +430,7 @@ public class JminorInterpreter extends JminorVisitor {
 				break;
 			case DIVIDE:
 				if (rhsNum == 0) {
-					state = ErrorStore.error("division by zero");
+					store = ErrorStore.error("division by zero");
 				} else {
 					resultVal = new IntVal(lhsNum / rhsNum);
 				}
@@ -459,16 +455,16 @@ public class JminorInterpreter extends JminorVisitor {
 
 	@Override
 	public void visit(VarExpr n) {
-		resultVal = state.eval(n.getVar());
+		resultVal = store.eval(n.getVar());
 		if (resultVal == null)
-			state = ErrorStore.error("Accessed uninitialized variable " + n);
+			store = ErrorStore.error("Accessed uninitialized variable " + n);
 	}
 
 	@Override
 	public void visit(ValExpr n) {
 		resultVal = n.getVal();
 		if (resultVal == null)
-			state = ErrorStore.error("Accessed uninitialized variable " + n);
+			store = ErrorStore.error("Accessed uninitialized variable " + n);
 	}
 
 	@Override
@@ -483,16 +479,16 @@ public class JminorInterpreter extends JminorVisitor {
 
 	@Override
 	public void visit(RefVar n) {
-		resultVal = state.eval(n);
+		resultVal = store.eval(n);
 		if (resultVal == null)
-			state = ErrorStore.error("Accessed uninitialized variable " + n);
+			store = ErrorStore.error("Accessed uninitialized variable " + n);
 	}
 
 	@Override
 	public void visit(IntVar n) {
-		resultVal = state.eval(n);
+		resultVal = store.eval(n);
 		if (resultVal == null)
-			state = ErrorStore.error("Accessed uninitialized variable " + n);
+			store = ErrorStore.error("Accessed uninitialized variable " + n);
 	}
 
 	@Override

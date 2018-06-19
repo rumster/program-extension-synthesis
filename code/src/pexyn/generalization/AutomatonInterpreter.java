@@ -3,10 +3,10 @@ package pexyn.generalization;
 import java.util.Optional;
 
 import bgu.cs.util.graph.MultiGraph.Edge;
-import pexyn.ArrayListPlan;
+import pexyn.ArrayListTrace;
 import pexyn.Domain;
 import pexyn.LoadedInterpreter;
-import pexyn.Plan;
+import pexyn.Trace;
 import pexyn.Domain.Guard;
 import pexyn.Domain.Cmd;
 import pexyn.Domain.Store;
@@ -27,7 +27,7 @@ public class AutomatonInterpreter<StoreType extends Store, CmdType extends Cmd, 
 		implements LoadedInterpreter<StoreType, CmdType, GuardType> {
 	private final Automaton automaton;
 	private final Domain<StoreType, CmdType, GuardType> domain;
-	private Plan<StoreType, CmdType> trace;
+	private Trace<StoreType, CmdType> trace;
 
 	public AutomatonInterpreter(Automaton automaton, Domain<StoreType, CmdType, GuardType> domain) {
 		this.automaton = automaton;
@@ -80,8 +80,8 @@ public class AutomatonInterpreter<StoreType extends Store, CmdType extends Cmd, 
 	}
 
 	@Override
-	public Optional<Plan<StoreType, CmdType>> genTrace(StoreType input, int maxSteps) {
-		trace = new ArrayListPlan<>(input);
+	public Optional<Trace<StoreType, CmdType>> genTrace(StoreType input, int maxSteps) {
+		trace = new ArrayListTrace<>(input);
 		var optVal = run(input, maxSteps);
 		if (optVal.isPresent()) {
 			var result = trace;

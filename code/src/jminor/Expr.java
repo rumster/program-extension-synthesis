@@ -8,7 +8,7 @@ import java.util.List;
 import bgu.cs.util.treeGrammar.Node;
 
 /**
- * The base class of PWhile expressions.
+ * The base class of Jminor expressions.
  * 
  * @author romanm
  */

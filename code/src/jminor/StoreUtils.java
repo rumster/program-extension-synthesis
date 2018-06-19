@@ -141,18 +141,18 @@ public class StoreUtils {
 	}
 
 	/**
-	 * Returns a multigraph whose nodes are the objects of the state and the edges
+	 * Returns a multigraph whose nodes are the objects of the store and the edges
 	 * are labeled by the corresponding {@link RefField} fields.
 	 */
-	public static MultiGraph<Obj, RefField> storeToObjMultiGraph(JmStore state) {
+	public static MultiGraph<Obj, RefField> storeToObjMultiGraph(JmStore store) {
 		HashMultiGraph<Obj, RefField> result = new HashMultiGraph<>();
 		result.addNode(Obj.NULL);
-		for (Obj o : state.getObjects()) {
+		for (Obj o : store.getObjects()) {
 			result.addNode(o);
 		}
 
-		for (Obj o : state.getObjects()) {
-			for (Map.Entry<Field, Val> fieldEdge : state.geFields(o).entrySet()) {
+		for (Obj o : store.getObjects()) {
+			for (Map.Entry<Field, Val> fieldEdge : store.geFields(o).entrySet()) {
 				Field field = fieldEdge.getKey();
 				if (field instanceof RefField) {
 					RefField refField = (RefField) field;
@@ -174,24 +174,24 @@ public class StoreUtils {
 		return (reachableObjects == totalObjects);
 	}
 
-	public static List<Obj> dfs(JmStore state) {
-		return search(state, true);
+	public static List<Obj> dfs(JmStore store) {
+		return search(store, true);
 	}
 
-	public static List<Obj> bfs(JmStore state) {
-		return search(state, false);
+	public static List<Obj> bfs(JmStore store) {
+		return search(store, false);
 
 	}
 
-	public static List<Obj> search(JmStore state, boolean depth) {
-		return search(state, depth, new LinkedList<Var>());
+	public static List<Obj> search(JmStore store, boolean depth) {
+		return search(store, depth, new LinkedList<Var>());
 	}
 
-	public static List<Obj> search(JmStore state, boolean depth, Collection<Var> excludeSet) {
-		List<Obj> result = new ArrayList<>(state.getObjects().size());
+	public static List<Obj> search(JmStore store, boolean depth, Collection<Var> excludeSet) {
+		List<Obj> result = new ArrayList<>(store.getObjects().size());
 		LinkedList<Obj> open = new LinkedList<>();
 
-		for (Map.Entry<Var, Val> valuation : state.getEnvMap().entrySet()) {
+		for (Map.Entry<Var, Val> valuation : store.getEnvMap().entrySet()) {
 			Var var = valuation.getKey();
 			Val v = valuation.getValue();
 
@@ -212,7 +212,7 @@ public class StoreUtils {
 			for (Field field : o.type.fields) {
 				if (field instanceof RefField) {
 					RefField refField = (RefField) field;
-					Obj succ = state.eval(o, refField);
+					Obj succ = store.eval(o, refField);
 					if (succ != Obj.NULL && !closed.contains(succ)) {
 						if (depth)
 							open.addFirst(succ);
@@ -229,14 +229,14 @@ public class StoreUtils {
 	 * Returns a map associating each object with its distance from the given set of
 	 * source objects.
 	 * 
-	 * @param state
-	 *            A state.
+	 * @param store
+	 *            A store.
 	 * @param sources
-	 *            A set of objects in the given state.
+	 *            A set of objects in the given store.
 	 */
-	public static TObjectIntMap<Obj> bfsMap(JmStore state, Set<Obj> sources) {
+	public static TObjectIntMap<Obj> bfsMap(JmStore store, Set<Obj> sources) {
 		Set<Obj> open = sources;
-		TObjectIntHashMap<Obj> result = new TObjectIntHashMap<>(state.objects.size(), 0.7f, -1);
+		TObjectIntHashMap<Obj> result = new TObjectIntHashMap<>(store.objects.size(), 0.7f, -1);
 		for (Obj o : sources) {
 			result.put(o, 0);
 		}
@@ -252,7 +252,7 @@ public class StoreUtils {
 			for (Field field : o.type.fields) {
 				if (field instanceof RefField) {
 					RefField refField = (RefField) field;
-					Obj succ = state.eval(o, refField);
+					Obj succ = store.eval(o, refField);
 					int succDist = result.getNoEntryValue();
 					if (succDist == -1) {
 						result.put(succ, dist + 1);

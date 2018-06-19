@@ -36,7 +36,7 @@ public abstract class GPDebugger<StoreType extends Store, CmdType extends Cmd, G
 	/**
 	 * Prints a plan.
 	 */
-	public abstract void printPlan(Plan<StoreType, CmdType> plan, int planIndex);
+	public abstract void printPlan(Trace<StoreType, CmdType> plan, int planIndex);
 
 	/**
 	 * Prints the given automaton with the given description.

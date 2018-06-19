@@ -17,7 +17,7 @@ import pexyn.planning.SearchResultType;
  * @author romanm
  */
 public class PlanningUtils {
-	public static <StoreType extends Store, CmdType extends Cmd, GuardType extends Guard> Optional<Plan<StoreType, CmdType>> exampleToPlan(
+	public static <StoreType extends Store, CmdType extends Cmd, GuardType extends Guard> Optional<Trace<StoreType, CmdType>> exampleToPlan(
 			Domain<StoreType, CmdType, GuardType> domain, Planner<StoreType, CmdType> planner,
 			Example<StoreType, CmdType> example, Logger logger) {
 		assert example.size() > 0;
@@ -35,7 +35,7 @@ public class PlanningUtils {
 		}
 
 		logger.info("Planning for example " + example.name + "...");
-		Plan<StoreType, CmdType> plan = new ArrayListPlan<>(current);
+		Trace<StoreType, CmdType> plan = new ArrayListTrace<>(current);
 		for (int i = 1; i < example.steps.size(); ++i) {
 			Union2<StoreType, CmdType> step = example.steps.get(i);
 			if (step.isT1()) {

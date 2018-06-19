@@ -60,7 +60,7 @@ public class PETISynthesizer<StoreType extends Store, CmdType extends Cmd, Guard
 
 	public Result synthesize(SynthesisProblem<StoreType, CmdType, GuardType> problem) {
 		var exampleToPlan = genPlans(problem);
-		var trainingPlans = new ArrayList<Plan<StoreType, CmdType>>();
+		var trainingPlans = new ArrayList<Trace<StoreType, CmdType>>();
 		exampleToPlan.forEach((example, plan) -> {
 			if (!example.isTest) {
 				trainingPlans.add(plan);
@@ -101,11 +101,11 @@ public class PETISynthesizer<StoreType extends Store, CmdType extends Cmd, Guard
 	/**
 	 * Converts examples to plans.
 	 */
-	protected Map<Example<StoreType, CmdType>, Plan<StoreType, CmdType>> genPlans(
+	protected Map<Example<StoreType, CmdType>, Trace<StoreType, CmdType>> genPlans(
 			SynthesisProblem<StoreType, CmdType, GuardType> problem) {
-		var exampleToPlan = new LinkedHashMap<Example<StoreType, CmdType>, Plan<StoreType, CmdType>>();
+		var exampleToPlan = new LinkedHashMap<Example<StoreType, CmdType>, Trace<StoreType, CmdType>>();
 		for (Example<StoreType, CmdType> example : problem.examples) {
-			Optional<Plan<StoreType, CmdType>> optPlan;
+			Optional<Trace<StoreType, CmdType>> optPlan;
 			if (example.inputOnly()) {
 				if (problem.interpreter().isPresent()) {
 					var interpreter = problem.interpreter().get();
@@ -131,7 +131,7 @@ public class PETISynthesizer<StoreType extends Store, CmdType extends Cmd, Guard
 		return exampleToPlan;
 	}
 
-	protected boolean compareOnTestExamples(Map<Example<StoreType, CmdType>, Plan<StoreType, CmdType>> exampleToPlan,
+	protected boolean compareOnTestExamples(Map<Example<StoreType, CmdType>, Trace<StoreType, CmdType>> exampleToPlan,
 			Automaton automaton, SynthesisProblem<StoreType, CmdType, GuardType> problem) {
 		var message = new StringBuilder();
 		var result = true;
@@ -172,7 +172,7 @@ public class PETISynthesizer<StoreType extends Store, CmdType extends Cmd, Guard
 		return result;
 	}
 
-	protected void visualizeDiff(Plan<StoreType, CmdType> trace1, Plan<StoreType, CmdType> trace2,
+	protected void visualizeDiff(Trace<StoreType, CmdType> trace1, Trace<StoreType, CmdType> trace2,
 			SynthesisProblem<StoreType, CmdType, GuardType> problem, String description) {
 		var diffAutomaton = PETI.prefixAutomaton(List.of(trace1, trace2), problem.domain(), debugger);
 		debugger.printAutomaton(diffAutomaton.get(), "Difference on example " + description);

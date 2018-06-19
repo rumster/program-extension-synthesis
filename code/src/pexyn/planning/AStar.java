@@ -7,8 +7,8 @@ import java.util.Map;
 import java.util.function.Predicate;
 
 import bgu.cs.util.BucketHeap;
-import pexyn.ArrayListPlan;
-import pexyn.Plan;
+import pexyn.ArrayListTrace;
+import pexyn.Trace;
 
 /**
  * An implementation of the A* search algorithm.
@@ -35,7 +35,7 @@ public class AStar<StateType, ActionType> implements Planner<StateType, ActionTy
 
 	@Override
 	public SearchResultType findPlan(StateType input, Predicate<StateType> goalTest,
-			Plan<StateType, ActionType> addToPlan) {
+			Trace<StateType, ActionType> addToPlan) {
 		Node<StateType, ActionType> resultNode = searchNode(input, goalTest);
 		if (resultNode != null) {
 			createPath(resultNode, addToPlan);
@@ -127,7 +127,7 @@ public class AStar<StateType, ActionType> implements Planner<StateType, ActionTy
 	 * @param node
 	 *            A search node.
 	 */
-	protected void createPath(final Node<StateType, ActionType> node, Plan<StateType, ActionType> addToPlan) {
+	protected void createPath(final Node<StateType, ActionType> node, Trace<StateType, ActionType> addToPlan) {
 		ArrayList<ActionType> actions = new ArrayList<>();
 		ArrayList<StateType> states = new ArrayList<>();
 		states.add(node.state);
@@ -139,7 +139,7 @@ public class AStar<StateType, ActionType> implements Planner<StateType, ActionTy
 		}
 		Collections.reverse(actions);
 		Collections.reverse(states);
-		Plan<StateType, ActionType> result = new ArrayListPlan<>(states, actions);
+		Trace<StateType, ActionType> result = new ArrayListTrace<>(states, actions);
 		addToPlan.appendPlan(result);
 	}
 

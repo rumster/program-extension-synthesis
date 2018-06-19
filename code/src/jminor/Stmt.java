@@ -9,7 +9,7 @@ import bgu.cs.util.treeGrammar.Node;
 import pexyn.Domain.Cmd;
 
 /**
- * A base class for PWhile statements.
+ * A base class for Jminor statements.
  * 
  * @author romanm
  */
@@ -22,7 +22,7 @@ public abstract class Stmt extends Node implements Cmd {
 	}
 
 	/**
-	 * Tests whether this statement can be applied to the given state.
+	 * Tests whether this statement can be applied to the given store.
 	 */
 	public boolean enabled(JmStore store) {
 		JmStore result = JminorInterpreter.v.run(this, store, JminorInterpreter.v.guessMaxSteps(this, store)).get();
@@ -44,7 +44,7 @@ public abstract class Stmt extends Node implements Cmd {
 		}
 		if (!this.getClass().equals(o.getClass())) {
 			return false;
-		}		
+		}
 		Stmt other = (Stmt) o;
 		for (var i = 0; i < args.size(); ++i) {
 			if (!args.get(i).equals(other.args.get(i))) {

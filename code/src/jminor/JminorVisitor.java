@@ -3,7 +3,7 @@ package jminor;
 import bgu.cs.util.treeGrammar.*;
 
 /**
- * A visitor for derivation trees of the PWhile grammar.
+ * A visitor for derivation trees of the Jminor grammar.
  * 
  * @author romanm
  */

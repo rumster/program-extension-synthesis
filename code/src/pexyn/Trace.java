@@ -11,7 +11,7 @@ package pexyn;
  * @param <ActionType>
  *            The type of actions applied to states.
  */
-public interface Plan<StateType, ActionType> {
+public interface Trace<StateType, ActionType> {
 	/**
 	 * Returns the number of states in the plan.
 	 */
@@ -70,7 +70,7 @@ public interface Plan<StateType, ActionType> {
 	/**
 	 * Precondition: <code>!isEmpty()</code>
 	 */
-	public default void appendPlan(Plan<StateType, ActionType> other) {
+	public default void appendPlan(Trace<StateType, ActionType> other) {
 		if (other.isEmpty()) {
 			return;
 		} else {
@@ -86,12 +86,12 @@ public interface Plan<StateType, ActionType> {
 	/**
 	 * Precondition: <code>!isEmpty()</code>
 	 */
-	public void prependPlan(Plan<StateType, ActionType> other);
+	public void prependPlan(Trace<StateType, ActionType> other);
 
 	/**
 	 * Compares two plans, assuming actions are deterministic.
 	 */
-	public default boolean eqDeterministic(Plan<StateType, ActionType> other) {
+	public default boolean eqDeterministic(Trace<StateType, ActionType> other) {
 		return this.firstState().equals(other.firstState()) && this.actions().equals(other.actions());
 	}
 }

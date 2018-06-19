@@ -13,15 +13,15 @@ import java.util.Collection;
  * @param <ActionType>
  *            The type of actions applied to states.
  */
-public class ArrayListPlan<StateType, ActionType> implements Plan<StateType, ActionType> {
+public class ArrayListTrace<StateType, ActionType> implements Trace<StateType, ActionType> {
 	public final ArrayList<StateType> states = new ArrayList<>();
 	public final ArrayList<ActionType> actions = new ArrayList<>();
 
-	public ArrayListPlan(StateType n) {
+	public ArrayListTrace(StateType n) {
 		this.states.add(n);
 	}
 
-	public ArrayListPlan(Collection<StateType> states, Collection<ActionType> actions) {
+	public ArrayListTrace(Collection<StateType> states, Collection<ActionType> actions) {
 		assert states != null && actions != null;
 		assert states.size() == actions.size() + 1;
 		this.states.addAll(states);
@@ -47,7 +47,7 @@ public class ArrayListPlan<StateType, ActionType> implements Plan<StateType, Act
 	}
 
 	@Override
-	public void appendPlan(Plan<StateType, ActionType> other) {
+	public void appendPlan(Trace<StateType, ActionType> other) {
 		boolean first = true;
 		for (StateType state: other.states()) {
 			if (first && !states.isEmpty()) {
@@ -84,7 +84,7 @@ public class ArrayListPlan<StateType, ActionType> implements Plan<StateType, Act
 	}
 
 	@Override
-	public void prependPlan(Plan<StateType, ActionType> other) {
+	public void prependPlan(Trace<StateType, ActionType> other) {
 		throw new UnsupportedOperationException();
 	}
 

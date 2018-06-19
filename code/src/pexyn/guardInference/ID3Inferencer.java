@@ -7,7 +7,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import pexyn.Domain;
-import pexyn.Plan;
+import pexyn.Trace;
 import pexyn.Domain.Guard;
 import pexyn.Domain.Cmd;
 import pexyn.Domain.Store;
@@ -27,7 +27,7 @@ public class ID3Inferencer<StoreType extends Store, CmdType extends Cmd, GuardTy
 	 * @param guards,
 	 *            sorted list of basic predicates
 	 */
-	public ID3Inferencer(Domain<StoreType, CmdType, GuardType> domain, List<Plan<StoreType, CmdType>> plans) {
+	public ID3Inferencer(Domain<StoreType, CmdType, GuardType> domain, List<Trace<StoreType, CmdType>> plans) {
 		this.domain = domain;
 		this.basicGuards = domain.generateCompleteBasicGuards(plans);
 	}

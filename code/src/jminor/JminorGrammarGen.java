@@ -8,7 +8,7 @@ import bgu.cs.util.treeGrammar.Grammar;
 import bgu.cs.util.treeGrammar.Nonterminal;
 
 /**
- * A grammar for the PWhile language.
+ * A grammar for the Jminor language.
  * 
  * @author romanm
  */
@@ -35,7 +35,7 @@ public class JminorGrammarGen {
 	private static final Nonterminal naccpath = new Nonterminal("NAccPath");
 
 	/**
-	 * Constructs a PWhile grammar for the given variables and types.
+	 * Constructs a Jminor grammar for the given variables and types.
 	 * 
 	 * TODO: missing allocation statements.
 	 * 
@@ -62,8 +62,8 @@ public class JminorGrammarGen {
 		result.add(nbasic);
 		result.add(naccpath);
 
-		WhileStmt opWhile = new WhileStmt(ncond, nstmt);
-		nstmt.add(opWhile);
+		WhileStmt oJminor = new WhileStmt(ncond, nstmt);
+		nstmt.add(oJminor);
 		IfStmt opIf = new IfStmt(ncond, nstmt, nstmt);
 		nstmt.add(opIf);
 		SeqStmt opSeq = new SeqStmt(nstmt, nstmt);

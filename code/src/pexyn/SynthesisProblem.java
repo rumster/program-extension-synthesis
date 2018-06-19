@@ -51,7 +51,7 @@ public abstract class SynthesisProblem<StoreType extends Store, CmdType extends 
 
 	public abstract Optional<LoadedInterpreter<StoreType, CmdType, GuardType>> interpreter();
 
-	public Optional<Plan<StoreType, CmdType>> generate(Example<StoreType, CmdType> inputOnlyExample,
+	public Optional<Trace<StoreType, CmdType>> generate(Example<StoreType, CmdType> inputOnlyExample,
 			int maxSteps) {
 		var optInterpreter = interpreter();
 		if (optInterpreter.isPresent()) {

@@ -21,7 +21,7 @@ import bgu.cs.util.treeGrammar.Node;
 import jminor.JmStore.ErrorStore;
 import jminor.Var.VarRole;
 import pexyn.Domain;
-import pexyn.Plan;
+import pexyn.Trace;
 
 /**
  * A domain for heap-manipulating programs.
@@ -68,8 +68,8 @@ public class JminorDomain implements Domain<JmStore, Stmt, BoolExpr> {
 	}
 
 	@Override
-	public boolean test(BoolExpr expr, JmStore state) {
-		Boolean result = JminorInterpreter.v.test(expr, state);
+	public boolean test(BoolExpr expr, JmStore store) {
+		Boolean result = JminorInterpreter.v.test(expr, store);
 		return result != null && result.booleanValue();
 	}
 
@@ -244,7 +244,7 @@ public class JminorDomain implements Domain<JmStore, Stmt, BoolExpr> {
 	 * possible) constants.
 	 */
 	@Override
-	public List<BoolExpr> generateGuards(List<Plan<JmStore, Stmt>> plans) {
+	public List<BoolExpr> generateGuards(List<Trace<JmStore, Stmt>> plans) {
 		var posLiterals = generateBasicGuards(plans);
 		var negLiterals = new ArrayList<BoolExpr>();
 		for (var e : posLiterals) {
@@ -303,7 +303,7 @@ public class JminorDomain implements Domain<JmStore, Stmt, BoolExpr> {
 		return result;
 	}
 
-	public static Set<IntVal> collectIntValsFromStores(List<Plan<JmStore, Stmt>> plans) {
+	public static Set<IntVal> collectIntValsFromStores(List<Trace<JmStore, Stmt>> plans) {
 		final var result = new HashSet<IntVal>();
 		for (final var plan : plans) {
 			for (final JmStore store : plan.states()) {
@@ -328,9 +328,9 @@ public class JminorDomain implements Domain<JmStore, Stmt, BoolExpr> {
 		return result;
 	}
 
-	public static Set<IntVal> collectIntValsFromStmts(List<Plan<JmStore, Stmt>> plans) {
+	public static Set<IntVal> collectIntValsFromStmts(List<Trace<JmStore, Stmt>> plans) {
 		final var result = new HashSet<IntVal>();
-		for (final Plan<JmStore, Stmt> plan : plans) {
+		for (final Trace<JmStore, Stmt> plan : plans) {
 			for (final Stmt stmt : plan.actions()) {
 				stmt.accept(new JminorVisitor() {
 					public void visit(IntVal val) {
@@ -342,7 +342,7 @@ public class JminorDomain implements Domain<JmStore, Stmt, BoolExpr> {
 		return result;
 	}
 
-	protected void addBasicIntGuards(List<Plan<JmStore, Stmt>> plans, List<BoolExpr> result) {
+	protected void addBasicIntGuards(List<Trace<JmStore, Stmt>> plans, List<BoolExpr> result) {
 		// Collect all of the integers constants into a single set.
 		final var storeVals = collectIntValsFromStores(plans);
 		final var stmtVals = collectIntValsFromStmts(plans);
@@ -436,7 +436,7 @@ public class JminorDomain implements Domain<JmStore, Stmt, BoolExpr> {
 	/**
 	 * TODO: prune out incorrectly-typed expressions.
 	 */
-	protected void addBasicRefGuards(List<Plan<JmStore, Stmt>> plans, List<BoolExpr> result) {
+	protected void addBasicRefGuards(List<Trace<JmStore, Stmt>> plans, List<BoolExpr> result) {
 		boolean storesWithObjects = false;
 		for (var plan : plans) {
 			for (var store : plan.states()) {
@@ -492,7 +492,7 @@ public class JminorDomain implements Domain<JmStore, Stmt, BoolExpr> {
 	}
 
 	@Override
-	public List<BoolExpr> generateBasicGuards(List<Plan<JmStore, Stmt>> plans) {
+	public List<BoolExpr> generateBasicGuards(List<Trace<JmStore, Stmt>> plans) {
 		final var result = new ArrayList<BoolExpr>();
 		addBasicIntGuards(plans, result);
 		addBasicRefGuards(plans, result);
@@ -505,7 +505,7 @@ public class JminorDomain implements Domain<JmStore, Stmt, BoolExpr> {
 	}
 
 	@Override
-	public List<BoolExpr> generateCompleteBasicGuards(List<Plan<JmStore, Stmt>> plans) {
+	public List<BoolExpr> generateCompleteBasicGuards(List<Trace<JmStore, Stmt>> plans) {
 		var guards = new ArrayList<BoolExpr>();
 		for (var e : generateBasicGuards(plans)) {
 			guards.add(e);

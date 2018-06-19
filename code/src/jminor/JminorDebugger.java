@@ -13,7 +13,7 @@ import bgu.cs.util.STGLoader;
 import bgu.cs.util.Union2;
 import pexyn.Example;
 import pexyn.GPDebugger;
-import pexyn.Plan;
+import pexyn.Trace;
 import pexyn.Domain.Guard;
 import pexyn.Domain.Cmd;
 import pexyn.generalization.Automaton;
@@ -90,7 +90,7 @@ public class JminorDebugger extends GPDebugger<JmStore, Stmt, BoolExpr> {
 	}
 
 	@Override
-	public void printPlan(Plan<JmStore, Stmt> plan, int planIndex) {		
+	public void printPlan(Trace<JmStore, Stmt> plan, int planIndex) {		
 		if (!printPlans) {
 			return;
 		}
