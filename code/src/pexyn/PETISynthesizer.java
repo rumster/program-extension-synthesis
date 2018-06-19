@@ -12,16 +12,16 @@ import java.util.logging.Logger;
 import org.apache.commons.configuration2.Configuration;
 
 import bgu.cs.util.Timer;
-import guardInference.ConditionInferencer;
-import guardInference.DTreeInferencer;
-import guardInference.ID3Inferencer;
-import guardInference.LinearInferencer;
 import pexyn.Domain.Guard;
 import pexyn.Domain.Cmd;
 import pexyn.Domain.Store;
 import pexyn.generalization.Automaton;
 import pexyn.generalization.AutomatonInterpreter;
 import pexyn.generalization.Result;
+import pexyn.guardInference.ConditionInferencer;
+import pexyn.guardInference.DTreeInferencer;
+import pexyn.guardInference.ID3Inferencer;
+import pexyn.guardInference.LinearInferencer;
 import pexyn.generalization.PETI;
 import pexyn.planning.Planner;
 

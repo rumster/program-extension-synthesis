@@ -9,13 +9,13 @@ import java.util.logging.Logger;
 
 import bgu.cs.util.graph.MultiGraph.Edge;
 import bgu.cs.util.rel.HashRel2;
-import guardInference.ConditionInferencer;
 import pexyn.Domain;
 import pexyn.GPDebugger;
 import pexyn.Plan;
 import pexyn.Domain.Guard;
 import pexyn.Domain.Cmd;
 import pexyn.Domain.Store;
+import pexyn.guardInference.ConditionInferencer;
 
 /**
  * An algorithm for inferring program automata from input traces.
