@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import grammar.CachedLanguageIterator;
+import bgu.cs.util.treeGrammar.CachedLanguageIterator;
 import jminor.BoolExpr;
 import jminor.Stmt;
 import jminor.JmStore;

@@ -4,7 +4,7 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
-import grammar.Visitor;
+import bgu.cs.util.treeGrammar.Visitor;
 
 /**
  * Represents an object type.

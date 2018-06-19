@@ -5,7 +5,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import grammar.Node;
+import bgu.cs.util.treeGrammar.Node;
 
 /**
  * The base class of PWhile expressions.

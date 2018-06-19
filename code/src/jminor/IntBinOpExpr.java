@@ -2,8 +2,8 @@ package jminor;
 
 import java.util.List;
 
-import grammar.Node;
-import grammar.Visitor;
+import bgu.cs.util.treeGrammar.Node;
+import bgu.cs.util.treeGrammar.Visitor;
 
 /**
  * A binary operation over two integer values.

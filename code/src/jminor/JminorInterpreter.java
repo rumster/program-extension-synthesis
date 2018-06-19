@@ -2,8 +2,8 @@ package jminor;
 
 import java.util.Optional;
 
-import grammar.Node;
-import grammar.Nonterminal;
+import bgu.cs.util.treeGrammar.Node;
+import bgu.cs.util.treeGrammar.Nonterminal;
 import jminor.JmStore.ErrorStore;
 import pexyn.ArrayListPlan;
 import pexyn.Plan;

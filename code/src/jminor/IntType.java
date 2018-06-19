@@ -1,6 +1,6 @@
 package jminor;
 
-import grammar.Visitor;
+import bgu.cs.util.treeGrammar.Visitor;
 
 /**
  * Represents an object type.

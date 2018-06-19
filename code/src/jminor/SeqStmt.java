@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import grammar.*;
+import bgu.cs.util.treeGrammar.*;
 
 /**
  * A sequencing statement.

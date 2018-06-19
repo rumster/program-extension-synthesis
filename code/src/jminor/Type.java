@@ -1,7 +1,7 @@
 package jminor;
 
-import grammar.Token;
-import grammar.Visitor;
+import bgu.cs.util.treeGrammar.Token;
+import bgu.cs.util.treeGrammar.Visitor;
 
 /**
  * The base class of PWhile types.

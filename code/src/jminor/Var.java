@@ -1,6 +1,6 @@
 package jminor;
 
-import grammar.Token;
+import bgu.cs.util.treeGrammar.Token;
 
 /**
  * The base class of variables.

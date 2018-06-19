@@ -1,6 +1,6 @@
 package jminor;
 
-import grammar.*;
+import bgu.cs.util.treeGrammar.*;
 
 /**
  * A visitor for derivation trees of the PWhile grammar.

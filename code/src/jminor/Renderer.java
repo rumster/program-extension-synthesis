@@ -1,7 +1,7 @@
 package jminor;
 
 import bgu.cs.util.STHierarchyRenderer;
-import grammar.Node;
+import bgu.cs.util.treeGrammar.Node;
 
 /**
  * Returns a textual representation of statements and expressions.

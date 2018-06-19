@@ -2,8 +2,8 @@ package jminor;
 
 import java.util.List;
 
-import grammar.Node;
-import grammar.Visitor;
+import bgu.cs.util.treeGrammar.Node;
+import bgu.cs.util.treeGrammar.Visitor;
 
 /**
  * The operator corresponding to an object field access.

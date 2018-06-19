@@ -1,6 +1,6 @@
 package jminor;
 
-import grammar.Visitor;
+import bgu.cs.util.treeGrammar.Visitor;
 
 /**
  * A terminal for reference fields.

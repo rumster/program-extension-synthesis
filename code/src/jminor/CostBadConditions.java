@@ -1,9 +1,8 @@
-package grammar;
+package jminor;
 
-import jminor.DerefExpr;
-import jminor.EqExpr;
-import jminor.LtExpr;
-import jminor.NotExpr;
+import bgu.cs.util.treeGrammar.CostFun;
+import bgu.cs.util.treeGrammar.Node;
+import bgu.cs.util.treeGrammar.Nonterminal;
 
 /**
  * A cost function that fines selected "bad" conditions by assigning them a very

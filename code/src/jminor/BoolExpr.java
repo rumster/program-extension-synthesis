@@ -2,7 +2,7 @@ package jminor;
 
 import java.util.List;
 
-import grammar.Node;
+import bgu.cs.util.treeGrammar.Node;
 import pexyn.Domain.Guard;
 
 /**

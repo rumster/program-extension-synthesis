@@ -11,7 +11,7 @@ import java.util.Set;
 import org.stringtemplate.v4.ST;
 
 import bgu.cs.util.STGLoader;
-import grammar.Node;
+import bgu.cs.util.treeGrammar.Node;
 import pexyn.Domain.Store;
 
 /**

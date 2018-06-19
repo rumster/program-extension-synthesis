@@ -4,8 +4,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import grammar.Grammar;
-import grammar.Nonterminal;
+import bgu.cs.util.treeGrammar.Grammar;
+import bgu.cs.util.treeGrammar.Nonterminal;
 
 /**
  * A grammar for the PWhile language.
