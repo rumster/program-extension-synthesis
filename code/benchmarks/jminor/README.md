@@ -9,20 +9,34 @@ A store formula provides a way of representing stores with undefined values. Sto
 The Jminor front-end automatically constructs a store out of a store formula.
 
 StoreFormula ::= [Equality && ... && Equality]
+
 Equality ::= var == obj
+
 Equality ::= var == int_constant
+
 Equality ::= var == obj.field
+
 Equality ::= obj.field == obj
+
 Equality ::= obj.field == int_constant
 
 ## Command
 Command ::= Expr = Expr;
+
 Command ::= Command Command
+
 Command ::= if (Expr) { Command }
+
 Command ::= if (Expr) { Command } else { Command }
+
 Command ::= while (Expr) { Command }
+
 Expr ::= var
+
 Expr ::= int_constant
+
 Expr ::= Expr.field
+
 Expr ::= Expr Op Expr
+
 Op ::= + | - | * | /
