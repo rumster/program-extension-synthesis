@@ -9,12 +9,12 @@ import java.util.logging.Logger;
 
 import bgu.cs.util.graph.MultiGraph.Edge;
 import bgu.cs.util.rel.HashRel2;
-import pexyn.Domain;
+import pexyn.Semantics;
 import pexyn.GPDebugger;
 import pexyn.Trace;
-import pexyn.Domain.Guard;
-import pexyn.Domain.Cmd;
-import pexyn.Domain.Store;
+import pexyn.Semantics.Guard;
+import pexyn.Semantics.Cmd;
+import pexyn.Semantics.Store;
 import pexyn.guardInference.ConditionInferencer;
 
 /**
@@ -25,9 +25,9 @@ import pexyn.guardInference.ConditionInferencer;
  * @param <StoreType>
  *            The type of stores.
  * @param <CmdType>
- *            The type of domain updates.
+ *            The type of semantics updates.
  * @param <GuardType>
- *            The type of domain guards.
+ *            The type of semantics guards.
  */
 public class PETI<StoreType extends Store, CmdType extends Cmd, GuardType extends Guard> {
 	private final GPDebugger<StoreType, CmdType, GuardType> debugger;
@@ -35,7 +35,7 @@ public class PETI<StoreType extends Store, CmdType extends Cmd, GuardType extend
 	@SuppressWarnings("unused")
 	private final Logger logger;
 
-	private final Domain<StoreType, CmdType, GuardType> domain;
+	private final Semantics<StoreType, CmdType, GuardType> semantics;
 
 	private final ConditionInferencer<StoreType, CmdType, GuardType> separator;
 
@@ -44,13 +44,13 @@ public class PETI<StoreType extends Store, CmdType extends Cmd, GuardType extend
 	 * 
 	 * @param debugger
 	 */
-	public PETI(Domain<StoreType, CmdType, GuardType> domain,
+	public PETI(Semantics<StoreType, CmdType, GuardType> semantics,
 			ConditionInferencer<StoreType, CmdType, GuardType> separator,
 			GPDebugger<StoreType, CmdType, GuardType> debugger, Logger logger) {
-		assert debugger != null && domain != null && separator != null;
+		assert debugger != null && semantics != null && separator != null;
 		this.debugger = debugger;
 		this.logger = logger;
-		this.domain = domain;
+		this.semantics = semantics;
 		this.separator = separator;
 	}
 
@@ -58,15 +58,15 @@ public class PETI<StoreType extends Store, CmdType extends Cmd, GuardType extend
 	 * Runs the algorithm on the given collection of example traces.
 	 */
 	public Result infer(Collection<Trace<StoreType, CmdType>> traces) {
-		var optPrefixAutomaton = prefixAutomaton(traces, domain, debugger);
+		var optPrefixAutomaton = prefixAutomaton(traces, semantics, debugger);
 		if (!optPrefixAutomaton.isPresent()) {
 			return null;
 		}
 		var prefixAutomaton = optPrefixAutomaton.get();
 		debugger.printAutomaton(prefixAutomaton, "Prefix automaton");
 		if (!prefixAutomaton.isUpdateDeterministic()) {
-			debugger.addTextFile("PETI message",
-					"Unable to learn an automaton: prefix automaton is non-deterministic!", "Synthesizer message");
+			debugger.addTextFile("PETI message", "Unable to learn an automaton: prefix automaton is non-deterministic!",
+					"Synthesizer message");
 			return Result.failure(ResultType.NON_DETERMINISTIC);
 		}
 		var prefixAutomatonGuardAssignable = assignGuards(prefixAutomaton);
@@ -148,7 +148,7 @@ public class PETI<StoreType extends Store, CmdType extends Cmd, GuardType extend
 		}
 
 		var deterministic = assignGuards(automaton);
-		//var deterministic = assignGuardsOld(automaton);
+		// var deterministic = assignGuardsOld(automaton);
 		debugger.printAutomaton(automaton,
 				"After folding with k=" + lookaheadLength + ":" + (deterministic ? "success" : "failure"));
 		return deterministic ? Optional.of(automaton) : Optional.empty();
@@ -175,7 +175,7 @@ public class PETI<StoreType extends Store, CmdType extends Cmd, GuardType extend
 	 * Attempts to constructs a prefix automaton out of a collection of traces.
 	 */
 	public static <StoreType extends Store, CmdType extends Cmd, GuardType extends Guard> Optional<Automaton> prefixAutomaton(
-			Collection<Trace<StoreType, CmdType>> traces, Domain<StoreType, CmdType, GuardType> domain,
+			Collection<Trace<StoreType, CmdType>> traces, Semantics<StoreType, CmdType, GuardType> semantics,
 			GPDebugger<StoreType, CmdType, GuardType> debugger) {
 		var stateCounter = 0;
 		var result = new Automaton();
@@ -205,7 +205,7 @@ public class PETI<StoreType extends Store, CmdType extends Cmd, GuardType extend
 						nextState = new State("N" + stateCounter);
 						result.addNode(nextState);
 					}
-					var transitionLabel = new Action(domain.getTrue(), update);
+					var transitionLabel = new Action(semantics.getTrue(), update);
 					result.addEdge(currState, nextState, transitionLabel);
 					currState = nextState;
 				}
@@ -226,7 +226,7 @@ public class PETI<StoreType extends Store, CmdType extends Cmd, GuardType extend
 				continue;
 
 			var updateToValue = new HashRel2<Cmd, Store>();
-			state.updateToValues().forEach((update, values) -> {				
+			state.updateToValues().forEach((update, values) -> {
 				for (var value : values) {
 					updateToValue.add(update, value);
 				}
@@ -246,7 +246,7 @@ public class PETI<StoreType extends Store, CmdType extends Cmd, GuardType extend
 		}
 		return true;
 	}
-	
+
 	protected boolean assignGuardsOld(Automaton automaton) {
 		for (var state : automaton.getNodes()) {
 			if (automaton.outDegree(state) <= 1)

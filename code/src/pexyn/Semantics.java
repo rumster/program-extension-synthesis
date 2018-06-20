@@ -4,25 +4,25 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import pexyn.Domain.Guard;
-import pexyn.Domain.Cmd;
-import pexyn.Domain.Store;
+import pexyn.Semantics.Guard;
+import pexyn.Semantics.Cmd;
+import pexyn.Semantics.Store;
 
 /**
- * A domain for representing systems.
+ * A program semantics.
  * 
  * @author romanm
  *
  * @param <StoreType>
- *            The type of data values (configurations) in the domain.
+ *            The type of data values (configurations) in the semantics.
  * @param <CmdType>
  *            The type of operations that can modify stores.
  * @param <GuardType>
  *            The type of predicates on stores.
  */
-public interface Domain<StoreType extends Store, CmdType extends Cmd, GuardType extends Guard> {
+public interface Semantics<StoreType extends Store, CmdType extends Cmd, GuardType extends Guard> {
 	/**
-	 * The name of this domain.
+	 * The name of this semantics.
 	 */
 	public String name();
 
@@ -36,10 +36,10 @@ public interface Domain<StoreType extends Store, CmdType extends Cmd, GuardType 
 	 * 
 	 * @param guard
 	 *            A value of type {@link GuardType}. A case down should be safe for
-	 *            the instantiating domain.
+	 *            the instantiating semantics.
 	 * @param store
 	 *            A value of type {@link StoreType}. A cast down should be safe for
-	 *            the instantiating domain.
+	 *            the instantiating semantics.
 	 */
 	public boolean test(GuardType guard, StoreType store);
 
@@ -106,7 +106,7 @@ public interface Domain<StoreType extends Store, CmdType extends Cmd, GuardType 
 	}
 
 	/**
-	 * An interface marking domain stores (values).
+	 * An interface marking semantics stores (values).
 	 * 
 	 * @author romanm
 	 */
@@ -114,7 +114,7 @@ public interface Domain<StoreType extends Store, CmdType extends Cmd, GuardType 
 	}
 
 	/**
-	 * An interface marking operations that modify domain stores.
+	 * An interface marking operations that modify semantics stores.
 	 * 
 	 * @author romanm
 	 */

@@ -14,18 +14,18 @@ import pexyn.planning.TR;
  */
 public class BasicJminorTR implements TR<JmStore, Stmt> {
 	public static final BasicJminorTR applier = new BasicJminorTR(
-			JminorDomain.fromVarsAndTypes(Collections.emptyList(), Collections.emptyList()));
+			JminorSemantics.fromVarsAndTypes(Collections.emptyList(), Collections.emptyList()));
 
-	protected final JminorDomain domain;
+	protected final JminorSemantics semantics;
 
-	public BasicJminorTR(JminorDomain domain) {
-		this.domain = domain;
+	public BasicJminorTR(JminorSemantics semantics) {
+		this.semantics = semantics;
 	}
 
 	@Override
 	public Collection<Stmt> enabledActions(JmStore store) {
-		Collection<Stmt> result = new ArrayList<>(domain.stmts.size());
-		for (var stmt : domain.stmts) {
+		Collection<Stmt> result = new ArrayList<>(semantics.stmts.size());
+		for (var stmt : semantics.stmts) {
 			if (stmt.enabled(store)) {
 				result.add(stmt);
 			}

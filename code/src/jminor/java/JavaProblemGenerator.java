@@ -38,9 +38,9 @@ public class JavaProblemGenerator {
 			return null;
 		Class<? extends JavaEnv> envType = inputs.get(0).getClass();
 		heapWalker = new JavaHeapWalker(m, envType, logger);
-		JminorDomain domain = JminorDomain.fromVarsAndTypes(heapWalker.getVars(), heapWalker.getRefTypes());
-		JminorProblem result = new JminorProblem(m.getName(), domain, Collections.emptyList(), Collections.emptyList(),
-				Collections.emptyList(), Optional.empty());
+		JminorSemantics semantics = JminorSemantics.fromVarsAndTypes(heapWalker.getVars(), heapWalker.getRefTypes());
+		JminorProblem result = new JminorProblem(m.getName(), semantics, Collections.emptyList(),
+				Collections.emptyList(), Collections.emptyList(), Optional.empty());
 
 		for (JavaEnv input : inputs) {
 			try {

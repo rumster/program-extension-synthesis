@@ -10,7 +10,7 @@ import java.util.Optional;
 import bgu.cs.util.Pair;
 import bgu.cs.util.graph.HashMultiGraph;
 import bgu.cs.util.rel.HashRel2;
-import pexyn.Domain.Cmd;
+import pexyn.Semantics.Cmd;
 
 /**
  * A program automaton.

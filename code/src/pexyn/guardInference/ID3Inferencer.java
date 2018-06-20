@@ -6,11 +6,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import pexyn.Domain;
+import pexyn.Semantics;
 import pexyn.Trace;
-import pexyn.Domain.Guard;
-import pexyn.Domain.Cmd;
-import pexyn.Domain.Store;
+import pexyn.Semantics.Guard;
+import pexyn.Semantics.Cmd;
+import pexyn.Semantics.Store;
 
 /**
  * An inferencer is loosely based on ID3 algorithm.
@@ -19,7 +19,7 @@ import pexyn.Domain.Store;
  */
 public class ID3Inferencer<StoreType extends Store, CmdType extends Cmd, GuardType extends Guard>
 		extends ConditionInferencer<StoreType, CmdType, GuardType> {
-	private Domain<StoreType, CmdType, GuardType> domain;
+	private Semantics<StoreType, CmdType, GuardType> domain;
 	private final List<GuardType> basicGuards;
 
 	/**
@@ -27,7 +27,7 @@ public class ID3Inferencer<StoreType extends Store, CmdType extends Cmd, GuardTy
 	 * @param guards,
 	 *            sorted list of basic predicates
 	 */
-	public ID3Inferencer(Domain<StoreType, CmdType, GuardType> domain, List<Trace<StoreType, CmdType>> plans) {
+	public ID3Inferencer(Semantics<StoreType, CmdType, GuardType> domain, List<Trace<StoreType, CmdType>> plans) {
 		this.domain = domain;
 		this.basicGuards = domain.generateCompleteBasicGuards(plans);
 	}

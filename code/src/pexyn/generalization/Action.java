@@ -1,7 +1,7 @@
 package pexyn.generalization;
 
-import pexyn.Domain.Guard;
-import pexyn.Domain.Cmd;
+import pexyn.Semantics.Guard;
+import pexyn.Semantics.Cmd;
 
 /**
  * An action labeling an automaton transition.

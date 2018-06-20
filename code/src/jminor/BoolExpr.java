@@ -3,7 +3,7 @@ package jminor;
 import java.util.List;
 
 import bgu.cs.util.treeGrammar.Node;
-import pexyn.Domain.Guard;
+import pexyn.Semantics.Guard;
 
 /**
  * The base class of Boolean expressions.

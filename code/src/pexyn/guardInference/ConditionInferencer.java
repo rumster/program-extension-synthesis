@@ -7,9 +7,9 @@ import java.util.Map;
 import java.util.Optional;
 
 import bgu.cs.util.rel.Rel2;
-import pexyn.Domain.Guard;
-import pexyn.Domain.Cmd;
-import pexyn.Domain.Store;
+import pexyn.Semantics.Guard;
+import pexyn.Semantics.Cmd;
+import pexyn.Semantics.Store;
 
 /**
  * An algorithm for inferring predicates that separate sets of states.

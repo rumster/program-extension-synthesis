@@ -1,4 +1,4 @@
-JminorDomain(types, vars, actions) ::= <<
+JminorSemantics(types, vars, actions) ::= <<
 Types = {
   $types:{it|$it.name$}; separator="\n"$
 }

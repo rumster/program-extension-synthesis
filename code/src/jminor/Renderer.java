@@ -9,7 +9,7 @@ import bgu.cs.util.treeGrammar.Node;
  * @author romanm
  */
 public class Renderer {
-	private static STHierarchyRenderer hrenderer = new STHierarchyRenderer(Renderer.class, "JminorDomain.stg");
+	private static STHierarchyRenderer hrenderer = new STHierarchyRenderer(Renderer.class, "JminorSemantics.stg");
 
 	public static String render(Node n) {
 		return hrenderer.render(n);

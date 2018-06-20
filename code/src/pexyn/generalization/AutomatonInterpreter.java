@@ -4,12 +4,12 @@ import java.util.Optional;
 
 import bgu.cs.util.graph.MultiGraph.Edge;
 import pexyn.ArrayListTrace;
-import pexyn.Domain;
+import pexyn.Semantics;
 import pexyn.LoadedInterpreter;
 import pexyn.Trace;
-import pexyn.Domain.Guard;
-import pexyn.Domain.Cmd;
-import pexyn.Domain.Store;
+import pexyn.Semantics.Guard;
+import pexyn.Semantics.Cmd;
+import pexyn.Semantics.Store;
 
 /**
  * An interpreter for automata.
@@ -17,21 +17,21 @@ import pexyn.Domain.Store;
  * @author romanm
  *
  * @param <StoreType>
- *            The type of values in the underlying domain.
+ *            The type of stores in the underlying semantics.
  * @param <CmdType>
- *            The type of updates in the underlying domain.
+ *            The type of updates in the underlying semantics.
  * @param <GuardType>
- *            The type of guards in the underlying domain.
+ *            The type of guards in the underlying semantics.
  */
 public class AutomatonInterpreter<StoreType extends Store, CmdType extends Cmd, GuardType extends Guard>
 		implements LoadedInterpreter<StoreType, CmdType, GuardType> {
 	private final Automaton automaton;
-	private final Domain<StoreType, CmdType, GuardType> domain;
+	private final Semantics<StoreType, CmdType, GuardType> semantics;
 	private Trace<StoreType, CmdType> trace;
 
-	public AutomatonInterpreter(Automaton automaton, Domain<StoreType, CmdType, GuardType> domain) {
+	public AutomatonInterpreter(Automaton automaton, Semantics<StoreType, CmdType, GuardType> semantics) {
 		this.automaton = automaton;
-		this.domain = domain;
+		this.semantics = semantics;
 	}
 
 	@Override
@@ -46,7 +46,7 @@ public class AutomatonInterpreter<StoreType extends Store, CmdType extends Cmd, 
 				var action = edge.getLabel();
 				@SuppressWarnings("unchecked")
 				var guard = (GuardType) action.guard();
-				if (domain.test(guard, currValue)) {
+				if (semantics.test(guard, currValue)) {
 					matchedAction = action;
 					matchedEdge = edge;
 					break;
@@ -57,7 +57,7 @@ public class AutomatonInterpreter<StoreType extends Store, CmdType extends Cmd, 
 			} else {
 				@SuppressWarnings("unchecked")
 				var edgeUpdate = (CmdType) matchedAction.update;
-				var optNextVal = domain.apply(edgeUpdate, currValue);
+				var optNextVal = semantics.apply(edgeUpdate, currValue);
 				if (optNextVal.isPresent()) {
 					currValue = optNextVal.get();
 					if (trace != null) {

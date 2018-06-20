@@ -99,7 +99,7 @@ public class Main {
 			debugger.addCodeFile("problem.txt", problem.toString(), "Specification");
 			debugger.printExamples(problem.examples);
 			synthesisTime.start();
-			var planner = new AStar<JmStore, Stmt>(new BasicJminorTR(problem.domain));
+			var planner = new AStar<JmStore, Stmt>(new BasicJminorTR(problem.semantics));
 			var synthesizer = new PETISynthesizer<JmStore, Stmt, BoolExpr>(planner, config, logger, debugger);
 			var synthesisResult = synthesizer.synthesize(problem);
 			if (synthesisResult.success()) {

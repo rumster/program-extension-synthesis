@@ -1,8 +1,8 @@
 package pexyn.generalization;
 
 import pexyn.Trace;
-import pexyn.Domain.Cmd;
-import pexyn.Domain.Store;
+import pexyn.Semantics.Cmd;
+import pexyn.Semantics.Store;
 
 /**
  * A point along a trace. Trace points are immutable.

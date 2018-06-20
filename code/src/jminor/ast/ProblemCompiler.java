@@ -16,7 +16,7 @@ import jminor.DerefExpr;
 import jminor.EqExpr;
 import jminor.Expr;
 import jminor.Field;
-import jminor.JminorDomain;
+import jminor.JminorSemantics;
 import jminor.JminorProblem;
 import jminor.IfStmt;
 import jminor.IntBinOp;
@@ -69,7 +69,7 @@ public class ProblemCompiler {
 		new TypedVarBuilder(VarRole.ARG, false).build(funAST.inputArgs);
 		new TypedVarBuilder(VarRole.ARG, true).build(funAST.outputArgs);
 		new TypedVarBuilder(VarRole.TEMP, false).build(funAST.temps);
-		JminorDomain domain = JminorDomain.fromVarsAndTypes(vars, nameToRefType.values());
+		JminorSemantics semantics = JminorSemantics.fromVarsAndTypes(vars, nameToRefType.values());
 
 		Optional<Stmt> optProg;
 		if (funAST.optProg != null) {
@@ -97,7 +97,7 @@ public class ProblemCompiler {
 			tempVars.add(tempVar);
 		}
 
-		JminorProblem result = new JminorProblem(funAST.name, domain, inputVars, outputVars, tempVars, optProg);
+		JminorProblem result = new JminorProblem(funAST.name, semantics, inputVars, outputVars, tempVars, optProg);
 
 		int exampleId = 0;
 		for (ASTExample exampleAST : funAST.examples) {

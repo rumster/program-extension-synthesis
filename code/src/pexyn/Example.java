@@ -5,8 +5,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import bgu.cs.util.Union2;
-import pexyn.Domain.Cmd;
-import pexyn.Domain.Store;
+import pexyn.Semantics.Cmd;
+import pexyn.Semantics.Store;
 
 /**
  * An example used to drive the synthesis algorithm.
@@ -16,10 +16,9 @@ import pexyn.Domain.Store;
  * @param <StoreType>
  *            The type of stores.
  * @param <CmdType>
- *            The type of domain updates.
+ *            The type of commands.
  */
-public class Example<StoreType extends Store, CmdType extends Cmd>
-		implements Iterable<Union2<StoreType, CmdType>> {
+public class Example<StoreType extends Store, CmdType extends Cmd> implements Iterable<Union2<StoreType, CmdType>> {
 	public final String name;
 	public final int id;
 

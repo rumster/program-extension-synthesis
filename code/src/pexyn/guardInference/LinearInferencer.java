@@ -4,11 +4,11 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-import pexyn.Domain;
+import pexyn.Semantics;
 import pexyn.Trace;
-import pexyn.Domain.Guard;
-import pexyn.Domain.Cmd;
-import pexyn.Domain.Store;
+import pexyn.Semantics.Guard;
+import pexyn.Semantics.Cmd;
+import pexyn.Semantics.Store;
 
 /**
  * An inferencer that simply iterates over a list of given predicates and
@@ -22,11 +22,11 @@ public class LinearInferencer<StoreType extends Store, CmdType extends Cmd, Guar
 	/**
 	 * The domain comprised of values and predicates.
 	 */
-	public Domain<StoreType, CmdType, GuardType> domain;
+	public Semantics<StoreType, CmdType, GuardType> domain;
 
 	private final List<GuardType> guards;
 
-	public LinearInferencer(Domain<StoreType, CmdType, GuardType> domain, List<Trace<StoreType, CmdType>> plans) {
+	public LinearInferencer(Semantics<StoreType, CmdType, GuardType> domain, List<Trace<StoreType, CmdType>> plans) {
 		this.domain = domain;
 		this.guards = domain.generateGuards(plans);
 	}

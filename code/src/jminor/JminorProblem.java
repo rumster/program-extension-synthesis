@@ -3,26 +3,26 @@ package jminor;
 import java.util.List;
 import java.util.Optional;
 
-import pexyn.Domain;
+import pexyn.Semantics;
 import pexyn.LoadedInterpreter;
 import pexyn.SynthesisProblem;
 
 /**
- * A synthesis problem for heap-manipulating programs.
+ * A synthesis problem for Jminor programs.
  * 
  * @author romanm
  */
 public class JminorProblem extends SynthesisProblem<JmStore, Stmt, BoolExpr> {
-	public final JminorDomain domain;
+	public final JminorSemantics semantics;
 	public final Optional<Stmt> optProg;
 	public final List<Var> inputArgs;
 	public final List<Var> outputArgs;
 	public final List<Var> temps;
 
-	public JminorProblem(String name, JminorDomain domain, List<Var> inputArgs, List<Var> outputArgs, List<Var> temps,
-			Optional<Stmt> optProg) {
+	public JminorProblem(String name, JminorSemantics semantics, List<Var> inputArgs, List<Var> outputArgs,
+			List<Var> temps, Optional<Stmt> optProg) {
 		super(name);
-		this.domain = domain;
+		this.semantics = semantics;
 		this.inputArgs = inputArgs;
 		this.outputArgs = outputArgs;
 		this.temps = temps;
@@ -37,13 +37,13 @@ public class JminorProblem extends SynthesisProblem<JmStore, Stmt, BoolExpr> {
 			result.append(Renderer.render(prog));
 			result.append(System.lineSeparator());
 		}
-		result.append(domain.toString());
+		result.append(semantics.toString());
 		return result.toString();
 	}
 
 	@Override
-	public Domain<JmStore, Stmt, BoolExpr> domain() {
-		return domain;
+	public Semantics<JmStore, Stmt, BoolExpr> semantics() {
+		return semantics;
 	}
 
 	@Override

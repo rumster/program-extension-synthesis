@@ -5,9 +5,9 @@ import java.util.logging.Logger;
 
 import bgu.cs.util.Union2;
 import jminor.JmStore.ErrorStore;
-import pexyn.Domain.Guard;
-import pexyn.Domain.Cmd;
-import pexyn.Domain.Store;
+import pexyn.Semantics.Guard;
+import pexyn.Semantics.Cmd;
+import pexyn.Semantics.Store;
 import pexyn.planning.Planner;
 import pexyn.planning.SearchResultType;
 
@@ -18,7 +18,7 @@ import pexyn.planning.SearchResultType;
  */
 public class PlanningUtils {
 	public static <StoreType extends Store, CmdType extends Cmd, GuardType extends Guard> Optional<Trace<StoreType, CmdType>> exampleToPlan(
-			Domain<StoreType, CmdType, GuardType> domain, Planner<StoreType, CmdType> planner,
+			Semantics<StoreType, CmdType, GuardType> semantics, Planner<StoreType, CmdType> planner,
 			Example<StoreType, CmdType> example, Logger logger) {
 		assert example.size() > 0;
 		if (example.size() == 1 && example.step(0).isT1()) {
@@ -41,7 +41,7 @@ public class PlanningUtils {
 			if (step.isT1()) {
 				var stateGoal = step.getT1();
 				SearchResultType planResult = planner.findPlan(current, state -> {
-					return domain.match(state, stateGoal);
+					return semantics.match(state, stateGoal);
 				}, plan);
 				switch (planResult) {
 				case OK:
@@ -60,7 +60,7 @@ public class PlanningUtils {
 				}
 			} else {
 				CmdType action = step.getT2();
-				Optional<StoreType> next = domain.apply(action, current);
+				Optional<StoreType> next = semantics.apply(action, current);
 				if (next.isPresent() && !(next.get() instanceof ErrorStore)) {
 					current = next.get();
 					plan.append(action, current);

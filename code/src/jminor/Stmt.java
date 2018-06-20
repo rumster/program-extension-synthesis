@@ -6,7 +6,7 @@ import java.util.Collections;
 import java.util.List;
 
 import bgu.cs.util.treeGrammar.Node;
-import pexyn.Domain.Cmd;
+import pexyn.Semantics.Cmd;
 
 /**
  * A base class for Jminor statements.

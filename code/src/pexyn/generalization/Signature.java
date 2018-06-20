@@ -10,7 +10,7 @@ import java.util.Set;
 import bgu.cs.util.graph.MultiGraph.Edge;
 import bgu.cs.util.rel.HashRel2;
 import bgu.cs.util.rel.Rel2;
-import pexyn.Domain.Cmd;
+import pexyn.Semantics.Cmd;
 
 /**
  * A set of lookaheads for a given length.

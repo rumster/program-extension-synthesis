@@ -12,8 +12,8 @@ import bgu.cs.util.treeGrammar.CachedLanguageIterator;
 import jminor.BoolExpr;
 import jminor.Stmt;
 import jminor.JmStore;
-import pexyn.Domain;
-import pexyn.Domain.Store;
+import pexyn.Semantics;
+import pexyn.Semantics.Store;
 
 /**
  * An inferencer based on finding a Boolean Craig interpolant.
@@ -29,12 +29,12 @@ public class InterpolatingConditionInferencer extends ConditionInferencer<JmStor
 	/**
 	 * The domain comprised of values and predicates.
 	 */
-	public Domain<JmStore, Stmt, BoolExpr> domain;	
+	public Semantics<JmStore, Stmt, BoolExpr> domain;	
 
 	private final CachedLanguageIterator citer;
 
 	// TODO - remove @outputDir (env variables?)
-	public InterpolatingConditionInferencer(Domain<JmStore, Stmt, BoolExpr> domain, CachedLanguageIterator citer,
+	public InterpolatingConditionInferencer(Semantics<JmStore, Stmt, BoolExpr> domain, CachedLanguageIterator citer,
 			String outputDir) {
 		this.domain = domain;
 		this.outputDir = outputDir;

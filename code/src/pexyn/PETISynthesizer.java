@@ -12,9 +12,9 @@ import java.util.logging.Logger;
 import org.apache.commons.configuration2.Configuration;
 
 import bgu.cs.util.Timer;
-import pexyn.Domain.Guard;
-import pexyn.Domain.Cmd;
-import pexyn.Domain.Store;
+import pexyn.Semantics.Guard;
+import pexyn.Semantics.Cmd;
+import pexyn.Semantics.Store;
 import pexyn.generalization.Automaton;
 import pexyn.generalization.AutomatonInterpreter;
 import pexyn.generalization.Result;
@@ -71,18 +71,18 @@ public class PETISynthesizer<StoreType extends Store, CmdType extends Cmd, Guard
 		var guardInfAlgName = config.getString("pexyn.guardInferenceAlgorithm", "");
 		var shortCiruitEvaluationSemantics = config.getBoolean("pexyn.shortCiruitEvaluationSemantics", true);
 		if (guardInfAlgName.equals("ID3")) {
-			separator = new ID3Inferencer<StoreType, CmdType, GuardType>(problem.domain(), trainingPlans);
+			separator = new ID3Inferencer<StoreType, CmdType, GuardType>(problem.semantics(), trainingPlans);
 		} else if (guardInfAlgName.equals("dtree")) {
-			var basicGuards = problem.domain().generateBasicGuards(trainingPlans);
-			separator = new DTreeInferencer<StoreType, CmdType, GuardType>(problem.domain(), basicGuards,
+			var basicGuards = problem.semantics().generateBasicGuards(trainingPlans);
+			separator = new DTreeInferencer<StoreType, CmdType, GuardType>(problem.semantics(), basicGuards,
 					shortCiruitEvaluationSemantics);
 		} else {
-			separator = new LinearInferencer<StoreType, CmdType, GuardType>(problem.domain(), trainingPlans);
+			separator = new LinearInferencer<StoreType, CmdType, GuardType>(problem.semantics(), trainingPlans);
 		}
 		debugPrintGuards(separator.guards());
 
 		logger.info("Generalizing " + trainingPlans.size() + " plans...");
-		var learner = new PETI<StoreType, CmdType, GuardType>(problem.domain(), separator, debugger, logger);
+		var learner = new PETI<StoreType, CmdType, GuardType>(problem.semantics(), separator, debugger, logger);
 		var learningTime = new Timer();
 		learningTime.start();
 		var learningResult = learner.infer(trainingPlans);
@@ -115,7 +115,7 @@ public class PETISynthesizer<StoreType extends Store, CmdType extends Cmd, Guard
 					optPlan = Optional.empty();
 				}
 			} else {
-				optPlan = PlanningUtils.exampleToPlan(problem.domain(), planner, example, logger);
+				optPlan = PlanningUtils.exampleToPlan(problem.semantics(), planner, example, logger);
 			}
 
 			if (optPlan.isPresent()) {
@@ -145,7 +145,7 @@ public class PETISynthesizer<StoreType extends Store, CmdType extends Cmd, Guard
 				continue;
 			}
 			++numOfTests;
-			var interpreter = new AutomatonInterpreter<StoreType, CmdType, GuardType>(automaton, problem.domain());
+			var interpreter = new AutomatonInterpreter<StoreType, CmdType, GuardType>(automaton, problem.semantics());
 			var optAutomatonTrace = interpreter.genTrace(example.input(), maxTraceLength);
 			if (!optAutomatonTrace.isPresent() || !optAutomatonTrace.get().eqDeterministic(plan)) {
 				{
@@ -154,7 +154,7 @@ public class PETISynthesizer<StoreType extends Store, CmdType extends Cmd, Guard
 								"Difference on example " + example.name);
 					} else {
 						var diffAutomaton = PETI.prefixAutomaton(List.of(optAutomatonTrace.get(), plan),
-								problem.domain(), debugger);
+								problem.semantics(), debugger);
 						debugger.printAutomaton(diffAutomaton.get(), "Difference on example " + example.name);
 					}
 				}
@@ -174,7 +174,7 @@ public class PETISynthesizer<StoreType extends Store, CmdType extends Cmd, Guard
 
 	protected void visualizeDiff(Trace<StoreType, CmdType> trace1, Trace<StoreType, CmdType> trace2,
 			SynthesisProblem<StoreType, CmdType, GuardType> problem, String description) {
-		var diffAutomaton = PETI.prefixAutomaton(List.of(trace1, trace2), problem.domain(), debugger);
+		var diffAutomaton = PETI.prefixAutomaton(List.of(trace1, trace2), problem.semantics(), debugger);
 		debugger.printAutomaton(diffAutomaton.get(), "Difference on example " + description);
 	}
 

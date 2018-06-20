@@ -14,8 +14,8 @@ import bgu.cs.util.Union2;
 import pexyn.Example;
 import pexyn.GPDebugger;
 import pexyn.Trace;
-import pexyn.Domain.Guard;
-import pexyn.Domain.Cmd;
+import pexyn.Semantics.Guard;
+import pexyn.Semantics.Cmd;
 import pexyn.generalization.Automaton;
 
 /**

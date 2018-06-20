@@ -20,15 +20,15 @@ import bgu.cs.util.treeGrammar.CostSize;
 import bgu.cs.util.treeGrammar.Node;
 import jminor.JmStore.ErrorStore;
 import jminor.Var.VarRole;
-import pexyn.Domain;
+import pexyn.Semantics;
 import pexyn.Trace;
 
 /**
- * A domain for heap-manipulating programs.
+ * A semantics for Jminor.
  * 
  * @author romanm
  */
-public class JminorDomain implements Domain<JmStore, Stmt, BoolExpr> {
+public class JminorSemantics implements Semantics<JmStore, Stmt, BoolExpr> {
 	public final Set<Field> fields = new LinkedHashSet<>();
 
 	/**
@@ -52,14 +52,14 @@ public class JminorDomain implements Domain<JmStore, Stmt, BoolExpr> {
 
 	protected Collection<Stmt> stmts = new ArrayList<>();
 
-	protected STGLoader templates = new STGLoader(JminorDomain.class);
+	protected STGLoader templates = new STGLoader(JminorSemantics.class);
 	protected STHierarchyRenderer renderer = new STHierarchyRenderer(templates);
 
 	protected GuardCostEvaluator guardCostEvaluator = new GuardCostEvaluator();
 
 	@Override
 	public String name() {
-		return "JminorDomain";
+		return "JminorSemantics";
 	}
 
 	@Override
@@ -110,12 +110,12 @@ public class JminorDomain implements Domain<JmStore, Stmt, BoolExpr> {
 		return result;
 	}
 
-	public static JminorDomain fromVarsAndTypes(Collection<Var> vars, Collection<RefType> refTypes) {
-		JminorDomain result = new JminorDomain(vars, refTypes);
+	public static JminorSemantics fromVarsAndTypes(Collection<Var> vars, Collection<RefType> refTypes) {
+		JminorSemantics result = new JminorSemantics(vars, refTypes);
 		return result;
 	}
 
-	protected JminorDomain(Collection<Var> vars, Collection<RefType> refTypes) {
+	protected JminorSemantics(Collection<Var> vars, Collection<RefType> refTypes) {
 		this.vars = vars;
 		this.refTypes = refTypes;
 		for (RefType type : refTypes) {
@@ -540,7 +540,7 @@ public class JminorDomain implements Domain<JmStore, Stmt, BoolExpr> {
 	 */
 	@Override
 	public String toString() {
-		ST template = templates.load("JminorDomain");
+		ST template = templates.load("JminorSemantics");
 		for (Type type : types) {
 			if (type instanceof RefType) {
 				ST refTypeTemplate = templates.load("RefType");

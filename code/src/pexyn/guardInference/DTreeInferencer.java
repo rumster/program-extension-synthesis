@@ -9,10 +9,10 @@ import java.util.Optional;
 
 import bgu.cs.util.rel.HashRel2;
 import bgu.cs.util.rel.Rel2;
-import pexyn.Domain;
-import pexyn.Domain.Cmd;
-import pexyn.Domain.Guard;
-import pexyn.Domain.Store;
+import pexyn.Semantics;
+import pexyn.Semantics.Cmd;
+import pexyn.Semantics.Guard;
+import pexyn.Semantics.Store;
 
 /**
  * A greedy procedure for learning a decision tree.
@@ -36,11 +36,11 @@ public class DTreeInferencer<ExampleType extends Store, LabelType extends Cmd, F
 	 */
 	protected final List<FeatureType> propositions;
 
-	protected final Domain<ExampleType, LabelType, FeatureType> domain;
+	protected final Semantics<ExampleType, LabelType, FeatureType> domain;
 
 	private final boolean shortCiruitEvaluationSemantics;
 
-	public DTreeInferencer(Domain<ExampleType, LabelType, FeatureType> domain, List<FeatureType> propositions,
+	public DTreeInferencer(Semantics<ExampleType, LabelType, FeatureType> domain, List<FeatureType> propositions,
 			boolean shortCiruitEvaluationSemantics) {
 		this.propositions = propositions;
 		this.domain = domain;

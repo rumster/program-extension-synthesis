@@ -1,6 +1,6 @@
 package pexyn.generalization;
 
-import pexyn.Domain.Cmd;
+import pexyn.Semantics.Cmd;
 
 /**
  * An update signifying that the automaton has arrived to the final state.

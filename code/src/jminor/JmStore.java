@@ -12,7 +12,7 @@ import org.stringtemplate.v4.ST;
 
 import bgu.cs.util.STGLoader;
 import bgu.cs.util.treeGrammar.Node;
-import pexyn.Domain.Store;
+import pexyn.Semantics.Store;
 
 /**
  * Represents a concrete store of a Jminor program. Uninitialized variables and

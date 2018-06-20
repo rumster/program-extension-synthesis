@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import pexyn.Domain.*;
+import pexyn.Semantics.*;
 
 /**
  * A specification consisting of a list of input-output examples.
@@ -14,9 +14,9 @@ import pexyn.Domain.*;
  * @param <StoreType>
  *            The type of stores.
  * @param <CmdType>
- *            The type of domain updates.
+ *            The type of commands.
  * @param <GuardType>
- *            The type of domain guards.
+ *            The type of guards.
  */
 public abstract class SynthesisProblem<StoreType extends Store, CmdType extends Cmd, GuardType extends Guard> {
 	public final String name;
@@ -45,14 +45,13 @@ public abstract class SynthesisProblem<StoreType extends Store, CmdType extends 
 	}
 
 	/**
-	 * Returns the problem domain for this synthesis problem.
+	 * Returns the problem semantics for this synthesis problem.
 	 */
-	public abstract Domain<StoreType, CmdType, GuardType> domain();
+	public abstract Semantics<StoreType, CmdType, GuardType> semantics();
 
 	public abstract Optional<LoadedInterpreter<StoreType, CmdType, GuardType>> interpreter();
 
-	public Optional<Trace<StoreType, CmdType>> generate(Example<StoreType, CmdType> inputOnlyExample,
-			int maxSteps) {
+	public Optional<Trace<StoreType, CmdType>> generate(Example<StoreType, CmdType> inputOnlyExample, int maxSteps) {
 		var optInterpreter = interpreter();
 		if (optInterpreter.isPresent()) {
 			var interpreter = optInterpreter.get();
@@ -82,7 +81,7 @@ public abstract class SynthesisProblem<StoreType extends Store, CmdType extends 
 			StoreType input = example.input();
 			StoreType goal = example.goal();
 			Optional<StoreType> finalState = prog.run(input, 100000);
-			if (!finalState.isPresent() || !domain().match(finalState.get(), goal)) {
+			if (!finalState.isPresent() || !semantics().match(finalState.get(), goal)) {
 				return false;
 			}
 		}

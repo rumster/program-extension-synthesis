@@ -2,9 +2,9 @@ package pexyn;
 
 import java.util.Optional;
 
-import pexyn.Domain.Guard;
-import pexyn.Domain.Cmd;
-import pexyn.Domain.Store;
+import pexyn.Semantics.Guard;
+import pexyn.Semantics.Cmd;
+import pexyn.Semantics.Store;
 
 /**
  * An interpreter for a loaded program.
@@ -12,9 +12,9 @@ import pexyn.Domain.Store;
  * @param <StoreType>
  *            The type of stores.
  * @param <CmdType>
- *            The type of domain updates.
+ *            The type of commands.
  * @param <GuardType>
- *            The type of domain guards.
+ *            The type of guards.
  * 
  * @author romanm
  */
