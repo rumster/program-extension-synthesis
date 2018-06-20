@@ -7,6 +7,8 @@ factorial(mut x:int) -> (y:int) {
     y = y * x;
     x = x - 1;
   }
+  
+  // Intuitively, we would like to learn the parallel assignment y,x = y*x, x-1.
 
   example {
     [x==0]
@@ -15,21 +17,13 @@ factorial(mut x:int) -> (y:int) {
   
   example {
     [x==3]
-    -> [x==3 && y==1]
-    -> [x==3 && y==3]
-    -> [x==2 && y==3]
-    -> [x==2 && y==6]
+    -> [y==1]
     -> [x==1 && y==6]
   }  
     
   example {
     [x==4]
-    -> [x==4 && y==1]
-    -> [x==4 && y==4]
-    -> [x==3 && y==4]
-    -> [x==3 && y==12]
-    -> [x==2 && y==12]
-    -> [x==2 && y==24]
+    -> [y==1]
     -> [x==1 && y==24]
   }  
 }
