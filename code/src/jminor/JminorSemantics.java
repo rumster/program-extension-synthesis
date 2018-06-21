@@ -18,7 +18,6 @@ import bgu.cs.util.rel.HashRel2;
 import bgu.cs.util.rel.Rel2;
 import bgu.cs.util.treeGrammar.CostSize;
 import bgu.cs.util.treeGrammar.Node;
-import jminor.JmStore.JmErrorStore;
 import jminor.Var.VarRole;
 import pexyn.Semantics;
 import pexyn.Trace;
@@ -533,6 +532,11 @@ public class JminorSemantics implements Semantics<JmStore, Stmt, BoolExpr> {
 	@Override
 	public BoolExpr not(BoolExpr l) {
 		return new NotExpr(l);
+	}
+
+	@Override
+	public Stmt sequence(Cmd first, Cmd second) {
+		return new SeqStmt((Stmt) first, (Stmt) second);
 	}
 
 	/**

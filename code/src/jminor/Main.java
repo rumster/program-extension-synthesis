@@ -15,6 +15,7 @@ import jminor.ast.ASTProblem;
 import jminor.ast.JminorParser;
 import jminor.ast.ProblemCompiler;
 import pexyn.PETISynthesizer;
+import pexyn.generalization.AutomatonOps;
 import pexyn.planning.AStar;
 
 /**
@@ -105,10 +106,17 @@ public class Main {
 			if (synthesisResult.success()) {
 				logger.info("success!");
 				if (config.getBoolean("jminor.generateJavaImplementation", true)) {
-					var backend = new jminor.java.AutomatonBackend(synthesisResult.get(), problem, config, debugger);
+					// We have to shrink _after_ testing against the test examples,
+					// since currently a command sequence is counted as an atomic
+					// command, which fails the tests.
+					var automaton = synthesisResult.get();
+					if (config.getBoolean("pexyn.shrinkResultAutomaton", false)) {
+						AutomatonOps.shrinkBlocks(automaton, problem.semantics());
+						debugger.printAutomaton(automaton, "Shrunk automaton");
+					}
+					var backend = new jminor.java.AutomatonBackend(automaton, problem, config, debugger);
 					backend.generate();
-					var dfYbackend = new jminor.dafny.AutomatonBackend(synthesisResult.get(), problem, config,
-							debugger);
+					var dfYbackend = new jminor.dafny.AutomatonBackend(automaton, problem, config, debugger);
 					dfYbackend.generate();
 				}
 			} else {
