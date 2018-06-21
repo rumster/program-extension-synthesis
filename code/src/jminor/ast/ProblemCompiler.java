@@ -246,7 +246,7 @@ public class ProblemCompiler {
 		public void visit(ASTVarExpr n) {
 			Var v = nameToVar.get(n.varName);
 			if (v == null) {
-				throw new SemanticError("Unknown variable", n);
+				throw new SemanticError("Unknown variable " + n.varName, n);
 			}
 			tmpExpr = new VarExpr(v);
 			n.setType(v.getType());

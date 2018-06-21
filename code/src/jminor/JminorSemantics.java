@@ -18,7 +18,7 @@ import bgu.cs.util.rel.HashRel2;
 import bgu.cs.util.rel.Rel2;
 import bgu.cs.util.treeGrammar.CostSize;
 import bgu.cs.util.treeGrammar.Node;
-import jminor.JmStore.ErrorStore;
+import jminor.JmStore.JmErrorStore;
 import jminor.Var.VarRole;
 import pexyn.Semantics;
 import pexyn.Trace;

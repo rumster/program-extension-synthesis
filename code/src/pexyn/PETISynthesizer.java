@@ -14,6 +14,7 @@ import org.apache.commons.configuration2.Configuration;
 import bgu.cs.util.Timer;
 import pexyn.Semantics.Guard;
 import pexyn.Semantics.Cmd;
+import pexyn.Semantics.ErrorStore;
 import pexyn.Semantics.Store;
 import pexyn.generalization.Automaton;
 import pexyn.generalization.AutomatonInterpreter;
@@ -119,10 +120,16 @@ public class PETISynthesizer<StoreType extends Store, CmdType extends Cmd, Guard
 			}
 
 			if (optPlan.isPresent()) {
-				var plan = optPlan.get();
-				exampleToPlan.put(example, plan);
-				debugger.printPlan(plan, example.id);
-				logger.info("Found a plan for example " + example.name);
+				if (optPlan.get().lastState() instanceof ErrorStore) {
+					var errorStore = (ErrorStore) optPlan.get().lastState();
+					logger.info("Example " + example.name + " yields an error store (skipped): " + errorStore.message());
+					continue;
+				} else {
+					var plan = optPlan.get();
+					exampleToPlan.put(example, plan);
+					debugger.printPlan(plan, example.id);
+					logger.info("Found a plan for example " + example.name);
+				}
 			} else {
 				logger.info("No plan for example " + example.name);
 				continue;

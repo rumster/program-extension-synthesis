@@ -4,7 +4,7 @@ import java.util.Optional;
 import java.util.logging.Logger;
 
 import bgu.cs.util.Union2;
-import jminor.JmStore.ErrorStore;
+import jminor.JmStore.JmErrorStore;
 import pexyn.Semantics.Guard;
 import pexyn.Semantics.Cmd;
 import pexyn.Semantics.Store;
@@ -61,7 +61,7 @@ public class PlanningUtils {
 			} else {
 				CmdType action = step.getT2();
 				Optional<StoreType> next = semantics.apply(action, current);
-				if (next.isPresent() && !(next.get() instanceof ErrorStore)) {
+				if (next.isPresent() && !(next.get() instanceof JmErrorStore)) {
 					current = next.get();
 					plan.append(action, current);
 				} else {

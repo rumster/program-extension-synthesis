@@ -26,7 +26,7 @@ public abstract class Stmt extends Node implements Cmd {
 	 */
 	public boolean enabled(JmStore store) {
 		JmStore result = JminorInterpreter.v.run(this, store, JminorInterpreter.v.guessMaxSteps(this, store)).get();
-		return !(result instanceof JmStore.ErrorStore);
+		return !(result instanceof JmStore.JmErrorStore);
 	}
 
 	@Override

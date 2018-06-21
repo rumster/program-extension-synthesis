@@ -12,6 +12,7 @@ import org.stringtemplate.v4.ST;
 
 import bgu.cs.util.STGLoader;
 import bgu.cs.util.treeGrammar.Node;
+import pexyn.Semantics.ErrorStore;
 import pexyn.Semantics.Store;
 
 /**
@@ -42,7 +43,7 @@ public class JmStore implements Store {
 	protected final Map<Obj, Map<Field, Val>> heap;
 
 	public static JmStore error(String description) {
-		return new ErrorStore(description);
+		return new JmErrorStore(description);
 	}
 
 	/**
@@ -402,12 +403,17 @@ public class JmStore implements Store {
 	 * @author romanm
 	 *
 	 */
-	public static class ErrorStore extends JmStore {
+	public static class JmErrorStore extends JmStore implements ErrorStore {
 		public final String description;
 
-		protected ErrorStore(String description) {
+		protected JmErrorStore(String description) {
 			super();
 			this.description = description;
+		}
+
+		@Override
+		public String message() {
+			return description;
 		}
 
 		@Override

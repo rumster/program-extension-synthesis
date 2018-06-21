@@ -114,6 +114,19 @@ public interface Semantics<StoreType extends Store, CmdType extends Cmd, GuardTy
 	}
 
 	/**
+	 * A marker interface for a store resulting from an application of a command to
+	 * a store that is not in its domain.
+	 * 
+	 * @author romanm
+	 */
+	public interface ErrorStore {
+		/**
+		 * Returns a textual description of the error.
+		 */
+		public String message();
+	}
+
+	/**
 	 * An interface marking operations that modify semantics stores.
 	 * 
 	 * @author romanm

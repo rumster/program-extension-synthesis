@@ -22,7 +22,7 @@ import bgu.cs.util.graph.MultiGraph;
 import bgu.cs.util.graph.visualization.GraphizVisualizer;
 import gnu.trove.map.TObjectIntMap;
 import gnu.trove.map.hash.TObjectIntHashMap;
-import jminor.JmStore.ErrorStore;
+import jminor.JmStore.JmErrorStore;
 
 /**
  * Store-related utility methods.
@@ -62,8 +62,8 @@ public class StoreUtils {
 	 */
 	public static void printStore(JmStore store, String filename, Logger logger) {
 		String dotStr;
-		if (store instanceof ErrorStore) {
-			ErrorStore errorStore = (ErrorStore) store;
+		if (store instanceof JmErrorStore) {
+			JmErrorStore errorStore = (JmErrorStore) store;
 			var errorStoreST = templates.load("ErrorStore");
 			errorStoreST.add("message", errorStore.description);
 			dotStr = errorStoreST.render();
