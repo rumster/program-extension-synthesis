@@ -1,6 +1,8 @@
+* Implement a regression testing suite. 
+
 Guard inference:
 ----------------
 * We can heuristically focus on a set of relevant basic propositions
   by conducting a value-dependence analysis on a trace.
   If, at a point in the trace, a value is not read in remainder of the trace,
-  it is most likely irrelevant at that point.   
+  it is most likely irrelevant at that point.
