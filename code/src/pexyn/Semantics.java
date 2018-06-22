@@ -92,11 +92,14 @@ public interface Semantics<StoreType extends Store, CmdType extends Cmd, GuardTy
 	public GuardType not(GuardType l);
 
 	/**
-	 * An optional operation. Returns a command that executes 'first' and then
-	 * 'second.
+	 * Returns a command that executes 'first' and then 'second.
 	 */
 	public CmdType sequence(Cmd first, Cmd second);
+	
+	public CmdType condition(GuardType cond, Cmd first, Cmd second);
 
+	public CmdType loop(GuardType cond, Cmd body);
+	
 	/**
 	 * Returns a complete list (including Boolean negation) of likely atomic
 	 * predicates for the given plans

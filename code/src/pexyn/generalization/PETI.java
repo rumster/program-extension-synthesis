@@ -2,19 +2,17 @@ package pexyn.generalization;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
 
 import bgu.cs.util.graph.MultiGraph.Edge;
 import bgu.cs.util.rel.HashRel2;
-import pexyn.Semantics;
 import pexyn.GPDebugger;
-import pexyn.Trace;
-import pexyn.Semantics.Guard;
+import pexyn.Semantics;
 import pexyn.Semantics.Cmd;
+import pexyn.Semantics.Guard;
 import pexyn.Semantics.Store;
+import pexyn.Trace;
 import pexyn.guardInference.ConditionInferencer;
 
 /**
@@ -236,41 +234,6 @@ public class PETI<StoreType extends Store, CmdType extends Cmd, GuardType extend
 				return false;
 			}
 			var updateToGuard = optUpdateToGuard.get();
-
-			// All guards exist, now set them for each action.
-			for (Edge<State, Action> edge : automaton.succEdges(state)) {
-				var action = edge.getLabel();
-				var guard = updateToGuard.get(action.update);
-				action.setGuard(guard);
-			}
-		}
-		return true;
-	}
-
-	protected boolean assignGuardsOld(Automaton automaton) {
-		for (var state : automaton.getNodes()) {
-			if (automaton.outDegree(state) <= 1)
-				continue;
-
-			var updates = new ArrayList<Cmd>();
-			List<Collection<? extends Store>> updateValues = new ArrayList<>();
-			state.updateToValues().forEach((update, values) -> {
-				updates.add(update);
-				updateValues.add(values);
-			});
-			var optGuards = separator.inferList(updateValues);
-			var updateToGuard = new HashMap<Cmd, GuardType>();
-			for (int i = 0; i < optGuards.size(); ++i) {
-				var optGuard = optGuards.get(i);
-				if (optGuard.isPresent()) {
-					var guard = optGuard.get();
-					var update = updates.get(i);
-					updateToGuard.put(update, guard);
-				} else {
-					logger.info("Failed to assign guards to " + state);
-					return false;
-				}
-			}
 
 			// All guards exist, now set them for each action.
 			for (Edge<State, Action> edge : automaton.succEdges(state)) {

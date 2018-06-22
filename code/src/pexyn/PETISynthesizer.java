@@ -21,8 +21,6 @@ import pexyn.generalization.AutomatonInterpreter;
 import pexyn.generalization.Result;
 import pexyn.guardInference.ConditionInferencer;
 import pexyn.guardInference.DTreeInferencer;
-import pexyn.guardInference.ID3Inferencer;
-import pexyn.guardInference.LinearInferencer;
 import pexyn.generalization.PETI;
 import pexyn.planning.Planner;
 
@@ -69,17 +67,10 @@ public class PETISynthesizer<StoreType extends Store, CmdType extends Cmd, Guard
 		});
 
 		ConditionInferencer<StoreType, CmdType, GuardType> separator;
-		var guardInfAlgName = config.getString("pexyn.guardInferenceAlgorithm", "");
 		var shortCiruitEvaluationSemantics = config.getBoolean("pexyn.shortCiruitEvaluationSemantics", true);
-		if (guardInfAlgName.equals("ID3")) {
-			separator = new ID3Inferencer<StoreType, CmdType, GuardType>(problem.semantics(), trainingPlans);
-		} else if (guardInfAlgName.equals("dtree")) {
-			var basicGuards = problem.semantics().generateBasicGuards(trainingPlans);
-			separator = new DTreeInferencer<StoreType, CmdType, GuardType>(problem.semantics(), basicGuards,
-					shortCiruitEvaluationSemantics);
-		} else {
-			separator = new LinearInferencer<StoreType, CmdType, GuardType>(problem.semantics(), trainingPlans);
-		}
+		var basicGuards = problem.semantics().generateBasicGuards(trainingPlans);
+		separator = new DTreeInferencer<StoreType, CmdType, GuardType>(problem.semantics(), basicGuards,
+				shortCiruitEvaluationSemantics);
 		debugPrintGuards(separator.guards());
 
 		logger.info("Generalizing " + trainingPlans.size() + " plans...");
@@ -122,7 +113,8 @@ public class PETISynthesizer<StoreType extends Store, CmdType extends Cmd, Guard
 			if (optPlan.isPresent()) {
 				if (optPlan.get().lastState() instanceof ErrorStore) {
 					var errorStore = (ErrorStore) optPlan.get().lastState();
-					logger.info("Example " + example.name + " yields an error store (skipped): " + errorStore.message());
+					logger.info(
+							"Example " + example.name + " yields an error store (skipped): " + errorStore.message());
 					continue;
 				} else {
 					var plan = optPlan.get();

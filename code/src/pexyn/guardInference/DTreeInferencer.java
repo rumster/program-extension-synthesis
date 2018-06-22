@@ -15,7 +15,8 @@ import pexyn.Semantics.Guard;
 import pexyn.Semantics.Store;
 
 /**
- * A greedy procedure for learning a decision tree.
+ * A guard inference based on ID3. The main difference is that the algorithm
+ * takes into account the cost of guards (not just their gain).
  * 
  * @author romanm
  *
@@ -30,7 +31,7 @@ import pexyn.Semantics.Store;
  *       type parameters.
  */
 public class DTreeInferencer<ExampleType extends Store, LabelType extends Cmd, FeatureType extends Guard>
-		extends ConditionInferencer<ExampleType, LabelType, FeatureType> {
+		implements ConditionInferencer<ExampleType, LabelType, FeatureType> {
 	/**
 	 * The set of Boolean attributes used to compute the classifier.
 	 */
@@ -48,19 +49,9 @@ public class DTreeInferencer<ExampleType extends Store, LabelType extends Cmd, F
 	}
 
 	@Override
-	public List<Optional<FeatureType>> inferList(List<Collection<? extends Store>> classes) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public Optional<FeatureType> infer(Collection<? extends Store> first, Collection<? extends Store> second) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
 	public Optional<Map<Cmd, ? extends Guard>> infer(Rel2<Cmd, Store> updateToValue) {
 		Node root = new Node(updateToValue);
-		var foundTree = refineNode(root);
+		var foundTree = splitNode(root);
 		if (foundTree) {
 			var result = generateAllClassifiers(root, updateToValue.all1());
 			return Optional.of(result);
@@ -136,23 +127,23 @@ public class DTreeInferencer<ExampleType extends Store, LabelType extends Cmd, F
 	/**
 	 * Computes the classifier at the given node.
 	 * 
-	 * @return true if refinement succeeded and false otherwise.
+	 * @return true if refinement succeeded (all leaves are pure) and false
+	 *         otherwise.
 	 */
-	protected boolean refineNode(Node root) {
+	protected boolean splitNode(Node root) {
 		if (root.pure()) {
 			return true;
 		} else {
-			var update = root.updateToValue.all1().iterator().next();
-			var optSplitter = findBestSplitter(root.updateToValue, update);
+			var optSplitter = findBestSplitter(root);
 			if (!optSplitter.isPresent()) {
 				return false;
 			}
-			split(root, optSplitter.get());
-			var subTreeSuccessfullyBuilt = refineNode(root.pos);
+			populateNode(root, optSplitter.get());
+			var subTreeSuccessfullyBuilt = splitNode(root.pos);
 			if (!subTreeSuccessfullyBuilt) {
 				return false;
 			}
-			subTreeSuccessfullyBuilt = refineNode(root.neg);
+			subTreeSuccessfullyBuilt = splitNode(root.neg);
 			if (!subTreeSuccessfullyBuilt) {
 				return false;
 			}
@@ -165,56 +156,26 @@ public class DTreeInferencer<ExampleType extends Store, LabelType extends Cmd, F
 		return propositions;
 	}
 
-	protected Optional<FeatureType> findBestSplitter(Rel2<Cmd, Store> updateToValue, Cmd updateToSplit) {
+	protected Optional<FeatureType> findBestSplitter(Node n) {
+		var updateToValue = n.labelToExample;
 		var bestScore = 0f;
 		FeatureType bestGuard = null;
 		for (FeatureType guard : propositions) {
-			// var numUpdateToSplitPairs = 0f;
-			// var numNonUpdateToSplitPairs = 0f;
-
-			var numPosUpdateToSplitPairs = 0f;
-			var numNegUpdateToSplitPairs = 0f;
-
-			var numPosNonUpdateToSplitPairs = 0f;
-			var numNegNonUpdateToSplitPairs = 0f;
-			for (var pair : updateToValue.all()) {
-				@SuppressWarnings("unchecked")
-				ExampleType val = (ExampleType) pair.second;
-				boolean holds = domain.test(guard, val);
-				if (pair.first == updateToSplit) {
-					// ++numUpdateToSplitPairs;
-					if (holds) {
-						++numPosUpdateToSplitPairs;
-					} else {
-						++numNegUpdateToSplitPairs;
-					}
-				} else {
-					// ++numNonUpdateToSplitPairs;
-					if (holds) {
-						++numPosNonUpdateToSplitPairs;
-					} else {
-						++numNegNonUpdateToSplitPairs;
-					}
-				}
-			}
-			// float updateToSplitRatio = numPosUpdateToSplitPairs / numUpdateToSplitPairs;
-			// float nonUpdateToSplitRatio = numPosNonUpdateToSplitPairs /
-			// numNonUpdateToSplitPairs;
-			// float score = updateToSplitRatio;// * (1 - nonUpdateToSplitRatio);
-			// score = score / domain.guardCost(guard);
-			float score1 = numPosUpdateToSplitPairs + numNegNonUpdateToSplitPairs;
-			float score2 = numNegUpdateToSplitPairs + numPosNonUpdateToSplitPairs;
-			if (score1 > bestScore) {
-				bestScore = score1;
-				bestGuard = guard;
-			} else if (score2 > bestScore) {
-				bestScore = score2;
+			var entropyForGuardPos = entropyOnSplit(updateToValue, guard, true);
+			var entropyForGuardNeg = entropyOnSplit(updateToValue, guard, false);
+			// This is expensive: optimize.
+			var posRatio = (float) countSplitterMatches(n.labelToExample, guard, true) / n.labelToExample.size();
+			var entropyReductionFromPos = entropyForGuardPos * posRatio;
+			var entropyReductionFromNeg = entropyForGuardNeg * (1 - posRatio);
+			var gain = n.entropy - entropyReductionFromPos - entropyReductionFromNeg;
+			var score = gain / (float) domain.guardCost(guard);
+			if (score > bestScore) {
+				bestScore = score;
 				bestGuard = guard;
 			}
-
 		}
 
-		if (bestScore > 0) {
+		if (bestGuard != null) {
 			return Optional.ofNullable(bestGuard);
 		} else {
 			return Optional.empty();
@@ -224,15 +185,11 @@ public class DTreeInferencer<ExampleType extends Store, LabelType extends Cmd, F
 	/**
 	 * Populates the sub-nodes of the given node with the given splitter.
 	 */
-	protected void split(Node node, FeatureType splitter) {
+	protected void populateNode(Node node, FeatureType splitter) {
+		node.splitter = splitter;
 		var posVals = new HashRel2<Cmd, Store>();
 		var negVals = new HashRel2<Cmd, Store>();
-		var posNode = new Node(posVals);
-		var negNode = new Node(negVals);
-		node.splitter = splitter;
-		node.pos = posNode;
-		node.neg = negNode;
-		for (var updateValue : node.updateToValue.all()) {
+		for (var updateValue : node.labelToExample.all()) {
 			var update = updateValue.first;
 			var value = updateValue.second;
 			@SuppressWarnings("unchecked")
@@ -243,6 +200,10 @@ public class DTreeInferencer<ExampleType extends Store, LabelType extends Cmd, F
 				negVals.add(update, value);
 			}
 		}
+		var posNode = new Node(posVals);
+		var negNode = new Node(negVals);
+		node.pos = posNode;
+		node.neg = negNode;
 	}
 
 	/**
@@ -254,7 +215,7 @@ public class DTreeInferencer<ExampleType extends Store, LabelType extends Cmd, F
 		/**
 		 * The subset of labeled values that need to be classified at this node.
 		 */
-		Rel2<Cmd, Store> updateToValue;
+		Rel2<Cmd, Store> labelToExample;
 
 		/**
 		 * The basic proposition used to split the values at this node into the
@@ -273,8 +234,11 @@ public class DTreeInferencer<ExampleType extends Store, LabelType extends Cmd, F
 		 */
 		public Node neg;
 
+		public final float entropy;
+
 		public Node(Rel2<Cmd, Store> updateToValue) {
-			this.updateToValue = updateToValue;
+			this.labelToExample = updateToValue;
+			this.entropy = entropyOnSplit(updateToValue, domain.getTrue(), true);
 		}
 
 		public boolean leaf() {
@@ -282,15 +246,77 @@ public class DTreeInferencer<ExampleType extends Store, LabelType extends Cmd, F
 		}
 
 		public boolean pure() {
-			assert updateToValue.size() > 0;
-			int uniqueKeys = new HashSet<Cmd>(updateToValue.all1()).size();
+			assert labelToExample.size() > 0;
+			int uniqueKeys = new HashSet<Cmd>(labelToExample.all1()).size();
 			return uniqueKeys == 1;
 		}
 
+		/**
+		 * Returns the only label in this node, assuming that this is a pure node.
+		 */
 		public Cmd pureLabel() {
 			assert pure();
-			var result = updateToValue.all1().iterator().next();
+			var result = labelToExample.all1().iterator().next();
 			return result;
 		}
+	}
+
+	private int countSplitterMatches(Rel2<Cmd, Store> vals, FeatureType splitter, boolean polarity) {
+		var result = 0;
+		for (var pair : vals.all()) {
+			@SuppressWarnings("unchecked")
+			ExampleType val = (ExampleType) pair.second;
+			boolean holds = domain.test(splitter, val);
+			if (holds == polarity) {
+				++result;
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * TODO: Use Trove maps to improve efficiency.
+	 * 
+	 * @param vals
+	 * @param splitter
+	 * @return
+	 */
+	private float entropyOnSplit(Rel2<Cmd, Store> vals, FeatureType splitter, boolean polarity) {
+		var labelToNumPos = new HashMap<Cmd, Integer>();
+		int totalValsForSplitter = 0;
+		for (var label : vals.all1()) {
+			labelToNumPos.put(label, 0);
+		}
+
+		// Compute the proportions for each label.
+		for (var pair : vals.all()) {
+			@SuppressWarnings("unchecked")
+			ExampleType val = (ExampleType) pair.second;
+			boolean holds = domain.test(splitter, val);
+			if (!polarity) {
+				holds = !holds;
+			}
+			if (holds) {
+				var label = pair.first;
+				labelToNumPos.put(label, labelToNumPos.get(label) + 1);
+				++totalValsForSplitter;
+			}
+		}
+
+		float entropy = 0;
+		for (Map.Entry<Cmd, Integer> labelCount : labelToNumPos.entrySet()) {
+			int numPos = labelCount.getValue();
+			if (numPos == 0) {
+				// Zero entropy.
+				continue;
+			}
+			float proportionOfClass = (float) numPos / (float) totalValsForSplitter;
+			entropy -= proportionOfClass * log2(proportionOfClass);
+		}
+		return entropy;
+	}
+
+	private static float log2(float num) {
+		return (float) (Math.log(num) / Math.log(2.0f));
 	}
 }

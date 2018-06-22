@@ -414,7 +414,7 @@ public class JminorInterpreter extends JminorVisitor {
 		Val rval = resultVal;
 
 		if (!(lval instanceof IntVal) || !(rval instanceof IntVal)) {
-			store = JmErrorStore.error("non-integer operands " + n);
+			store = JmErrorStore.error("non-integer operands ", n);
 		} else {
 			var lhsNum = ((IntVal) lval).num;
 			var rhsNum = ((IntVal) rval).num;
@@ -457,14 +457,14 @@ public class JminorInterpreter extends JminorVisitor {
 	public void visit(VarExpr n) {
 		resultVal = store.eval(n.getVar());
 		if (resultVal == null)
-			store = JmErrorStore.error("Accessed uninitialized variable " + n);
+			store = JmErrorStore.error("Accessed uninitialized variable ", n);
 	}
 
 	@Override
 	public void visit(ValExpr n) {
 		resultVal = n.getVal();
 		if (resultVal == null)
-			store = JmErrorStore.error("Accessed uninitialized variable " + n);
+			store = JmErrorStore.error("Accessed uninitialized variable ", n);
 	}
 
 	@Override
@@ -481,14 +481,14 @@ public class JminorInterpreter extends JminorVisitor {
 	public void visit(RefVar n) {
 		resultVal = store.eval(n);
 		if (resultVal == null)
-			store = JmErrorStore.error("Accessed uninitialized variable " + n);
+			store = JmErrorStore.error("Accessed uninitialized variable ", n);
 	}
 
 	@Override
 	public void visit(IntVar n) {
 		resultVal = store.eval(n);
 		if (resultVal == null)
-			store = JmErrorStore.error("Accessed uninitialized variable " + n);
+			store = JmErrorStore.error("Accessed uninitialized variable ", n);
 	}
 
 	@Override

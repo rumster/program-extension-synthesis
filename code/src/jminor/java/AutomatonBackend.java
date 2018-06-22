@@ -2,6 +2,7 @@ package jminor.java;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.logging.Logger;
 
 import org.apache.commons.configuration2.Configuration;
 import org.stringtemplate.v4.ST;
@@ -31,15 +32,21 @@ public class AutomatonBackend {
 	private final JminorProblem problem;
 	private final Configuration config;
 	private final JminorDebugger debugger;
+	private final Logger logger;
 
-	public AutomatonBackend(Automaton automaton, JminorProblem problem, Configuration config, JminorDebugger debugger) {
+	public AutomatonBackend(Automaton automaton, JminorProblem problem, Configuration config, JminorDebugger debugger, Logger logger) {
 		this.automaton = automaton;
 		this.problem = problem;
 		this.config = config;
 		this.debugger = debugger;
+		this.logger = logger;
 	}
 
 	public void generate() {
+		if (automaton.outDegree(automaton.getInitial()) == 0) {
+			logger.info("Encountered degenerate automaton. Skipped Java code generation.");
+			return;
+		}
 		var className = StringUtils.capitalizeFirst(problem.name);
 		var methodName = problem.name;
 		var classFileName = className + ".java";

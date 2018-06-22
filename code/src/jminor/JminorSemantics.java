@@ -19,7 +19,7 @@ import bgu.cs.util.rel.Rel2;
 import bgu.cs.util.treeGrammar.CostSize;
 import bgu.cs.util.treeGrammar.Node;
 import jminor.Var.VarRole;
-import pexyn.Semantics;
+import pexyn.StructuredSemantics;
 import pexyn.Trace;
 
 /**
@@ -27,7 +27,7 @@ import pexyn.Trace;
  * 
  * @author romanm
  */
-public class JminorSemantics implements Semantics<JmStore, Stmt, BoolExpr> {
+public class JminorSemantics implements StructuredSemantics<JmStore, Stmt, BoolExpr> {
 	public final Set<Field> fields = new LinkedHashSet<>();
 
 	/**
@@ -539,6 +539,16 @@ public class JminorSemantics implements Semantics<JmStore, Stmt, BoolExpr> {
 		return new SeqStmt((Stmt) first, (Stmt) second);
 	}
 
+	@Override
+	public Stmt condition(BoolExpr cond, Cmd first, Cmd second) {
+		return new IfStmt(cond, (Stmt) first, (Stmt) second);
+	}
+
+	@Override
+	public Stmt loop(BoolExpr cond, Cmd body) {
+		return new WhileStmt(cond, (Stmt) body);
+	}
+
 	/**
 	 * TODO: make the auto-renderer work.
 	 */
@@ -658,7 +668,7 @@ public class JminorSemantics implements Semantics<JmStore, Stmt, BoolExpr> {
 		}
 
 		public void visit(ValExpr n) {
-			result = 1.2f;
+			result = 1f;
 		}
 
 		private void evalTree(Node n) {

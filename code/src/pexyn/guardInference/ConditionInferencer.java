@@ -1,14 +1,12 @@
 package pexyn.guardInference;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 import bgu.cs.util.rel.Rel2;
-import pexyn.Semantics.Guard;
 import pexyn.Semantics.Cmd;
+import pexyn.Semantics.Guard;
 import pexyn.Semantics.Store;
 
 /**
@@ -21,36 +19,22 @@ import pexyn.Semantics.Store;
  * @param <GuardType>
  *            The type of predicates.
  */
-public abstract class ConditionInferencer<StoreType extends Store, CmdType extends Cmd, GuardType extends Guard> {
+public interface ConditionInferencer<StoreType extends Store, CmdType extends Cmd, GuardType extends Guard> {
 	/**
-	 * Attempts to infer a predicate that holds for all values in the first
-	 * collection and none of the values in the second collection.
+	 * Takes a relation between commands and stores and returns a guard for each
+	 * command that holds for all of the stores associated with it and is mutually
+	 * exclusive with the guards for the other commands.
+	 * 
+	 * @param cmdToStore
+	 *            A relation between commands and stores.
+	 * @return A classifier or empty if the relation is non-deterministic.
 	 */
-	public abstract Optional<GuardType> infer(Collection<? extends Store> first, Collection<? extends Store> second);
-
-	public abstract List<GuardType> guards();
-
-	public Optional<Map<Cmd, ? extends Guard>> infer(Rel2<Cmd, Store> updateToValue) {
-		throw new UnsupportedOperationException();
-	}
+	public Optional<Map<Cmd, ? extends Guard>> infer(Rel2<Cmd, Store> cmdToStore);
 
 	/**
-	 * Attempts to infer a predicate that holds for all values at a given index of
-	 * the given list and none of the values at any other index.
+	 * The list of basic guards that are being considered by the inferencer.
+	 * 
+	 * @return
 	 */
-	public List<Optional<GuardType>> inferList(List<Collection<? extends Store>> setsOfValues) {
-		var result = new ArrayList<Optional<GuardType>>(setsOfValues.size());
-		for (int i = 0; i < setsOfValues.size(); ++i) {
-			var first = setsOfValues.get(i);
-			var unionOfAllOtherValues = new ArrayList<Store>();
-			for (int j = 0; j < setsOfValues.size(); ++j) {
-				if (i != j) {
-					unionOfAllOtherValues.addAll(setsOfValues.get(j));
-				}
-			}
-			var optGuardAtIndex = infer(first, unionOfAllOtherValues);
-			result.add(optGuardAtIndex);
-		}
-		return result;
-	}
+	public List<GuardType> guards();
 }

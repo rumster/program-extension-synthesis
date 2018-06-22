@@ -42,7 +42,7 @@ public class JmStore implements Store {
 	 */
 	protected final Map<Obj, Map<Field, Val>> heap;
 
-	public static JmStore error(String description) {
+	public static JmStore error(Object... description) {
 		return new JmErrorStore(description);
 	}
 
@@ -404,21 +404,25 @@ public class JmStore implements Store {
 	 *
 	 */
 	public static class JmErrorStore extends JmStore implements ErrorStore {
-		public final String description;
+		public final Object[] description;
 
-		protected JmErrorStore(String description) {
+		protected JmErrorStore(Object... description) {
 			super();
 			this.description = description;
 		}
 
 		@Override
 		public String message() {
-			return description;
+			StringBuilder result = new StringBuilder();
+			for (var part : description) {
+				result.append(part.toString());
+			}
+			return result.toString();
 		}
 
 		@Override
 		public String toString() {
-			return "error(\"" + description + "\")";
+			return "error(\"" + message() + "\")";
 		}
 
 		@Override

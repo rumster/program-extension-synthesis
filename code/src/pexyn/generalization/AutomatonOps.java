@@ -2,14 +2,19 @@ package pexyn.generalization;
 
 import java.util.ArrayList;
 
-import pexyn.Semantics;
 import pexyn.Semantics.Cmd;
 import pexyn.Semantics.Guard;
 import pexyn.Semantics.Store;
+import pexyn.StructuredSemantics;
 
+/**
+ * Provides useful operations over automata.
+ * 
+ * @author romanm
+ */
 public class AutomatonOps {
-	public static <StoreType extends Store, CmdType extends Cmd, GuardType extends Guard> void shrinkBlocks(Automaton m,
-			Semantics<StoreType, CmdType, GuardType> sem) {
+	public static <StoreType extends Store, CmdType extends Cmd, GuardType extends Guard> void compress(Automaton m,
+			StructuredSemantics<StoreType, CmdType, GuardType> sem) {
 		var nodes = new ArrayList<>(m.getNodes());
 		for (var node : nodes) {
 			if (!m.containsNode(node) || m.outDegree(node) != 1 || m.inDegree(node) != 1) {

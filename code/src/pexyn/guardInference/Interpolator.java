@@ -24,6 +24,11 @@ import jminor.EqExpr;
 import jminor.NotExpr;
 import jminor.OrExpr;
 
+/**
+ * 
+ * @author alex
+ *
+ */
 public class Interpolator {
 	private static final String v = "var";
 	private static final String fictv = "fictvar";

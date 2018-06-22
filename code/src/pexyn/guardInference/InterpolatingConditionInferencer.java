@@ -18,18 +18,18 @@ import pexyn.Semantics.Store;
 /**
  * An inferencer based on finding a Boolean Craig interpolant.
  * 
- * @author romanm
+ * @author alex
  *
  * @param <StateType>
  *            The type of states over which conditions range.
  */
-public class InterpolatingConditionInferencer extends ConditionInferencer<JmStore, Stmt, BoolExpr> {
+public class InterpolatingConditionInferencer {
 	private String outputDir;
 	public Map<JmStore, List<Boolean>> predicates;
 	/**
 	 * The domain comprised of values and predicates.
 	 */
-	public Semantics<JmStore, Stmt, BoolExpr> domain;	
+	public Semantics<JmStore, Stmt, BoolExpr> domain;
 
 	private final CachedLanguageIterator citer;
 
@@ -42,7 +42,6 @@ public class InterpolatingConditionInferencer extends ConditionInferencer<JmStor
 		this.citer = citer;
 	}
 
-	@Override
 	public Optional<BoolExpr> infer(Collection<? extends Store> first, Collection<? extends Store> second) {
 		BoolExpr result = null;
 		Interpolator intp = new Interpolator(outputDir);
@@ -144,7 +143,6 @@ public class InterpolatingConditionInferencer extends ConditionInferencer<JmStor
 		}
 	}
 
-	@Override
 	public List<BoolExpr> guards() {
 		return List.of();
 	}

@@ -18,17 +18,17 @@ find(head:SLL, val:int) -> (t:SLL) {
      o0.d==1 && o1.d==2] -> ...
   }
 
-  test example {
+  example {
     [val==0 && head==o0 && o0.n==o1 && o1.n==null &&
      o0.d==1 && o1.d==0] -> ...
   }
 
-  test example {
+  example {
     [val==0 && head==o0 && o0.n==o1 && o1.n==null &&
      o0.d==0 && o1.d==1] -> ...
   }
 
-  test example {
+  example {
     [val==0 && head==o0 && o0.n==o1 && o1.n==null &&
      o0.d==1 && o1.d==2] -> ...
   }
@@ -66,27 +66,37 @@ find(head:SLL, val:int) -> (t:SLL) {
      o0.d==-210 && o1.d==200 && o2.d==-5 && o3.d==-4] -> ...
   }
   
-  example {
+  test example {
     [val==0 && head==o0 && o0.n==o1 && o1.n==o2 && o2.n==o3 && o3.n==null &&
      o0.d==1 && o1.d==-200 && o2.d==0 && o3.d==4] -> ...
   }
   
-  example {
+  test example {
     [val==5 && head==o0 && o0.n==o1 && o1.n==o2 && o2.n==o3 && o3.n==null &&
      o0.d==0 && o1.d==2 && o2.d==0 && o3.d==4] -> ...
   }  
 
-  example {
+  test example {
     [val==0 && head==o0 && o0.n==o1 && o1.n==o2 && o2.n==o3 && o3.n==null &&
      o0.d==1 && o1.d==2 && o2.d==3 && o3.d==0] -> ...
   }  
 
-  example {
+  test example {
     [val==0 && head==o0 && o0.n==o1 && o1.n==o2 && o2.n==o3 && o3.n==null &&
      o0.d==1 && o1.d==2 && o2.d==3 && o3.d==-9] -> ...
   }  
 
-  example {
+  test example {
+    [val==0 && head==o0 && o0.n==o1 && o1.n==o2 && o2.n==o3 && o3.n==null &&
+     o0.d==-1 && o1.d==-2 && o2.d==-3 && o3.d==-9] -> ...
+  }  
+
+  test example {
+    [val==5 && head==o0 && o0.n==o1 && o1.n==o2 && o2.n==o3 && o3.n==null &&
+     o0.d==2 && o1.d==2 && o2.d==2 && o3.d==2] -> ...
+  }  
+
+  test example {
     [val==0 && head==o0 && o0.n==o1 && o1.n==o2 && o2.n==o3 && o3.n==null &&
      o0.d==4 && o1.d==5 && o2.d==1 && o3.d==9] -> ...
   }    

@@ -15,6 +15,7 @@ import jminor.ast.ASTProblem;
 import jminor.ast.JminorParser;
 import jminor.ast.ProblemCompiler;
 import pexyn.PETISynthesizer;
+import pexyn.StructuredSemantics;
 import pexyn.generalization.AutomatonOps;
 import pexyn.planning.AStar;
 
@@ -106,17 +107,18 @@ public class Main {
 			if (synthesisResult.success()) {
 				logger.info("success!");
 				if (config.getBoolean("jminor.generateJavaImplementation", true)) {
-					// We have to shrink _after_ testing against the test examples,
+					// We have to compress _after_ testing against the test examples,
 					// since currently a command sequence is counted as an atomic
 					// command, which fails the tests.
 					var automaton = synthesisResult.get();
-					if (config.getBoolean("pexyn.shrinkResultAutomaton", false)) {
-						AutomatonOps.shrinkBlocks(automaton, problem.semantics());
-						debugger.printAutomaton(automaton, "Shrunk automaton");
+					if (config.getBoolean("pexyn.compressResultAutomaton", false)) {
+						AutomatonOps.compress(automaton,
+								(StructuredSemantics<JmStore, Stmt, BoolExpr>) problem.semantics());
+						debugger.printAutomaton(automaton, "Compressed automaton");
 					}
-					var backend = new jminor.java.AutomatonBackend(automaton, problem, config, debugger);
+					var backend = new jminor.java.AutomatonBackend(automaton, problem, config, debugger, logger);
 					backend.generate();
-					var dfYbackend = new jminor.dafny.AutomatonBackend(automaton, problem, config, debugger);
+					var dfYbackend = new jminor.dafny.AutomatonBackend(automaton, problem, config, debugger, logger);
 					dfYbackend.generate();
 				}
 			} else {

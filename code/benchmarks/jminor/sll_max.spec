@@ -11,16 +11,11 @@ findMax(head:SLL) -> (t:SLL) {
   var max:int
   
   t = head;
-  max = t.d;
+  max = head.d;
   while (t != null) {
     if (t.d > max) {
       max = t.d;
     }
-    /* Causes a bug in ID3
-    else {
-      max = max;
-    }
-    */
     t = t.n;
   }
 

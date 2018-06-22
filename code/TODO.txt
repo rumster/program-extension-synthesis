@@ -1,4 +1,9 @@
-* Implement a regression testing suite. 
+* Implement a regression testing suite.
+
+* Add support for break/continue statements in Jminor.
+
+* Refactor Java/Dafny code backends. They currently share
+  90% of their code.  
 
 Guard inference:
 ----------------
