@@ -3,7 +3,12 @@
 * Add support for break/continue statements in Jminor.
 
 * Refactor Java/Dafny code backends. They currently share
-  90% of their code.  
+  90% of their code.
+  
+* Add options to better control visualization (Graphviz vs. text),
+  and the verbosity of printouts.
+  
+* Improve compression: handle conditions and loops.  
 
 Guard inference:
 ----------------
