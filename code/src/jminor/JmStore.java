@@ -222,7 +222,7 @@ public class JmStore implements Store {
 	 * Returns the integer value of the given variable or null if it is not
 	 * initialized.
 	 */
-	public IntVal eval(IntVar var) {
+	public IntVal eval(PrimitiveVar var) {
 		IntVal result = (IntVal) env.get(var);
 		return result;
 	}
@@ -263,7 +263,7 @@ public class JmStore implements Store {
 		return (Obj) objFields.get(field);
 	}
 
-	public IntVal eval(Obj obj, IntField field) {
+	public IntVal eval(Obj obj, PrimitiveField field) {
 		assert obj != null;
 		Map<Field, Val> objFields = heap.get(obj);
 		return (IntVal) objFields.get(field);
@@ -322,7 +322,7 @@ public class JmStore implements Store {
 		return assign(eval(lref), field, v);
 	}
 
-	public JmStore assign(RefVar lref, IntField field, IntVar var) {
+	public JmStore assign(RefVar lref, PrimitiveField field, PrimitiveVar var) {
 		return assign(eval(lref), field, eval(var));
 	}
 
@@ -461,7 +461,7 @@ public class JmStore implements Store {
 		}
 
 		@Override
-		public IntVal eval(IntVar var) {
+		public IntVal eval(PrimitiveVar var) {
 			throw new Error("Illegal access to error store!");
 		}
 
@@ -481,7 +481,7 @@ public class JmStore implements Store {
 		}
 
 		@Override
-		public IntVal eval(Obj obj, IntField field) {
+		public IntVal eval(Obj obj, PrimitiveField field) {
 			throw new Error("Illegal access to error store!");
 		}
 
@@ -506,7 +506,7 @@ public class JmStore implements Store {
 		}
 
 		@Override
-		public JmStore assign(RefVar lref, IntField field, IntVar var) {
+		public JmStore assign(RefVar lref, PrimitiveField field, PrimitiveVar var) {
 			throw new Error("Illegal access to error store!");
 		}
 

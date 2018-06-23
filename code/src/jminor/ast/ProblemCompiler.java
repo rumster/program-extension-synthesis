@@ -11,38 +11,40 @@ import java.util.Set;
 import bgu.cs.util.Union2;
 import jminor.AndExpr;
 import jminor.AssignStmt;
-import jminor.BoolType;
+import jminor.BooleanType;
+import jminor.BooleanVal;
 import jminor.DerefExpr;
 import jminor.EqExpr;
 import jminor.Expr;
 import jminor.Field;
-import jminor.JminorSemantics;
-import jminor.JminorProblem;
 import jminor.IfStmt;
 import jminor.IntBinOp;
 import jminor.IntBinOpExpr;
-import jminor.IntField;
 import jminor.IntType;
 import jminor.IntVal;
-import jminor.IntVar;
+import jminor.JmStore;
+import jminor.JminorProblem;
+import jminor.JminorSemantics;
 import jminor.NotExpr;
 import jminor.NullExpr;
 import jminor.Obj;
 import jminor.OrExpr;
+import jminor.PrimitiveField;
+import jminor.PrimitiveType;
+import jminor.PrimitiveVar;
 import jminor.RefField;
 import jminor.RefType;
 import jminor.RefVar;
 import jminor.RetStmt;
 import jminor.SeqStmt;
 import jminor.Stmt;
-import jminor.JmStore;
 import jminor.Type;
 import jminor.Val;
 import jminor.ValExpr;
 import jminor.Var;
+import jminor.Var.VarRole;
 import jminor.VarExpr;
 import jminor.WhileStmt;
-import jminor.Var.VarRole;
 import pexyn.Example;
 
 /**
@@ -118,6 +120,7 @@ public class ProblemCompiler {
 			root.accept(this);
 			nameToType.putAll(nameToRefType);
 			nameToType.put(AST.INT_TYPE_NAME, IntType.v);
+			nameToType.put(AST.BOOLEAN_TYPE_NAME, BooleanType.v);
 		}
 
 		public void visit(ASTRefType n) {
@@ -149,8 +152,8 @@ public class ProblemCompiler {
 				if (type.findField(fieldAST.name).isPresent()) {
 					throw new SemanticError("Field " + fieldAST.name + " already exists in type ", fieldAST);
 				}
-				if (fieldType == IntType.v) {
-					IntField field = new IntField(fieldAST.name, type, fieldAST.ghost);
+				if (fieldType instanceof PrimitiveType) {
+					PrimitiveField field = new PrimitiveField(fieldAST.name, type, fieldType, fieldAST.ghost);
 					type.add(field);
 				} else {
 					RefField field = new RefField(fieldAST.name, type, (RefType) fieldType, fieldAST.ghost);
@@ -206,8 +209,8 @@ public class ProblemCompiler {
 
 		public void visit(ASTVarDecl n) {
 			Type type = nameToType.get(n.type);
-			if (type == IntType.v) {
-				IntVar var = new IntVar(n.name, role, out, n.readonly);
+			if (type instanceof PrimitiveType) {
+				PrimitiveVar var = new PrimitiveVar(n.name, type, role, out, n.readonly);
 				addVar(var, n);
 			} else {
 				assert type instanceof RefType;
@@ -281,19 +284,19 @@ public class ProblemCompiler {
 				n.setType(IntType.v);
 				break;
 			case EQ:
-				n.setType(BoolType.v);
+				n.setType(BooleanType.v);
 				break;
 			case LT:
-				n.setType(BoolType.v);
+				n.setType(BooleanType.v);
 				break;
 			case LEQ:
-				n.setType(BoolType.v);
+				n.setType(BooleanType.v);
 				break;
 			case GT:
-				n.setType(BoolType.v);
+				n.setType(BooleanType.v);
 				break;
 			case GEQ:
-				n.setType(BoolType.v);
+				n.setType(BooleanType.v);
 				break;
 			default:
 				throw new Error("Encountered unexpected operator " + n.op);
@@ -309,10 +312,10 @@ public class ProblemCompiler {
 			Expr rhsExpr = tmpExpr;
 			Type lhsType = n.lhs.type().get();
 			Type rhsType = n.lhs.type().get();
-			if (lhsType != BoolType.v || rhsType != BoolType.v) {
+			if (lhsType != BooleanType.v || rhsType != BooleanType.v) {
 				throw new SemanticError("Type error: attempt to apply && operator to non-Boolean operands!", n);
 			}
-			n.setType(BoolType.v);
+			n.setType(BooleanType.v);
 			tmpExpr = new AndExpr(lhsExpr, rhsExpr);
 		}
 
@@ -326,7 +329,7 @@ public class ProblemCompiler {
 			if (lhsType != rhsType) {
 				throw new SemanticError("Type error: attempt to apply == operator to different types!", n);
 			}
-			n.setType(BoolType.v);
+			n.setType(BooleanType.v);
 			if (lhsType != rhsType) {
 				tmpExpr = new IntBinOpExpr(IntBinOp.EQ, lhsExpr, rhsExpr);
 			} else {
@@ -341,10 +344,10 @@ public class ProblemCompiler {
 			Expr rhsExpr = tmpExpr;
 			Type lhsType = n.lhs.type().get();
 			Type rhsType = n.lhs.type().get();
-			if (lhsType != BoolType.v || rhsType != BoolType.v) {
+			if (lhsType != BooleanType.v || rhsType != BooleanType.v) {
 				throw new SemanticError("Type error: attempt to apply || operator to non-Boolean operands!", n);
 			}
-			n.setType(BoolType.v);
+			n.setType(BooleanType.v);
 			tmpExpr = new OrExpr(lhsExpr, rhsExpr);
 		}
 
@@ -352,16 +355,21 @@ public class ProblemCompiler {
 			n.sub.accept(this);
 			Expr subExpr = tmpExpr;
 			Type subType = n.sub.type().get();
-			if (subType != BoolType.v) {
+			if (subType != BooleanType.v) {
 				throw new SemanticError("Type error: attempt to apply ! operator to a non-Boolean operand!", n);
 			}
-			n.setType(BoolType.v);
+			n.setType(BooleanType.v);
 			tmpExpr = new NotExpr(subExpr);
 		}
 
 		public void visit(ASTIntValExpr n) {
 			n.setType(IntType.v);
 			tmpExpr = new ValExpr(new IntVal(n.val));
+		}
+
+		public void visit(ASTBooleanValExpr n) {
+			n.setType(BooleanType.v);
+			tmpExpr = new ValExpr(BooleanVal.get(n.val));
 		}
 
 		public void visit(ASTDerefExpr n) {
@@ -399,7 +407,7 @@ public class ProblemCompiler {
 			n.rhs.accept(this);
 			Expr rhsExpr = tmpExpr;
 			Type lhsType = n.lhs.type().get();
-			Type rhsType = n.lhs.type().get();
+			Type rhsType = n.rhs.type().get();
 
 			if (!(n.lhs instanceof ASTVarExpr || n.lhs instanceof ASTDerefExpr)) {
 				throw new SemanticError("Semantic error: left hand side of assignment is not an assignable expression!",
@@ -427,7 +435,7 @@ public class ProblemCompiler {
 		public void visit(ASTIf n) {
 			n.cond.accept(this);
 			Type condType = n.cond.type().get();
-			if (condType != BoolType.v) {
+			if (condType != BooleanType.v) {
 				throw new SemanticError("Type error: condition type is not boolean!", n);
 			}
 			Expr cond = tmpExpr;
@@ -444,7 +452,7 @@ public class ProblemCompiler {
 		public void visit(ASTWhile n) {
 			n.cond.accept(this);
 			Type condType = n.cond.type().get();
-			if (condType != BoolType.v) {
+			if (condType != BooleanType.v) {
 				throw new SemanticError("Type error: condition type is not boolean!", n);
 			}
 			Expr cond = tmpExpr;
@@ -603,13 +611,26 @@ public class ProblemCompiler {
 				Obj obj = objNameToObj.get(n.objName);
 				Optional<Field> maybeField = obj.type.findField(n.fieldName);
 				assert maybeField.isPresent();
-				IntField refField = (IntField) maybeField.get();
+				PrimitiveField refField = (PrimitiveField) maybeField.get();
 				Map<Field, Val> fields = heap.get(obj);
 				if (fields == null) {
 					fields = new HashMap<>();
 					heap.put(obj, fields);
 				}
 				fields.put(refField, new IntVal(n.val));
+			}
+
+			public void visit(ASTBooleanFieldVal n) {
+				Obj obj = objNameToObj.get(n.objName);
+				Optional<Field> maybeField = obj.type.findField(n.fieldName);
+				assert maybeField.isPresent();
+				PrimitiveField refField = (PrimitiveField) maybeField.get();
+				Map<Field, Val> fields = heap.get(obj);
+				if (fields == null) {
+					fields = new HashMap<>();
+					heap.put(obj, fields);
+				}
+				fields.put(refField, BooleanVal.get(n.val));
 			}
 
 			public void visit(ASTRefVarVal n) {
@@ -621,6 +642,11 @@ public class ProblemCompiler {
 			public void visit(ASTIntVarVal n) {
 				Var var = nameToVar.get(n.varName);
 				env.put(var, new IntVal(n.val));
+			}
+
+			public void visit(ASTBooleanVarVal n) {
+				Var var = nameToVar.get(n.varName);
+				env.put(var, BooleanVal.get(n.val));
 			}
 		}
 
@@ -644,6 +670,10 @@ public class ProblemCompiler {
 			}
 
 			public void visit(ASTIntFieldVal n) {
+				result.add(n.objName);
+			}
+
+			public void visit(ASTBooleanFieldVal n) {
 				result.add(n.objName);
 			}
 

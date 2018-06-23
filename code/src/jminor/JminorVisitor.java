@@ -95,6 +95,9 @@ public class JminorVisitor implements Visitor {
 	public void visit(IntVal n) {
 	}
 
+	public void visit(BooleanVal n) {
+	}
+	
 	public void visit(IntBinOpExpr n) {
 		for (var sub : n.getArgs()) {
 			sub.accept(this);
@@ -104,7 +107,7 @@ public class JminorVisitor implements Visitor {
 	public void visit(RefField n) {
 	}
 
-	public void visit(IntField n) {
+	public void visit(PrimitiveField n) {
 	}
 
 	public void visit(VarExpr n) {
@@ -113,7 +116,7 @@ public class JminorVisitor implements Visitor {
 	public void visit(RefVar n) {
 	}
 
-	public void visit(IntVar n) {
+	public void visit(PrimitiveVar n) {
 	}
 
 	public void visit(RefType n) {

@@ -1,6 +1,6 @@
 package pexyn.generalization;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 
 import pexyn.Semantics.Cmd;
 import pexyn.Semantics.Guard;
@@ -15,8 +15,15 @@ import pexyn.StructuredSemantics;
 public class AutomatonOps {
 	public static <StoreType extends Store, CmdType extends Cmd, GuardType extends Guard> void compress(Automaton m,
 			StructuredSemantics<StoreType, CmdType, GuardType> sem) {
-		var nodes = new ArrayList<>(m.getNodes());
-		for (var node : nodes) {
+		var nodes = new HashSet<>(m.getNodes());
+		while (!nodes.isEmpty()) {
+			var node = nodes.iterator().next();
+			nodes.remove(node);
+			if (node == m.getInitial()) {
+				// The initial location is special - it should
+				// not be removed from the automaton.
+				continue;
+			}
 			if (!m.containsNode(node) || m.outDegree(node) != 1 || m.inDegree(node) != 1) {
 				continue;
 			}

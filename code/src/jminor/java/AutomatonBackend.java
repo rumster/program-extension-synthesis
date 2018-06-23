@@ -13,7 +13,7 @@ import bgu.cs.util.StringUtils;
 import bgu.cs.util.graph.MultiGraph.Edge;
 import jminor.JminorDebugger;
 import jminor.JminorProblem;
-import jminor.IntVar;
+import jminor.PrimitiveVar;
 import jminor.RefVar;
 import jminor.Var;
 import pexyn.generalization.Action;
@@ -153,7 +153,7 @@ public class AutomatonBackend {
 		public JavaVar(Var v) {
 			this.name = v.name;
 			this.type = v.getType().getName();
-			if (v instanceof IntVar) {
+			if (v instanceof PrimitiveVar) {
 				this.defaultVal = "0";
 			} else if (v instanceof RefVar) {
 				this.defaultVal = "null";

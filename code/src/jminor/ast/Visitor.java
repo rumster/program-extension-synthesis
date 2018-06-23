@@ -105,4 +105,13 @@ public abstract class Visitor {
 
 	public void visit(ASTEqExpr n) {
 	}
+
+	public void visit(ASTBooleanValExpr astBooleanValExpr) {
+	}
+
+	public void visit(ASTBooleanVarVal astBooleanVarVal) {
+	}
+
+	public void visit(ASTBooleanFieldVal astBooleanFieldVal) {
+	}
 }

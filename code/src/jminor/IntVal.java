@@ -7,7 +7,7 @@ import bgu.cs.util.treeGrammar.Visitor;
  * 
  * @author romanm
  */
-public class IntVal extends Val {
+public class IntVal extends Val implements PrimitiveVal {
 	public static final RefType type = new RefType("Int");
 	public static final IntVal ZERO = new IntVal(0);
 
@@ -37,7 +37,7 @@ public class IntVal extends Val {
 		result = prime * result + num;
 		return result;
 	}
-	
+
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) {

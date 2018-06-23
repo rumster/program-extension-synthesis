@@ -106,18 +106,20 @@ public class Main {
 			var synthesisResult = synthesizer.synthesize(problem);
 			if (synthesisResult.success()) {
 				logger.info("success!");
+				// We have to compress _after_ testing against the test examples,
+				// since currently a command sequence is counted as an atomic
+				// command, which fails the tests.
+				var automaton = synthesisResult.get();
+				if (config.getBoolean("pexyn.compressResultAutomaton", false)) {
+					AutomatonOps.compress(automaton,
+							(StructuredSemantics<JmStore, Stmt, BoolExpr>) problem.semantics());
+					debugger.printAutomaton(automaton, "Compressed automaton");
+				}
 				if (config.getBoolean("jminor.generateJavaImplementation", true)) {
-					// We have to compress _after_ testing against the test examples,
-					// since currently a command sequence is counted as an atomic
-					// command, which fails the tests.
-					var automaton = synthesisResult.get();
-					if (config.getBoolean("pexyn.compressResultAutomaton", false)) {
-						AutomatonOps.compress(automaton,
-								(StructuredSemantics<JmStore, Stmt, BoolExpr>) problem.semantics());
-						debugger.printAutomaton(automaton, "Compressed automaton");
-					}
 					var backend = new jminor.java.AutomatonBackend(automaton, problem, config, debugger, logger);
 					backend.generate();
+				}
+				if (config.getBoolean("jminor.generateDafnyImplementation", true)) {
 					var dfYbackend = new jminor.dafny.AutomatonBackend(automaton, problem, config, debugger, logger);
 					dfYbackend.generate();
 				}

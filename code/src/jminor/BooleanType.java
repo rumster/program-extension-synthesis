@@ -3,15 +3,15 @@ package jminor;
 import bgu.cs.util.treeGrammar.Visitor;
 
 /**
- * Represents an object type.
+ * Represents the Boolean type.
  * 
  * @author romanm
  */
-public class IntType extends Type implements PrimitiveType {
-	public static final IntType v = new IntType();
+public class BooleanType extends Type implements PrimitiveType {
+	public static final BooleanType v = new BooleanType();
 
-	protected IntType() {
-		super("int");
+	protected BooleanType() {
+		super("boolean");
 	}
 
 	@Override
@@ -19,9 +19,9 @@ public class IntType extends Type implements PrimitiveType {
 		JminorVisitor whileVisitor = (JminorVisitor) v;
 		whileVisitor.visit(this);
 	}
-	
+
 	@Override
 	public boolean equals(Object o) {
-		return this == o;
+		return o == this;
 	}
 }

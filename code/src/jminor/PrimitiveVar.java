@@ -3,13 +3,13 @@ package jminor;
 import bgu.cs.util.treeGrammar.Visitor;
 
 /**
- * An integer-valued variable.
+ * An primitive-typed variable.
  * 
  * @author romanm
  */
-public class IntVar extends Var {
-	public IntVar(String name, VarRole role, boolean out, boolean readonly) {
-		super(name, IntType.v, role, out, readonly);
+public class PrimitiveVar extends Var {
+	public PrimitiveVar(String name, Type type, VarRole role, boolean out, boolean readonly) {
+		super(name, type, role, out, readonly);
 	}
 
 	@Override

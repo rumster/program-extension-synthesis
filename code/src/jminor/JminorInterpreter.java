@@ -398,7 +398,13 @@ public class JminorInterpreter extends JminorVisitor {
 
 	@Override
 	public void visit(IntVal n) {
-		resultVal = new IntVal(n.num);
+		resultVal = n;
+	}
+
+	@Override
+	public void visit(BooleanVal n) {
+		resultVal = n;
+		resultCond = n.val;
 	}
 
 	@Override
@@ -456,15 +462,23 @@ public class JminorInterpreter extends JminorVisitor {
 	@Override
 	public void visit(VarExpr n) {
 		resultVal = store.eval(n.getVar());
-		if (resultVal == null)
+		if (resultVal == null) {
 			store = JmErrorStore.error("Accessed uninitialized variable ", n);
+		}
+		if (resultVal instanceof BooleanVal) {
+			resultCond = ((BooleanVal) resultVal).val;
+		}
 	}
 
 	@Override
 	public void visit(ValExpr n) {
 		resultVal = n.getVal();
-		if (resultVal == null)
+		if (resultVal == null) {
 			store = JmErrorStore.error("Accessed uninitialized variable ", n);
+		}
+		if (resultVal instanceof BooleanVal) {
+			resultCond = ((BooleanVal) resultVal).val;
+		}
 	}
 
 	@Override
@@ -473,7 +487,7 @@ public class JminorInterpreter extends JminorVisitor {
 	}
 
 	@Override
-	public void visit(IntField n) {
+	public void visit(PrimitiveField n) {
 		resulField = n;
 	}
 
@@ -485,7 +499,7 @@ public class JminorInterpreter extends JminorVisitor {
 	}
 
 	@Override
-	public void visit(IntVar n) {
+	public void visit(PrimitiveVar n) {
 		resultVal = store.eval(n);
 		if (resultVal == null)
 			store = JmErrorStore.error("Accessed uninitialized variable ", n);

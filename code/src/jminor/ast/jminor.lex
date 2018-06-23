@@ -50,6 +50,8 @@ TraditionalComment   = "/*" ~"*/" | "/*" "*"+ "/"
   "if"			{ return new Token(JminorSym.IF, yytext(), yyline, yycolumn); }
   "else"		{ return new Token(JminorSym.ELSE, yytext(), yyline, yycolumn); }  
   "while"		{ return new Token(JminorSym.WHILE, yytext(), yyline, yycolumn); }
+  "true"		{ return new Token(JminorSym.BOOLEAN_VAL, true, yyline, yycolumn); }
+  "false"		{ return new Token(JminorSym.BOOLEAN_VAL, false, yyline, yycolumn); }
   
   {Id}			{ return new Token(JminorSym.ID, yytext(), yyline, yycolumn); }
   {Int}			{ try {

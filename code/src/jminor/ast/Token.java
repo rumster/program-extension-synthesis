@@ -25,4 +25,11 @@ public class Token extends Symbol {
 		this.column = column;
 		this.text = val.toString();
 	}
+
+	public Token(int id, boolean val, int line, int column) {
+		super(id, val);
+		this.line = line;
+		this.column = column;
+		this.text = "" + val;
+	}
 }

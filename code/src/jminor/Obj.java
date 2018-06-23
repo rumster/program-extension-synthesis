@@ -16,17 +16,7 @@ public class Obj extends Val {
 	static {
 		counter = 0;
 
-		NULL = new Obj(new RefType("nulltype")) {
-			@Override
-			public String getName() {
-				return "NULL";
-			}
-
-			@Override
-			public String toString() {
-				return "NULL";
-			}
-		};
+		NULL = new Obj(NullType.v);
 	}
 
 	/**

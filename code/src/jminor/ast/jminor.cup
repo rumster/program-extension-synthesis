@@ -36,7 +36,8 @@ terminal TYPE, VAR, NULL, EXAMPLE, TEST, MUT, GHOST;
 terminal IF, WHILE, ELSE;
 terminal COMMA, SEMI, DOT, ASSIGN, COLON, ARROW, ELLIPSIS, LP, RP, LB, RB, LCB, RCB;
 terminal EQ, NEQ, LT, LEQ, GT, GEQ, AND, OR, NOT, PLUS, MINUS, TIMES, DIVIDE;
-		
+
+terminal Boolean BOOLEAN_VAL;		
 terminal Integer INT_VAL; 
 terminal String ID;
 
@@ -299,6 +300,8 @@ expr ::= ID:varName
 	{: RESULT = new ASTVarExpr(varName); :}
 	| INT_VAL:val
 	{: RESULT = new ASTIntValExpr(val); :}
+	| BOOLEAN_VAL:val
+	{: RESULT = new ASTBooleanValExpr(val); :}
 	| NULL
 	{: RESULT = ASTNullExpr.v; :}
 	| expr:lhs PLUS expr:rhs
@@ -353,10 +356,14 @@ storeVal ::= ID:var EQ ID:val
 	{: RESULT = new ASTRefVarVal(var, AST.NULL_VAL_NAME); :}
 	| ID:var EQ INT_VAL:val
 	{: RESULT = new ASTIntVarVal(var, val); :}
+	| ID:var EQ BOOLEAN_VAL:val
+	{: RESULT = new ASTBooleanVarVal(var, val); :}
 	| ID:src DOT ID:field EQ ID:dst
 	{: RESULT = new ASTRefFieldVal(field, src, dst); :}
 	| ID:src DOT ID:field EQ NULL
 	{: RESULT = new ASTRefFieldVal(field, src, AST.NULL_VAL_NAME); :}
 	| ID:src DOT ID:field EQ INT_VAL:val
 	{: RESULT = new ASTIntFieldVal(field, src, val); :}
+	| ID:src DOT ID:field EQ BOOLEAN_VAL:val
+	{: RESULT = new ASTBooleanFieldVal(field, src, val); :}
 ;

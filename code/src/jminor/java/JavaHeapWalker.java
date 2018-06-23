@@ -11,14 +11,17 @@ import java.util.Set;
 import java.util.logging.Logger;
 
 import bgu.cs.util.ReflectionUtils;
+import jminor.BooleanType;
 import jminor.Field;
-import jminor.IntField;
+import jminor.PrimitiveField;
+import jminor.IntType;
 import jminor.IntVal;
-import jminor.IntVar;
+import jminor.PrimitiveVar;
 import jminor.Obj;
 import jminor.RefField;
 import jminor.RefType;
 import jminor.RefVar;
+import jminor.Type;
 import jminor.JmStore;
 import jminor.Val;
 import jminor.Var;
@@ -90,11 +93,26 @@ public class JavaHeapWalker {
 			nameToVar.put(name, var);
 			return var;
 		} else if (ReflectionUtils.isIntType(type)) {
-			IntVar var = new IntVar(name, role, out, readonly);
+			Type jminorType = javaTypeToJminorType(type);
+			PrimitiveVar var = new PrimitiveVar(name, jminorType, role, out, readonly);
 			nameToVar.put(name, var);
 			return var;
 		} else {
 			logger.info("Ignoring unknown variable type: " + type.getName() + "!");
+			return null;
+		}
+	}
+
+	/**
+	 * Converts a Java type to the equivalent Jminor type, if one exists, and null
+	 * otherwise.
+	 */
+	private static Type javaTypeToJminorType(Class<?> type) {
+		if (type.isPrimitive() && !type.isSynthetic() && type.equals(Integer.TYPE)) {
+			return IntType.v;
+		} else if (type.isPrimitive() && !type.isSynthetic() && type.equals(Boolean.TYPE)) {
+			return BooleanType.v;
+		} else {
 			return null;
 		}
 	}
@@ -157,10 +175,11 @@ public class JavaHeapWalker {
 		Field result = null;
 		Class<?> fieldType = field.getType();
 		if (fieldType.isPrimitive()) {
-			if (ReflectionUtils.isIntType(fieldType)) {
+			Type jminorFieldType = javaTypeToJminorType(fieldType);
+			if (jminorFieldType != null) {
 				result = jfieldToSynthField.get(field);
 				if (result == null) {
-					result = new IntField(field.getName(), owner, false);
+					result = new PrimitiveField(field.getName(), owner, jminorFieldType, false);
 					jfieldToSynthField.put(field, result);
 				}
 			} else {

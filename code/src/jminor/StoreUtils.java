@@ -44,12 +44,12 @@ public class StoreUtils {
 	}
 
 	public static boolean typecheck(Var var, Val v) {
-		return (var instanceof IntVar && v instanceof IntVal)
+		return (var instanceof PrimitiveVar && v instanceof PrimitiveVal)
 				|| (var instanceof RefVar && (v == null || v instanceof Obj));
 	}
 
 	public static boolean typecheck(Field field, Val v) {
-		return (field instanceof IntField && v instanceof IntVal)
+		return (field instanceof PrimitiveField && v instanceof IntVal)
 				|| (field instanceof RefField && (v == null || v instanceof Obj));
 	}
 

@@ -52,15 +52,16 @@ package jminor.ast;
 
   private static final String ZZ_ACTION_PACKED_0 =
     "\1\0\1\1\1\2\1\3\2\4\1\5\1\6\1\7"+
-    "\10\3\1\10\1\11\1\12\1\13\1\14\1\15\1\16"+
+    "\11\3\1\10\1\11\1\12\1\13\1\14\1\15\1\16"+
     "\2\1\1\17\1\20\1\21\1\22\1\23\1\24\1\25"+
-    "\1\26\1\27\1\2\1\0\10\3\1\30\1\3\1\0"+
+    "\1\26\1\27\1\2\1\0\11\3\1\30\2\3\1\0"+
     "\1\31\1\32\1\33\1\34\1\35\1\36\1\2\1\0"+
-    "\4\3\1\37\1\40\3\3\1\41\1\42\1\43\1\3"+
-    "\1\44\1\45\3\3\1\46\1\47\1\3\1\50";
+    "\5\3\1\37\1\40\4\3\1\41\1\42\1\43\1\44"+
+    "\1\3\1\45\1\46\4\3\1\47\1\50\1\51\1\3"+
+    "\1\52";
 
   private static int [] zzUnpackAction() {
-    int [] result = new int[78];
+    int [] result = new int[86];
     int offset = 0;
     offset = zzUnpackAction(ZZ_ACTION_PACKED_0, offset, result);
     return result;
@@ -87,17 +88,18 @@ package jminor.ast;
   private static final String ZZ_ROWMAP_PACKED_0 =
     "\0\0\0\57\0\57\0\136\0\57\0\215\0\274\0\353"+
     "\0\57\0\u011a\0\u0149\0\u0178\0\u01a7\0\u01d6\0\u0205\0\u0234"+
-    "\0\u0263\0\57\0\57\0\u0292\0\u02c1\0\u02f0\0\u031f\0\u034e"+
-    "\0\u037d\0\u03ac\0\57\0\57\0\57\0\57\0\57\0\57"+
-    "\0\57\0\57\0\57\0\u03db\0\u040a\0\u0439\0\u0468\0\u0497"+
-    "\0\u04c6\0\u04f5\0\u0524\0\u0553\0\u0582\0\136\0\u05b1\0\u05e0"+
-    "\0\57\0\57\0\57\0\57\0\57\0\57\0\u060f\0\u063e"+
-    "\0\u066d\0\u069c\0\u06cb\0\u06fa\0\136\0\136\0\u0729\0\u0758"+
-    "\0\u0787\0\57\0\136\0\136\0\u07b6\0\136\0\136\0\u07e5"+
-    "\0\u0814\0\u0843\0\136\0\136\0\u0872\0\136";
+    "\0\u0263\0\u0292\0\57\0\57\0\u02c1\0\u02f0\0\u031f\0\u034e"+
+    "\0\u037d\0\u03ac\0\u03db\0\57\0\57\0\57\0\57\0\57"+
+    "\0\57\0\57\0\57\0\57\0\u040a\0\u0439\0\u0468\0\u0497"+
+    "\0\u04c6\0\u04f5\0\u0524\0\u0553\0\u0582\0\u05b1\0\u05e0\0\136"+
+    "\0\u060f\0\u063e\0\u066d\0\57\0\57\0\57\0\57\0\57"+
+    "\0\57\0\u069c\0\u06cb\0\u06fa\0\u0729\0\u0758\0\u0787\0\u07b6"+
+    "\0\136\0\136\0\u07e5\0\u0814\0\u0843\0\u0872\0\57\0\136"+
+    "\0\136\0\136\0\u08a1\0\136\0\136\0\u08d0\0\u08ff\0\u092e"+
+    "\0\u095d\0\136\0\136\0\136\0\u098c\0\136";
 
   private static int [] zzUnpackRowMap() {
-    int [] result = new int[78];
+    int [] result = new int[86];
     int offset = 0;
     offset = zzUnpackRowMap(ZZ_ROWMAP_PACKED_0, offset, result);
     return result;
@@ -122,40 +124,45 @@ package jminor.ast;
   private static final String ZZ_TRANS_PACKED_0 =
     "\1\2\2\3\1\4\1\5\1\6\1\7\1\10\1\11"+
     "\1\12\2\4\1\13\2\4\1\14\2\4\1\15\1\4"+
-    "\1\16\1\4\1\17\2\4\1\20\1\4\1\21\1\22"+
-    "\1\23\1\24\1\25\1\26\1\27\1\30\1\31\1\32"+
-    "\1\33\1\34\1\35\1\36\1\37\1\40\1\41\1\42"+
+    "\1\16\1\4\1\17\2\4\1\20\1\21\1\22\1\23"+
+    "\1\24\1\25\1\26\1\27\1\30\1\31\1\32\1\33"+
+    "\1\34\1\35\1\36\1\37\1\40\1\41\1\42\1\43"+
     "\1\3\63\0\3\4\3\0\23\4\27\0\2\6\56\0"+
-    "\1\6\34\0\1\43\23\0\1\44\1\45\51\0\3\4"+
-    "\3\0\1\4\1\46\1\4\1\47\17\4\26\0\3\4"+
-    "\3\0\4\4\1\50\2\4\1\51\13\4\26\0\3\4"+
-    "\3\0\14\4\1\52\6\4\26\0\3\4\3\0\5\4"+
-    "\1\53\15\4\26\0\3\4\3\0\14\4\1\54\6\4"+
-    "\26\0\3\4\3\0\16\4\1\55\4\4\26\0\3\4"+
-    "\3\0\21\4\1\56\1\4\26\0\3\4\3\0\16\4"+
-    "\1\57\4\4\61\0\1\60\57\0\1\61\56\0\1\62"+
-    "\56\0\1\63\56\0\1\64\62\0\1\65\57\0\1\66"+
-    "\12\0\1\44\1\67\1\3\54\44\10\45\1\70\46\45"+
-    "\3\0\3\4\3\0\2\4\1\71\20\4\26\0\3\4"+
-    "\3\0\10\4\1\72\12\4\26\0\3\4\3\0\5\4"+
-    "\1\73\15\4\26\0\3\4\3\0\10\4\1\74\12\4"+
-    "\26\0\3\4\3\0\1\75\22\4\26\0\3\4\3\0"+
-    "\12\4\1\76\10\4\26\0\3\4\3\0\7\4\1\77"+
-    "\13\4\26\0\3\4\3\0\17\4\1\100\3\4\26\0"+
-    "\3\4\3\0\20\4\1\101\2\4\61\0\1\102\22\0"+
-    "\1\3\54\0\7\45\1\3\1\70\46\45\3\0\3\4"+
-    "\3\0\3\4\1\103\17\4\26\0\3\4\3\0\1\104"+
-    "\22\4\26\0\3\4\3\0\6\4\1\105\14\4\26\0"+
-    "\3\4\3\0\3\4\1\106\17\4\26\0\3\4\3\0"+
-    "\7\4\1\107\13\4\26\0\3\4\3\0\10\4\1\110"+
-    "\12\4\26\0\3\4\3\0\7\4\1\111\13\4\26\0"+
-    "\3\4\3\0\2\4\1\112\20\4\26\0\3\4\3\0"+
-    "\1\113\22\4\26\0\3\4\3\0\3\4\1\114\17\4"+
-    "\26\0\3\4\3\0\7\4\1\115\13\4\26\0\3\4"+
-    "\3\0\3\4\1\116\17\4\23\0";
+    "\1\6\34\0\1\44\23\0\1\45\1\46\51\0\3\4"+
+    "\3\0\1\4\1\47\1\4\1\50\6\4\1\51\10\4"+
+    "\26\0\3\4\3\0\4\4\1\52\2\4\1\53\13\4"+
+    "\26\0\3\4\3\0\14\4\1\54\6\4\26\0\3\4"+
+    "\3\0\5\4\1\55\15\4\26\0\3\4\3\0\14\4"+
+    "\1\56\6\4\26\0\3\4\3\0\16\4\1\57\4\4"+
+    "\26\0\3\4\3\0\21\4\1\60\1\4\26\0\3\4"+
+    "\3\0\5\4\1\61\15\4\26\0\3\4\3\0\16\4"+
+    "\1\62\4\4\61\0\1\63\57\0\1\64\56\0\1\65"+
+    "\56\0\1\66\56\0\1\67\62\0\1\70\57\0\1\71"+
+    "\12\0\1\45\1\72\1\3\54\45\10\46\1\73\46\46"+
+    "\3\0\3\4\3\0\2\4\1\74\20\4\26\0\3\4"+
+    "\3\0\10\4\1\75\12\4\26\0\3\4\3\0\14\4"+
+    "\1\76\6\4\26\0\3\4\3\0\5\4\1\77\15\4"+
+    "\26\0\3\4\3\0\10\4\1\100\12\4\26\0\3\4"+
+    "\3\0\1\101\22\4\26\0\3\4\3\0\12\4\1\102"+
+    "\10\4\26\0\3\4\3\0\7\4\1\103\13\4\26\0"+
+    "\3\4\3\0\17\4\1\104\3\4\26\0\3\4\3\0"+
+    "\7\4\1\105\13\4\26\0\3\4\3\0\20\4\1\106"+
+    "\2\4\61\0\1\107\22\0\1\3\54\0\7\46\1\3"+
+    "\1\73\46\46\3\0\3\4\3\0\3\4\1\110\17\4"+
+    "\26\0\3\4\3\0\1\111\22\4\26\0\3\4\3\0"+
+    "\3\4\1\112\17\4\26\0\3\4\3\0\6\4\1\113"+
+    "\14\4\26\0\3\4\3\0\3\4\1\114\17\4\26\0"+
+    "\3\4\3\0\7\4\1\115\13\4\26\0\3\4\3\0"+
+    "\10\4\1\116\12\4\26\0\3\4\3\0\10\4\1\117"+
+    "\12\4\26\0\3\4\3\0\7\4\1\120\13\4\26\0"+
+    "\3\4\3\0\2\4\1\121\20\4\26\0\3\4\3\0"+
+    "\1\122\22\4\26\0\3\4\3\0\3\4\1\123\17\4"+
+    "\26\0\3\4\3\0\3\4\1\124\17\4\26\0\3\4"+
+    "\3\0\7\4\1\125\13\4\26\0\3\4\3\0\3\4"+
+    "\1\126\17\4\23\0";
 
   private static int [] zzUnpackTrans() {
-    int [] result = new int[2209];
+    int [] result = new int[2491];
     int offset = 0;
     offset = zzUnpackTrans(ZZ_TRANS_PACKED_0, offset, result);
     return result;
@@ -193,12 +200,12 @@ package jminor.ast;
   private static final int [] ZZ_ATTRIBUTE = zzUnpackAttribute();
 
   private static final String ZZ_ATTRIBUTE_PACKED_0 =
-    "\1\0\2\11\1\1\1\11\3\1\1\11\10\1\2\11"+
-    "\7\1\11\11\1\1\1\0\12\1\1\0\6\11\1\1"+
-    "\1\0\11\1\1\11\14\1";
+    "\1\0\2\11\1\1\1\11\3\1\1\11\11\1\2\11"+
+    "\7\1\11\11\1\1\1\0\14\1\1\0\6\11\1\1"+
+    "\1\0\13\1\1\11\17\1";
 
   private static int [] zzUnpackAttribute() {
-    int [] result = new int[78];
+    int [] result = new int[86];
     int offset = 0;
     offset = zzUnpackAttribute(ZZ_ATTRIBUTE_PACKED_0, offset, result);
     return result;
@@ -666,15 +673,15 @@ public int getLineNumber() { return yyline + 1; }
           case 1: 
             { throw new LexicalError("Encountered an illegal character: " + yytext(), yyline, yycolumn);
             }
-          case 41: break;
+          case 43: break;
           case 2: 
             { 
             }
-          case 42: break;
+          case 44: break;
           case 3: 
             { return new Token(JminorSym.ID, yytext(), yyline, yycolumn);
             }
-          case 43: break;
+          case 45: break;
           case 4: 
             { try {
                     return new Token(JminorSym.INT_VAL, new Integer(yytext()), yyline, yycolumn);
@@ -683,151 +690,159 @@ public int getLineNumber() { return yyline + 1; }
                     throw new LexicalError("Encountered an ill-formatted number: " + yytext(), yyline, yycolumn);
                   }
             }
-          case 44: break;
+          case 46: break;
           case 5: 
             { return new Token(JminorSym.MINUS, yytext(), yyline, yycolumn);
             }
-          case 45: break;
+          case 47: break;
           case 6: 
             { return new Token(JminorSym.DIVIDE, yytext(), yyline, yycolumn);
             }
-          case 46: break;
+          case 48: break;
           case 7: 
             { return new Token(JminorSym.TIMES, yytext(), yyline, yycolumn);
             }
-          case 47: break;
+          case 49: break;
           case 8: 
             { return new Token(JminorSym.COMMA, yytext(), yyline, yycolumn);
             }
-          case 48: break;
+          case 50: break;
           case 9: 
             { return new Token(JminorSym.SEMI, yytext(), yyline, yycolumn);
             }
-          case 49: break;
+          case 51: break;
           case 10: 
             { return new Token(JminorSym.DOT, yytext(), yyline, yycolumn);
             }
-          case 50: break;
+          case 52: break;
           case 11: 
             { return new Token(JminorSym.ASSIGN, yytext(), yyline, yycolumn);
             }
-          case 51: break;
+          case 53: break;
           case 12: 
             { return new Token(JminorSym.NOT, yytext(), yyline, yycolumn);
             }
-          case 52: break;
+          case 54: break;
           case 13: 
             { return new Token(JminorSym.LT, yytext(), yyline, yycolumn);
             }
-          case 53: break;
+          case 55: break;
           case 14: 
             { return new Token(JminorSym.GT, yytext(), yyline, yycolumn);
             }
-          case 54: break;
+          case 56: break;
           case 15: 
             { return new Token(JminorSym.PLUS, yytext(), yyline, yycolumn);
             }
-          case 55: break;
+          case 57: break;
           case 16: 
             { return new Token(JminorSym.COLON, yytext(), yyline, yycolumn);
             }
-          case 56: break;
+          case 58: break;
           case 17: 
             { return new Token(JminorSym.LP, yytext(), yyline, yycolumn);
             }
-          case 57: break;
+          case 59: break;
           case 18: 
             { return new Token(JminorSym.RP, yytext(), yyline, yycolumn);
             }
-          case 58: break;
+          case 60: break;
           case 19: 
             { return new Token(JminorSym.LCB, yytext(), yyline, yycolumn);
             }
-          case 59: break;
+          case 61: break;
           case 20: 
             { return new Token(JminorSym.RCB, yytext(), yyline, yycolumn);
             }
-          case 60: break;
+          case 62: break;
           case 21: 
             { return new Token(JminorSym.LB, yytext(), yyline, yycolumn);
             }
-          case 61: break;
+          case 63: break;
           case 22: 
             { return new Token(JminorSym.RB, yytext(), yyline, yycolumn);
             }
-          case 62: break;
+          case 64: break;
           case 23: 
             { return new Token(JminorSym.ARROW, yytext(), yyline, yycolumn);
             }
-          case 63: break;
+          case 65: break;
           case 24: 
             { return new Token(JminorSym.IF, yytext(), yyline, yycolumn);
             }
-          case 64: break;
+          case 66: break;
           case 25: 
             { return new Token(JminorSym.EQ, yytext(), yyline, yycolumn);
             }
-          case 65: break;
+          case 67: break;
           case 26: 
             { return new Token(JminorSym.NEQ, yytext(), yyline, yycolumn);
             }
-          case 66: break;
+          case 68: break;
           case 27: 
             { return new Token(JminorSym.LEQ, yytext(), yyline, yycolumn);
             }
-          case 67: break;
+          case 69: break;
           case 28: 
             { return new Token(JminorSym.GEQ, yytext(), yyline, yycolumn);
             }
-          case 68: break;
+          case 70: break;
           case 29: 
             { return new Token(JminorSym.AND, yytext(), yyline, yycolumn);
             }
-          case 69: break;
+          case 71: break;
           case 30: 
             { return new Token(JminorSym.OR, yytext(), yyline, yycolumn);
             }
-          case 70: break;
+          case 72: break;
           case 31: 
             { return new Token(JminorSym.MUT, yytext(), yyline, yycolumn);
             }
-          case 71: break;
+          case 73: break;
           case 32: 
             { return new Token(JminorSym.VAR, yytext(), yyline, yycolumn);
             }
-          case 72: break;
+          case 74: break;
           case 33: 
             { return new Token(JminorSym.ELLIPSIS, yytext(), yyline, yycolumn);
             }
-          case 73: break;
+          case 75: break;
           case 34: 
             { return new Token(JminorSym.TYPE, yytext(), yyline, yycolumn);
             }
-          case 74: break;
+          case 76: break;
           case 35: 
             { return new Token(JminorSym.TEST, yytext(), yyline, yycolumn);
             }
-          case 75: break;
-          case 36: 
-            { return new Token(JminorSym.ELSE, yytext(), yyline, yycolumn);
-            }
-          case 76: break;
-          case 37: 
-            { return new Token(JminorSym.NULL, yytext(), yyline, yycolumn);
-            }
           case 77: break;
-          case 38: 
-            { return new Token(JminorSym.GHOST, yytext(), yyline, yycolumn);
+          case 36: 
+            { return new Token(JminorSym.BOOLEAN_VAL, true, yyline, yycolumn);
             }
           case 78: break;
-          case 39: 
-            { return new Token(JminorSym.WHILE, yytext(), yyline, yycolumn);
+          case 37: 
+            { return new Token(JminorSym.ELSE, yytext(), yyline, yycolumn);
             }
           case 79: break;
-          case 40: 
-            { return new Token(JminorSym.EXAMPLE, yytext(), yyline, yycolumn);
+          case 38: 
+            { return new Token(JminorSym.NULL, yytext(), yyline, yycolumn);
             }
           case 80: break;
+          case 39: 
+            { return new Token(JminorSym.GHOST, yytext(), yyline, yycolumn);
+            }
+          case 81: break;
+          case 40: 
+            { return new Token(JminorSym.BOOLEAN_VAL, false, yyline, yycolumn);
+            }
+          case 82: break;
+          case 41: 
+            { return new Token(JminorSym.WHILE, yytext(), yyline, yycolumn);
+            }
+          case 83: break;
+          case 42: 
+            { return new Token(JminorSym.EXAMPLE, yytext(), yyline, yycolumn);
+            }
+          case 84: break;
           default:
             zzScanError(ZZ_NO_MATCH);
         }

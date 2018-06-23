@@ -110,7 +110,7 @@ public class JminorGrammarGen {
 				RefType type = ((RefVar) var).getType();
 				Nonterminal nonterminal = typeToAPathNonterminal.get(type);
 				nonterminal.add(new VarExpr(var));
-			} else if (var instanceof IntVar) {
+			} else if (var instanceof PrimitiveVar) {
 				intNonterminal.add(new VarExpr(var));
 			} else {
 				assert false : "encountered unexpected type of variables!";
