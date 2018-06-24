@@ -90,15 +90,6 @@ public interface Semantics<StoreType extends Store, CmdType extends Cmd, GuardTy
 	 * Constructs a negated guard.
 	 */
 	public GuardType not(GuardType l);
-
-	/**
-	 * Returns a command that executes 'first' and then 'second.
-	 */
-	public CmdType sequence(Cmd first, Cmd second);
-	
-	public CmdType condition(GuardType cond, Cmd first, Cmd second);
-
-	public CmdType loop(GuardType cond, Cmd body);
 	
 	/**
 	 * Returns a complete list (including Boolean negation) of likely atomic

@@ -1,3 +1,19 @@
+SimpleClassFile(className, methodName, returnArg, args, locals, states, stateCodes) ::= <<
+/** Automatically-generated code.
+ */
+public class $className$ {
+  /** Synthesized method.
+   */
+  public static $if(returnArg)$$returnArg.type$$else$void$endif$ run($args:{it|$it.type$ $it.name$}; separator=", "$) {
+    $locals:{it|$it.type$ $it.name$ = $it.defaultVal$;}; separator="\n"$
+    $if(returnArg)$$returnArg.type$ $returnArg.name$  = $returnArg.defaultVal$;$else$$endif$
+    
+    $stateCodes$
+    $if(returnArg)$return $returnArg.name$;$endif$
+  }
+}
+>>
+
 ClassFile(className, methodName, returnArg, args, locals, states, stateCodes) ::= <<
 /** Automatically-generated code.
  */

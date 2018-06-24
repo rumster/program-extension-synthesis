@@ -1,18 +1,23 @@
 * Implement a regression testing suite.
 
+* Optimize the guard inference. It's taking too long
+  on bubble sort.
+  - Add a cache for evaluations of guards on stores.
+
 * Add support for break/continue statements in Jminor.
 
-* Refactor Java/Dafny code backends. They currently share
-  90% of their code.
-  
+* Add proper support for return statements.
+
 * Add options to better control visualization (Graphviz vs. text),
   and the verbosity of printouts.
   
-* Improve compression: handle conditions and loops.  
+* Improve compression: support break/continue.
+
+* Code generation bug: currently the codegens (Java/Dafny) emit two return statements. 
 
 Guard inference:
 ----------------
 * We can heuristically focus on a set of relevant basic propositions
   by conducting a value-dependence analysis on a trace.
   If, at a point in the trace, a value is not read in remainder of the trace,
-  it is most likely irrelevant at that point.
+  it is likely to be irrelevant at that point.

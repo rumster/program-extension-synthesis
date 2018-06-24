@@ -60,7 +60,7 @@ public class State {
 
 	@Override
 	public int hashCode() {
-		return id.hashCode();
+		return super.hashCode();
 	}
 
 	@Override

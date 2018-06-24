@@ -51,7 +51,7 @@ OrExpr(lhs, rhs) ::= <<($lhs$ || $rhs$)>>
 AndExpr(lhs, rhs) ::= <<$lhs$ && $rhs$>>
 NotExpr(sub) ::= <<!($sub$)>>
 
-RetStmt() ::= <<return>>
+RetStmt() ::= <<return;>>
 
 AssignStmt(lhs, rhs) ::= <<$lhs$ := $rhs$;>>
 

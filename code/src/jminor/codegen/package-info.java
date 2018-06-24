@@ -5,4 +5,4 @@
  * @author romanm
  *
  */
-package jminor.dafny;
+package jminor.codegen;

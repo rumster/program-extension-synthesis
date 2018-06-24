@@ -24,7 +24,7 @@ public interface StructuredSemantics<StoreType extends Store, CmdType extends Cm
 	 */
 	public CmdType sequence(Cmd first, Cmd second);
 
-	public CmdType condition(GuardType cond, Cmd first, Cmd second);
+	public CmdType condition(Guard cond, Cmd first, Cmd second);
 
-	public CmdType loop(GuardType cond, Cmd body);
+	public CmdType loop(Guard cond, Cmd body);
 }

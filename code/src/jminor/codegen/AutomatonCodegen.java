@@ -1,4 +1,4 @@
-package jminor.dafny;
+package jminor.codegen;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -15,7 +15,6 @@ import jminor.JminorDebugger;
 import jminor.JminorProblem;
 import jminor.PrimitiveVar;
 import jminor.RefVar;
-import jminor.Stmt;
 import jminor.Var;
 import pexyn.generalization.Action;
 import pexyn.generalization.Automaton;
@@ -26,32 +25,53 @@ import pexyn.generalization.State;
  * 
  * @author romanm
  */
-public class AutomatonBackend {
-	private final STGLoader templates = new STGLoader(AutomatonBackend.class);
-
+public class AutomatonCodegen {
 	private final Automaton automaton;
 	private final JminorProblem problem;
 	private final Configuration config;
 	private final JminorDebugger debugger;
 	private final Logger logger;
 
-	public AutomatonBackend(Automaton automaton, JminorProblem problem, Configuration config, JminorDebugger debugger, Logger logger) {
+	private final STGLoader templates;
+	private final String languageName;
+	private final String fileSuffix;
+	private final SemanticsRenderer semRenderer;
+
+	public static AutomatonCodegen forJava(Automaton automaton, JminorProblem problem, Configuration config,
+			JminorDebugger debugger, Logger logger) {
+		return new AutomatonCodegen(automaton, problem, config, debugger, logger, "Java", "java",
+				new STGLoader(AutomatonCodegen.class, "JavaAutomatonCodegen.stg"), new JavaSemanticsRenderer());
+	}
+
+	public static AutomatonCodegen forDafny(Automaton automaton, JminorProblem problem, Configuration config,
+			JminorDebugger debugger, Logger logger) {
+		return new AutomatonCodegen(automaton, problem, config, debugger, logger, "Dafny", "dfy",
+				new STGLoader(AutomatonCodegen.class, "DafnyAutomatonCodegen.stg"), new DafnySemanticsRenderer());
+	}
+
+	public AutomatonCodegen(Automaton automaton, JminorProblem problem, Configuration config, JminorDebugger debugger,
+			Logger logger, String languageName, String fileSuffix, STGLoader templates, SemanticsRenderer semRenderer) {
 		this.automaton = automaton;
+		;
 		this.problem = problem;
 		this.config = config;
 		this.debugger = debugger;
 		this.logger = logger;
+		this.templates = templates;
+		this.languageName = languageName;
+		this.fileSuffix = fileSuffix;
+		this.semRenderer = semRenderer;
 	}
 
 	public void generate() {
 		if (automaton.outDegree(automaton.getInitial()) == 0) {
-			logger.info("Encountered degenerate automaton. Skipped Java code generation.");
+			logger.info("Encountered degenerate automaton. Skipped code generation.");
 			return;
-		}		
+		}
 		var className = StringUtils.capitalizeFirst(problem.name);
 		var methodName = problem.name;
-		var classFileName = className + ".dfy";
-		var classFileST = templates.load("ClassFile");
+		var classFileName = className + "." + fileSuffix;
+		var classFileST = isDegenerateAutomaton() ? templates.load("SimpleClassFile") : templates.load("ClassFile");
 		classFileST.add("className", className);
 		classFileST.add("methodName", methodName);
 		for (var inputArg : problem.inputArgs) {
@@ -64,10 +84,26 @@ public class AutomatonBackend {
 			classFileST.add("locals", new JavaVar(temp));
 		}
 
-		for (var state : automaton.getNodes()) {
-			classFileST.add("states", stateName(state.toString()));
+		if (isDegenerateAutomaton()) {
+			var cmd = automaton.succEdges(automaton.getInitial()).iterator().next().label.update;
+			classFileST.add("stateCodes", semRenderer.renderCmd(cmd));
+		} else {
+			for (var state : automaton.getNodes()) {
+				classFileST.add("states", stateName(state.toString()));
+			}
+			renderTransitions(classFileST);
 		}
 
+		var text = classFileST.render();
+		debugger.addCodeFile(fileSuffix + "-implementation.txt", text, "A " + languageName + " implementation");
+		FileUtils.stringToFile(text, config.getString("pexyn.implementationDir", ".") + File.separator + classFileName);
+	}
+
+	private boolean isDegenerateAutomaton() {
+		return automaton.degree(automaton.getInitial()) == 1;
+	}
+
+	private void renderTransitions(ST classFileST) {
 		for (var state : automaton.getNodes()) {
 			if (state == automaton.getFinal()) {
 				continue;
@@ -112,10 +148,6 @@ public class AutomatonBackend {
 			}
 			classFileST.add("stateCodes", stateCodeST.render());
 		}
-
-		var text = classFileST.render();
-		debugger.addCodeFile("dfy-implementation.txt", text, "A Dafny implementation");
-		FileUtils.stringToFile(text, config.getString("pexyn.implementationDir", ".") + File.separator + classFileName);
 	}
 
 	public static enum TransitionType {
@@ -132,7 +164,7 @@ public class AutomatonBackend {
 			this.succ = stateName(e.getDst().toString());
 			var guard = e.getLabel().guard();
 			if (guard != null) {
-				this.guard = guard.toString();
+				this.guard = semRenderer.renderGuard(guard);
 			} else {
 				this.guard = null;
 			}
@@ -140,7 +172,7 @@ public class AutomatonBackend {
 			if (update.toString().equals("return")) {
 				this.command = "// finish";
 			} else {
-				this.command = Renderer.render((Stmt) update);
+				this.command = semRenderer.renderCmd(update);
 			}
 		}
 	}

@@ -14,9 +14,10 @@ import bgu.cs.util.Timer;
 import jminor.ast.ASTProblem;
 import jminor.ast.JminorParser;
 import jminor.ast.ProblemCompiler;
+import jminor.codegen.AutomatonCodegen;
 import pexyn.PETISynthesizer;
 import pexyn.StructuredSemantics;
-import pexyn.generalization.AutomatonOps;
+import pexyn.generalization.AutomatonToStructuredCmd;
 import pexyn.planning.AStar;
 
 /**
@@ -106,22 +107,22 @@ public class Main {
 			var synthesisResult = synthesizer.synthesize(problem);
 			if (synthesisResult.success()) {
 				logger.info("success!");
-				// We have to compress _after_ testing against the test examples,
+				// We have to structure _after_ testing against the test examples,
 				// since currently a command sequence is counted as an atomic
 				// command, which fails the tests.
 				var automaton = synthesisResult.get();
-				if (config.getBoolean("pexyn.compressResultAutomaton", false)) {
-					AutomatonOps.compress(automaton,
-							(StructuredSemantics<JmStore, Stmt, BoolExpr>) problem.semantics());
+				if (config.getBoolean("pexyn.structureResultAutomaton", false)) {
+					new AutomatonToStructuredCmd<JmStore, Stmt, BoolExpr>(
+							(StructuredSemantics<JmStore, Stmt, BoolExpr>) problem.semantics()).compress(automaton);
 					debugger.printAutomaton(automaton, "Compressed automaton");
 				}
 				if (config.getBoolean("jminor.generateJavaImplementation", true)) {
-					var backend = new jminor.java.AutomatonBackend(automaton, problem, config, debugger, logger);
+					var backend = AutomatonCodegen.forJava(automaton, problem, config, debugger, logger);
 					backend.generate();
 				}
 				if (config.getBoolean("jminor.generateDafnyImplementation", true)) {
-					var dfYbackend = new jminor.dafny.AutomatonBackend(automaton, problem, config, debugger, logger);
-					dfYbackend.generate();
+					var backend = AutomatonCodegen.forDafny(automaton, problem, config, debugger, logger);
+					backend.generate();
 				}
 			} else {
 				logger.info("fail!");

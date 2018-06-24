@@ -560,13 +560,13 @@ public class JminorSemantics implements StructuredSemantics<JmStore, Stmt, BoolE
 	}
 
 	@Override
-	public Stmt condition(BoolExpr cond, Cmd first, Cmd second) {
-		return new IfStmt(cond, (Stmt) first, (Stmt) second);
+	public Stmt condition(Guard cond, Cmd first, Cmd second) {
+		return new IfStmt((BoolExpr) cond, (Stmt) first, (Stmt) second);
 	}
 
 	@Override
-	public Stmt loop(BoolExpr cond, Cmd body) {
-		return new WhileStmt(cond, (Stmt) body);
+	public Stmt loop(Guard cond, Cmd body) {
+		return new WhileStmt((BoolExpr) cond, (Stmt) body);
 	}
 
 	/**
