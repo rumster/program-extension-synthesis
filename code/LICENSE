@@ -1,0 +1,89 @@
+PEXYN COPYRIGHT NOTICE, LICENSE AND DISCLAIMER.
+
+Copyright © 2018 / Roman Manevich
+
+Permission to use, copy, modify, and distribute this software and its
+documentation for academic use only and without fee is hereby granted,
+provided that the above copyright notice appear in all copies and that
+both the copyright notice and this permission notice and warranty
+disclaimer appear in supporting documentation.
+Any other use of the software requires written prior permission from
+the authors.
+
+The authors and their employers disclaim all warranties with regard to 
+this software, including all implied warranties of merchantability and 
+fitness.  In no event shall the authors or their employers be liable 
+for any special, indirect or consequential damages or any damages 
+whatsoever resulting from loss of use, data or profits, whether in an 
+action of contract, negligence or other tortious action, arising out of 
+or in connection with the use or performance of this software.
+
+As a convenience we include binaries from the following external libraries.
+The following list contains the details of the external libraries and their
+respective usage license/reference to the license.
+
+===============================================================================
+
+JUtil
+LICENSE @ https://github.com/rumster/Util/
+
+===============================================================================
+
+Apache Commons
+https://commons.apache.org/proper/commons-bsf/license.html
+
+===============================================================================
+
+GNU Trove
+http://trove4j.sourceforge.net/html/license.html
+
+===============================================================================
+
+Java CUP
+http://www2.cs.tum.edu/projects/cup/licence.php
+
+===============================================================================
+
+JFlex
+http://jflex.de/copying.html
+
+===============================================================================
+
+SMTInterpol
+LGPL Version 3 (https://www.gnu.org/licenses/lgpl-3.0.en.html)
+
+===============================================================================
+
+Soot (soot-22-8-2014.jar) 
+https://www.sable.mcgill.ca/soot/
+GNU Lesser General Public License (http://www.gnu.org/copyleft/lesser.html)
+
+===============================================================================
+
+StringTemplate (ST-4.0.8.jar)
+http://www.stringtemplate.org/
+BSD license (http://www.stringtemplate.org/license.html)
+
+Copyright (c) 2012 Terence Parr
+All rights reserved.
+Redistribution and use in source and binary forms, with or without modification,
+are permitted provided that the following conditions are met:
+
+Redistributions of source code must retain the above copyright notice, this list 
+of conditions and the following disclaimer.
+Redistributions in binary form must reproduce the above copyright notice, this
+list of conditions and the following disclaimer in the documentation and/or
+other materials provided with the distribution.
+Neither the name of the author nor the names of its contributors may be used to
+endorse or promote products derived from this software without specific prior written permission.
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
+ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                       
+===============================================================================

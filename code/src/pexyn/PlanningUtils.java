@@ -1,12 +1,11 @@
 package pexyn;
 
 import java.util.Optional;
-import java.util.logging.Logger;
 
 import bgu.cs.util.Union2;
 import jminor.JmStore.JmErrorStore;
-import pexyn.Semantics.Guard;
 import pexyn.Semantics.Cmd;
+import pexyn.Semantics.Guard;
 import pexyn.Semantics.Store;
 import pexyn.planning.Planner;
 import pexyn.planning.SearchResultType;
@@ -19,7 +18,7 @@ import pexyn.planning.SearchResultType;
 public class PlanningUtils {
 	public static <StoreType extends Store, CmdType extends Cmd, GuardType extends Guard> Optional<Trace<StoreType, CmdType>> exampleToPlan(
 			Semantics<StoreType, CmdType, GuardType> semantics, Planner<StoreType, CmdType> planner,
-			Example<StoreType, CmdType> example, Logger logger) {
+			Example<StoreType, CmdType> example, GPDebugger<StoreType, CmdType, GuardType> debugger) {
 		assert example.size() > 0;
 		if (example.size() == 1 && example.step(0).isT1()) {
 			// An example for a possible input.
@@ -34,7 +33,7 @@ public class PlanningUtils {
 			throw new IllegalArgumentException("Encountered an example starting with a statement!");
 		}
 
-		logger.info("Planning for example " + example.name + "...");
+		debugger.info("Planning for example " + example.name + "...");
 		Trace<StoreType, CmdType> plan = new ArrayListTrace<>(current);
 		for (int i = 1; i < example.steps.size(); ++i) {
 			Union2<StoreType, CmdType> step = example.steps.get(i);
@@ -48,14 +47,10 @@ public class PlanningUtils {
 					current = plan.lastState();
 					break;
 				case NO_SOLUTION_EXISTS:
-					if (logger != null) {
-						logger.info("No plan exists for example " + example.name + "! Skipping example.");
-					}
+					debugger.info("No plan exists for example " + example.name + "! Skipping example.");
 					return Optional.empty();
 				case OUT_OF_RESOURCES:
-					if (logger != null) {
-						logger.info("Timed out on example " + example.name + "! Skipping example.");
-					}
+					debugger.info("Timed out on example " + example.name + "! Skipping example.");
 					return Optional.empty();
 				}
 			} else {
@@ -65,10 +60,8 @@ public class PlanningUtils {
 					current = next.get();
 					plan.append(action, current);
 				} else {
-					if (logger != null) {
-						logger.info("Action " + action.toString() + " of example " + example.name + " at step " + i
-								+ " is not applicable for the respective state! Skipping example.");
-					}
+					debugger.info("Action " + action.toString() + " of example " + example.name + " at step " + i
+							+ " is not applicable for the respective state! Skipping example.");
 					return Optional.empty();
 				}
 			}

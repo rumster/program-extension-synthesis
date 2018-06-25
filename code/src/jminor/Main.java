@@ -103,10 +103,10 @@ public class Main {
 			debugger.printExamples(problem.examples);
 			synthesisTime.start();
 			var planner = new AStar<JmStore, Stmt>(new BasicJminorTR(problem.semantics));
-			var synthesizer = new PETISynthesizer<JmStore, Stmt, BoolExpr>(planner, config, logger, debugger);
+			var synthesizer = new PETISynthesizer<JmStore, Stmt, BoolExpr>(planner, config, debugger);
 			var synthesisResult = synthesizer.synthesize(problem);
 			if (synthesisResult.success()) {
-				logger.info("success!");
+				debugger.info("PETI: found program automaton!");
 				// We have to structure _after_ testing against the test examples,
 				// since currently a command sequence is counted as an atomic
 				// command, which fails the tests.
@@ -125,15 +125,15 @@ public class Main {
 					backend.generate();
 				}
 			} else {
-				logger.info("fail!");
+				debugger.warning("PETI: failed to find program automaton!");
 			}
 		} catch (Throwable t) {
-			logger.severe(t.toString());
+			debugger.severe(t.toString());
 			t.printStackTrace();
 		} finally {
 			synthesisTime.stop();
-			logger.info("Planning time: " + planningTime.toSeconds());
-			logger.info("Synthesizer: done! (" + synthesisTime.toSeconds() + ")");
+			debugger.info("Planning time: " + planningTime.toSeconds());
+			debugger.info("Synthesizer: done! (" + synthesisTime.toSeconds() + ")");
 			debugger.refresh();
 		}
 	}

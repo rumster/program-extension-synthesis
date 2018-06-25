@@ -3,7 +3,6 @@ package pexyn.generalization;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Optional;
-import java.util.logging.Logger;
 
 import bgu.cs.util.graph.MultiGraph.Edge;
 import bgu.cs.util.rel.HashRel2;
@@ -30,9 +29,6 @@ import pexyn.guardInference.ConditionInferencer;
 public class PETI<StoreType extends Store, CmdType extends Cmd, GuardType extends Guard> {
 	private final GPDebugger<StoreType, CmdType, GuardType> debugger;
 
-	@SuppressWarnings("unused")
-	private final Logger logger;
-
 	private final Semantics<StoreType, CmdType, GuardType> semantics;
 
 	private final ConditionInferencer<StoreType, CmdType, GuardType> separator;
@@ -44,10 +40,9 @@ public class PETI<StoreType extends Store, CmdType extends Cmd, GuardType extend
 	 */
 	public PETI(Semantics<StoreType, CmdType, GuardType> semantics,
 			ConditionInferencer<StoreType, CmdType, GuardType> separator,
-			GPDebugger<StoreType, CmdType, GuardType> debugger, Logger logger) {
+			GPDebugger<StoreType, CmdType, GuardType> debugger) {
 		assert debugger != null && semantics != null && separator != null;
 		this.debugger = debugger;
-		this.logger = logger;
 		this.semantics = semantics;
 		this.separator = separator;
 	}
