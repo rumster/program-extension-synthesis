@@ -5,6 +5,7 @@ public class $className$ {
   /** Synthesized method.
    */
   public static $if(returnArg)$$returnArg.type$$else$void$endif$ run($args:{it|$it.type$ $it.name$}; separator=", "$) {
+    // Initialize local variables to their default values.
     $locals:{it|$it.type$ $it.name$ = $it.defaultVal$;}; separator="\n"$
     $if(returnArg)$$returnArg.type$ $returnArg.name$  = $returnArg.defaultVal$;$else$$endif$
     
@@ -25,6 +26,7 @@ public class $className$ {
   /** Synthesized method.
    */
   public static $if(returnArg)$$returnArg.type$$else$void$endif$ run($args:{it|$it.type$ $it.name$}; separator=", "$) {
+    // Initialize local variables to their default values.
     $locals:{it|$it.type$ $it.name$ = $it.defaultVal$;}; separator="\n"$
     $if(returnArg)$$returnArg.type$ $returnArg.name$  = $returnArg.defaultVal$;$else$$endif$
     
@@ -71,3 +73,5 @@ UpdateTransition(succ, update) ::= <<
 $update$
 _state = State.$succ$;
 >>
+
+NonNullType(type) ::= <<$type$>>

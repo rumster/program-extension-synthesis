@@ -11,14 +11,13 @@ merge(mut first:SLL, mut second:SLL) -> (result:SLL) {
     t = result;
     if (first == null || first != null && second != null && second.d < first.d) {     
       result = second;
-      second = second.n;
-      result.n = t;
+      second = second.n;      
     }
     else {
       result = first;
       first = first.n;
-      result.n = t;
-    } 
+    }
+    result.n = t; 
   }
 
   example {

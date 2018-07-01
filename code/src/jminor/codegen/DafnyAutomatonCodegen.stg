@@ -5,7 +5,8 @@ SimpleClassFile(className, methodName, returnArg, args, locals, states, stateCod
 /** Synthesized method.
  */
 method $methodName$($args:{it|$it.name$ : $it.type$}; separator=", "$) $if(returnArg)$returns ($returnArg.name$ : $returnArg.type$) $else$void$endif$ {
-  $locals:{it|var $it.name$ : $it.type$ = $it.defaultVal$;}; separator="\n"$
+  // Initialize local variables to their default values.
+  $locals:{it|var $it.name$ : $it.type$ := $it.defaultVal$;}; separator="\n"$
   $if(returnArg)$$returnArg.name$  := $returnArg.defaultVal$;$else$$endif$
   
   $stateCodes$
@@ -21,7 +22,8 @@ datatype State = $states; separator=" | "$
 /** Synthesized method.
  */
 method $methodName$($args:{it|$it.name$ : $it.type$}; separator=", "$) $if(returnArg)$returns ($returnArg.name$ : $returnArg.type$) $else$void$endif$ {
-  $locals:{it|var $it.name$ : $it.type$ = $it.defaultVal$;}; separator="\n"$
+  // Initialize local variables to their default values.
+  $locals:{it|var $it.name$ : $it.type$ := $it.defaultVal$;}; separator="\n"$
   $if(returnArg)$$returnArg.name$  := $returnArg.defaultVal$;$else$$endif$
   
   var automatonState : State := ENTRY;
@@ -63,3 +65,5 @@ UpdateTransition(succ, update) ::= <<
 $update$
 automatonState := $succ$;
 >>
+
+NonNullType(type) ::= <<$type$?>>

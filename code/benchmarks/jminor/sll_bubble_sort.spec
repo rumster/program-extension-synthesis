@@ -27,15 +27,12 @@ while (change) {
     if (y.d > yn.d) {
       change = true;
       t = yn.n;
-      y.n = null;
       y.n = t;
-      yn.n = null;
       yn.n = y;
       if (p == null) {
         head = yn;
       }
       else {
-        p.n = null;
         p.n = yn; 
       }
       p = yn;
