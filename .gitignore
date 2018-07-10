@@ -2,3 +2,5 @@ output
 /code/src/heap/ast/HeapSym.java
 /code/src/heap/ast/HeapLexer.java
 /code/src/heap/ast/HeapParser.java
+code/benchmarks/jminor/visual-output/*
+code/visual-output/*
