@@ -92,12 +92,12 @@ public class Main {
 		}
 
 		setOutputDirectory();
+		debugger = new JminorDebugger(config, logger, filename, outputDirPath);
 		logger.info("Synthesizer: started");
 		synthesisTime.reset();
 		planningTime.reset();
 		try {
 			var problem = genProblem();
-			debugger = new JminorDebugger(config, logger, problem.name, outputDirPath);
 			debugger.addLink(logFile.getName(), "Events log");
 			debugger.addCodeFile("problem.txt", problem.toString(), "Specification");
 			debugger.printExamples(problem.examples);

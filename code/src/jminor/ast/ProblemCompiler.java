@@ -209,6 +209,9 @@ public class ProblemCompiler {
 
 		public void visit(ASTVarDecl n) {
 			Type type = nameToType.get(n.type);
+			if (type == null){
+				throw new SemanticError("Variable " + n.name + " references unknown type " + n.type, n);
+			}
 			if (type instanceof PrimitiveType) {
 				PrimitiveVar var = new PrimitiveVar(n.name, type, role, out, n.readonly);
 				addVar(var, n);
