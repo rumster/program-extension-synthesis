@@ -56,7 +56,7 @@ class Trace extends ArrayList<OperatorLetter>{
 public class BasicTests {
 
 	static Random rand = new Random();
-	
+
 	public static Trace getLoopTrace(int length) {
 		Trace arr = new Trace();
 		arr.add(new OperatorLetter('X'));
@@ -64,6 +64,22 @@ public class BasicTests {
 			arr.add(new OperatorLetter('A'));
 			arr.add(new OperatorLetter('B'));
 			arr.add(new OperatorLetter('C'));
+		}
+		arr.add(new OperatorLetter('Y'));
+		return arr;
+	}
+	public static Trace getTwoLoopsTrace(int length) {
+		Trace arr = new Trace();
+		arr.add(new OperatorLetter('X'));
+		for(int i=0; i< length; i++) {
+			arr.add(new OperatorLetter('A'));
+			arr.add(new OperatorLetter('B'));
+			arr.add(new OperatorLetter('C'));
+		}
+		for(int i=0; i< length; i++) {
+			arr.add(new OperatorLetter('A'));
+			arr.add(new OperatorLetter('T'));
+			arr.add(new OperatorLetter('H'));
 		}
 		arr.add(new OperatorLetter('Y'));
 		return arr;
@@ -130,12 +146,14 @@ public class BasicTests {
 
 	//@SuppressWarnings("unused")
 	public static void main(String[] args) {
-		System.out.println("Generating Loop trace");
+		/**/System.out.println("Generating Loop trace");
 		testConvergence(BasicTests::getLoopTrace);
+		System.out.println("Generating Two Loops trace");
+		testConvergence(BasicTests::getTwoLoopsTrace);
 		System.out.println("Generating If trace");
-		testConvergence(BasicTests::getIfTrace);/*
+		testConvergence(BasicTests::getIfTrace);
 		System.out.println("Generating If Loop trace");
-		testConvergence(BasicTests::getIfLoopTrace);
+		testConvergence(BasicTests::getIfLoopTrace);/*
 		System.out.println("Generating If/Else trace");
 		testConvergence(BasicTests::getIfElseTrace);
 		System.out.println("Generating If/Else Loop trace");
