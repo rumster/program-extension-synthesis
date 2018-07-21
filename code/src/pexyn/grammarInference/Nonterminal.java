@@ -18,6 +18,7 @@ public class Nonterminal extends Symbol {
 	boolean selective = false;
 	private ArrayList<Symbol> prodsGen = new ArrayList<>();
 
+	private int matchDepth = 0;
 	public Nonterminal(String name) {
 		this.name = new String(name);
 	}
@@ -93,13 +94,24 @@ public class Nonterminal extends Symbol {
 		return out;
 	}
 	
-	public int match(List<? extends Letter> scope) {
-		boolean matchedAll = true;
+	public int match(List<? extends Letter> scope, boolean force) {
+		if(matchDepth++ > 100) {
+			//some kind of overflow. check it out.
+			System.out.println("stuck matching");
+			System.out.println(this.toString());
+			System.out.println(scope.toString());
+			System.out.println(force);
+			
+		}
 		Sort(); // starts with the longest sequence, should catch recursive nt's
 				// first.
+		boolean matchedAll = true;
+		int matchlen = 0;
 		for (int i = 0; i < productions.size(); ++i) {
+			matchedAll = true;
 			SententialForm sent = productions.get(i);
-			int matchlen = 0;
+			if(sent.size() == 0 && !force) continue;
+			matchlen = 0;
 			for (Symbol symb : sent) {
 				if (matchlen >= scope.size()) {
 					// this means we havent finished the nt, better choose a
@@ -110,7 +122,7 @@ public class Nonterminal extends Symbol {
 				;
 				if (symb.getClass() == Nonterminal.class) {
 					Nonterminal nt = (Nonterminal) symb;
-					int subNtMatchLen = nt.match(scope.subList(matchlen, scope.size()));
+					int subNtMatchLen = nt.match(scope.subList(matchlen, scope.size()), matchlen > 0);
 					matchedAll = subNtMatchLen != -1;
 					matchlen += subNtMatchLen;
 				} else {
@@ -123,10 +135,13 @@ public class Nonterminal extends Symbol {
 					break;
 				}
 			}
+
+			matchDepth--;
 			if (matchedAll)
 				return matchlen;
 		}
-		return -1;
+		matchDepth--;
+		return  -1;
 	}
 
 	/*
