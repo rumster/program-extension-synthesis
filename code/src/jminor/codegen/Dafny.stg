@@ -53,14 +53,18 @@ NotExpr(sub) ::= <<!($sub$)>>
 
 RetStmt() ::= <<return;>>
 
-AssignStmt(lhs, rhs) ::= <<$lhs$ := $rhs$;>>
+AssignStmt(lhs, rhs, assertion) ::= <<
+assert $assertion$;
+$lhs$ := $rhs$;
+>>
 
 SeqStmt(first, second) ::= <<
 $first$
 $second$
 >>
 
-IfStmt(cond, thenNode, elseNode) ::= <<
+IfStmt(cond, thenNode, elseNode, assertion) ::= <<
+assert $assertion$;
 if ($cond$) {
   $thenNode$
 }
@@ -69,8 +73,10 @@ else {
 }
 >>
 
-WhileStmt(cond, body) ::= <<
-while ($cond$) {
+WhileStmt(cond, body, assertion) ::= <<
+while ($cond$)
+invariant $assertion$;
+{
   $body$
 }
 >>
