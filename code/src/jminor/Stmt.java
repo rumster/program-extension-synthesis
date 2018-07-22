@@ -14,6 +14,12 @@ import pexyn.Semantics.Cmd;
  * @author romanm
  */
 public abstract class Stmt extends Node implements Cmd {
+	/**
+	 * A predicate that holds for all stores just prior to executing this statement.
+	 * This is used for verification purposes.
+	 */
+	public BoolExpr assertion = True.v;
+
 	protected final List<Node> args;
 
 	@Override

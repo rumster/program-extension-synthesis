@@ -34,8 +34,9 @@ method $methodName$($args:{it|$it.name$ : $it.type$}; separator=", "$) $if(retur
 }
 >>
 
-StateCode(name, transitions) ::= <<
+StateCode(name, transitions, assertion) ::= <<
 if (automatonState == $name$) {
+  assert $assertion$;
   $transitions; separator="\n"$
 }
 >>
