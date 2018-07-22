@@ -84,6 +84,22 @@ public class BasicTests {
 		arr.add(new OperatorLetter('Y'));
 		return arr;
 	}
+	public static Trace getTwoMixedLoopsTrace(int length) {
+		Trace arr = new Trace();
+		arr.add(new OperatorLetter('X'));
+		for(int i=0; i< length; i++) {
+			arr.add(new OperatorLetter('A'));
+			arr.add(new OperatorLetter('B'));
+			arr.add(new OperatorLetter('C'));
+		}
+		for(int i=0; i< length; i++) {
+			arr.add(new OperatorLetter('A'));
+			arr.add(new OperatorLetter('T'));
+			arr.add(new OperatorLetter('C'));
+		}
+		arr.add(new OperatorLetter('Y'));
+		return arr;
+	}
 
 	public static Trace getIfTrace(int length) {
 		
@@ -111,6 +127,27 @@ public class BasicTests {
 			arr.add(new OperatorLetter('B'));
 		else 
 			arr.add(new OperatorLetter('C'));
+		arr.add(new OperatorLetter('Z'));
+		return arr;
+	}
+
+	public static Trace getSwitchTrace(int length) {
+		
+		Trace arr = new Trace();
+		arr.add(new OperatorLetter('X'));
+		for(int i=0; i< length; i++) {
+			arr.add(new OperatorLetter('A'));
+			arr.add(new OperatorLetter('Y'));
+		}
+		var randNum = rand.nextInt(100);
+		if(randNum >= 75) 
+			arr.add(new OperatorLetter('B'));
+		else  if(randNum > 50)
+			arr.add(new OperatorLetter('C'));
+		else  if(randNum > 25)
+			arr.add(new OperatorLetter('D'));
+		else
+			arr.add(new OperatorLetter('E'));
 		arr.add(new OperatorLetter('Z'));
 		return arr;
 	}
@@ -144,20 +181,49 @@ public class BasicTests {
 		return arr;
 	}
 
+	public static Trace getSwitchLoopTrace(int length) {
+		
+		Trace arr = new Trace();
+		arr.add(new OperatorLetter('X'));
+		for(int i=0; i< length; i++) {
+			arr.add(new OperatorLetter('A'));
+			var randNum = rand.nextInt(100);
+			if(randNum >= 75) 
+				arr.add(new OperatorLetter('B'));
+			else  if(randNum > 50)
+				arr.add(new OperatorLetter('C'));
+			else  if(randNum > 25)
+				arr.add(new OperatorLetter('D'));
+			else
+				arr.add(new OperatorLetter('E'));
+			arr.add(new OperatorLetter('Y'));
+		}
+		arr.add(new OperatorLetter('Z'));
+		return arr;
+	}
+
 	//@SuppressWarnings("unused")
 	public static void main(String[] args) {
-		/**/System.out.println("Generating Loop trace");
+		/**/
+		System.out.println("Generating Loop trace");
 		testConvergence(BasicTests::getLoopTrace);
 		System.out.println("Generating Two Loops trace");
 		testConvergence(BasicTests::getTwoLoopsTrace);
+		System.out.println("Generating Two Mixed Loops trace");
+		testConvergence(BasicTests::getTwoMixedLoopsTrace);
 		System.out.println("Generating If trace");
 		testConvergence(BasicTests::getIfTrace);
 		System.out.println("Generating If Loop trace");
-		testConvergence(BasicTests::getIfLoopTrace);/*
+		testConvergence(BasicTests::getIfLoopTrace);
 		System.out.println("Generating If/Else trace");
 		testConvergence(BasicTests::getIfElseTrace);
 		System.out.println("Generating If/Else Loop trace");
-		testConvergence(BasicTests::getIfElseLoopTrace);*/
+		testConvergence(BasicTests::getIfElseLoopTrace);
+		System.out.println("Generating Switch trace");
+		testConvergence(BasicTests::getSwitchTrace);
+		System.out.println("Generating Switch Loop trace");
+		testConvergence(BasicTests::getSwitchLoopTrace);
+		/**/
 	}
 
 	private static void testConvergence(Function<Integer, Trace> traceGen) {

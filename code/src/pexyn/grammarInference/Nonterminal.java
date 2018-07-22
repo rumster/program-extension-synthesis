@@ -16,6 +16,8 @@ public class Nonterminal extends Symbol {
 	private final String name;
 	boolean recursive = false;
 	boolean selective = false;
+	boolean ifNt = false;
+	boolean ifElseNt = false;
 	private ArrayList<Symbol> prodsGen = new ArrayList<>();
 
 	private int matchDepth = 0;
@@ -28,11 +30,16 @@ public class Nonterminal extends Symbol {
 		productions = new ArrayList<>();
 		for(SententialForm sent : o.productions)
 			productions.add(new SententialForm(sent));
+		subgraphRank = o.subgraphRank;
 	}
 
 	public String getName() {
 		// TODO Auto-generated method stub
 		return name;
+	}
+	public List<SententialForm> RecBody() {
+		assert(recursive);
+		return ((Nonterminal)productions.get(1).get(0)).getProductions();
 	}
 
 	@Override
@@ -48,7 +55,7 @@ public class Nonterminal extends Symbol {
 	public void add(List<Symbol> prod) {
 		if(!productions.contains(prod)) {
 			productions.add(new SententialForm(prod));
-			
+			for(Symbol s: prod) subgraphRank= Math.max(subgraphRank, s.subgraphRank + 1);
 			if(prod.contains(this)){
 				prodsGen.addAll(prod);
 				prodsGen.remove(this);
