@@ -67,11 +67,6 @@ public interface Semantics<StoreType extends Store, CmdType extends Cmd, GuardTy
 	public abstract Optional<StoreType> apply(CmdType update, StoreType value);
 
 	/**
-	 * Returns a list of likely predicates for the given plans.
-	 */
-	public List<GuardType> generateGuards(List<Trace<StoreType, CmdType>> plans);
-
-	/**
 	 * Returns a list of likely atomic predicates for the given plans.
 	 */
 	public List<GuardType> generateBasicGuards(List<Trace<StoreType, CmdType>> plans);
@@ -91,20 +86,6 @@ public interface Semantics<StoreType extends Store, CmdType extends Cmd, GuardTy
 	 */
 	public GuardType not(GuardType l);
 	
-	/**
-	 * Returns a complete list (including Boolean negation) of likely atomic
-	 * predicates for the given plans
-	 */
-	public default List<GuardType> generateCompleteBasicGuards(List<Trace<StoreType, CmdType>> plans) {
-		var result = new ArrayList<GuardType>();
-		var basicGuards = generateBasicGuards(plans);
-		result.addAll(basicGuards);
-		for (var guard : basicGuards) {
-			result.add(not(guard));
-		}
-		return result;
-	}
-
 	/**
 	 * An interface marking semantics stores (values).
 	 * 

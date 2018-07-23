@@ -238,70 +238,6 @@ public class JminorSemantics implements StructuredSemantics<JmStore, Stmt, BoolE
 		return result;
 	}
 
-	/**
-	 * TODO: refine the sorting of the guards by accounting for (as feww as
-	 * possible) constants.
-	 */
-	@Override
-	public List<BoolExpr> generateGuards(List<Trace<JmStore, Stmt>> plans) {
-		var posLiterals = generateBasicGuards(plans);
-		var negLiterals = new ArrayList<BoolExpr>();
-		for (var e : posLiterals) {
-			negLiterals.add(new NotExpr(e));
-		}
-
-		final var result = new ArrayList<BoolExpr>();
-		result.addAll(posLiterals);
-		result.addAll(negLiterals);
-		final var doubleCubes = genPairCubes(posLiterals);
-		result.addAll(doubleCubes);
-		final var doubleOrPosPos = genOr2(posLiterals, posLiterals);
-		result.addAll(doubleOrPosPos);
-		final var doubleOrPosNeg = genOr2(posLiterals, negLiterals);
-		result.addAll(doubleOrPosNeg);
-
-		var sizeFun = new CostSize();
-		Collections.sort(result, (e1, e2) -> {
-			var diff = sizeFun.apply(e1) - sizeFun.apply(e2);
-			return (int) diff;
-		});
-		return result;
-	}
-
-	/**
-	 * Generates disjunctive expressions from the Cartesian product of the
-	 * expressions in the first list and the expressions in the second list.
-	 */
-	public List<BoolExpr> genOr2(List<BoolExpr> exprs1, List<BoolExpr> exprs2) {
-		final var result = new ArrayList<BoolExpr>();
-		for (var e1 : exprs1) {
-			for (var e2 : exprs2) {
-				result.add(new OrExpr(e1, e2));
-			}
-		}
-		return result;
-	}
-
-	/**
-	 * Generates all cubes of size 2, from the given expressions and their
-	 * negations.
-	 */
-	public List<BoolExpr> genPairCubes(List<BoolExpr> exprs) {
-		final var result = new ArrayList<BoolExpr>();
-		for (var e1 : exprs) {
-			for (var e2 : exprs) {
-				if (e1 == e2) {
-					continue;
-				}
-				result.add(new AndExpr(e1, e2));
-				result.add(new AndExpr(e1, new NotExpr(e2)));
-				result.add(new AndExpr(new NotExpr(e1), e2));
-				result.add(new AndExpr(new NotExpr(e1), new NotExpr(e2)));
-			}
-		}
-		return result;
-	}
-
 	public static Set<IntVal> collectIntValsFromStores(List<Trace<JmStore, Stmt>> plans) {
 		final var result = new HashSet<IntVal>();
 		for (final var plan : plans) {
@@ -413,10 +349,6 @@ public class JminorSemantics implements StructuredSemantics<JmStore, Stmt, BoolE
 			for (var rhs : intExprs) {
 				binaryIntExprs.add(new IntBinOpExpr(IntBinOp.PLUS, lhs, rhs));
 				binaryIntExprs.add(new IntBinOpExpr(IntBinOp.TIMES, lhs, rhs));
-				if (lhs != rhs) {
-					binaryIntExprs.add(new IntBinOpExpr(IntBinOp.MINUS, lhs, rhs));
-					binaryIntExprs.add(new IntBinOpExpr(IntBinOp.DIVIDE, lhs, rhs));
-				}
 			}
 		}
 		intExprs.addAll(binaryIntExprs);
@@ -521,22 +453,6 @@ public class JminorSemantics implements StructuredSemantics<JmStore, Stmt, BoolE
 			return (int) diff;
 		});
 		return result;
-	}
-
-	@Override
-	public List<BoolExpr> generateCompleteBasicGuards(List<Trace<JmStore, Stmt>> plans) {
-		var guards = new ArrayList<BoolExpr>();
-		for (var e : generateBasicGuards(plans)) {
-			guards.add(e);
-			guards.add(new NotExpr(e));
-		}
-
-		var sizeFun = new CostSize();
-		Collections.sort(guards, (e1, e2) -> {
-			var diff = sizeFun.apply(e1) - sizeFun.apply(e2);
-			return (int) diff;
-		});
-		return guards;
 	}
 
 	@Override
