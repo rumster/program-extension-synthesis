@@ -7,4 +7,8 @@ package pexyn.grammarInference;
  *
  */
 public abstract class Symbol {
+	int subgraphRank = 0;
+	public int Rank() {
+		return subgraphRank;
+	}
 }
