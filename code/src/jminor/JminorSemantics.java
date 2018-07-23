@@ -16,7 +16,6 @@ import bgu.cs.util.STGLoader;
 import bgu.cs.util.STHierarchyRenderer;
 import bgu.cs.util.rel.HashRel2;
 import bgu.cs.util.rel.Rel2;
-import bgu.cs.util.treeGrammar.CostSize;
 import bgu.cs.util.treeGrammar.Node;
 import jminor.Var.VarRole;
 import pexyn.StructuredSemantics;

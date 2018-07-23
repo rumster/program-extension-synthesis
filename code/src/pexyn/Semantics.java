@@ -1,11 +1,10 @@
 package pexyn;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import pexyn.Semantics.Guard;
 import pexyn.Semantics.Cmd;
+import pexyn.Semantics.Guard;
 import pexyn.Semantics.Store;
 
 /**
