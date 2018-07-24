@@ -55,4 +55,9 @@ public class SententialForm extends ArrayList<Symbol> {
 		if(size() == 0) return "\u03B5";
 		return super.toString();
 	}
+
+	@Override
+	public SententialForm subList(int fromIndex, int toIndex) {
+		return new SententialForm(super.subList(fromIndex, toIndex));
+	}
 }

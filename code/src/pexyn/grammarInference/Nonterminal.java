@@ -1,6 +1,7 @@
 package pexyn.grammarInference;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -21,6 +22,7 @@ public class Nonterminal extends Symbol {
 	private ArrayList<Symbol> prodsGen = new ArrayList<>();
 
 	private int matchDepth = 0;
+
 	public Nonterminal(String name) {
 		this.name = new String(name);
 	}
@@ -28,7 +30,7 @@ public class Nonterminal extends Symbol {
 	public Nonterminal(Nonterminal o) {
 		name = new String(o.name);
 		productions = new ArrayList<>();
-		for(SententialForm sent : o.productions)
+		for (SententialForm sent : o.productions)
 			productions.add(new SententialForm(sent));
 		subgraphRank = o.subgraphRank;
 	}
@@ -37,9 +39,15 @@ public class Nonterminal extends Symbol {
 		// TODO Auto-generated method stub
 		return name;
 	}
+
 	public List<SententialForm> RecBody() {
-		assert(recursive);
-		return ((Nonterminal)productions.get(1).get(0)).getProductions();
+		assert (recursive);
+		var body = productions.get(1).get(0);
+		if (body.getClass() == Nonterminal.class) {
+			return ((Nonterminal) body).getProductions();
+		}
+		return Arrays.asList(productions.get(1).subList(0, 1));
+
 	}
 
 	@Override
@@ -53,10 +61,11 @@ public class Nonterminal extends Symbol {
 	}
 
 	public void add(List<Symbol> prod) {
-		if(!productions.contains(prod)) {
+		if (!productions.contains(prod)) {
 			productions.add(new SententialForm(prod));
-			for(Symbol s: prod) subgraphRank= Math.max(subgraphRank, s.subgraphRank + 1);
-			if(prod.contains(this)){
+			for (Symbol s : prod)
+				subgraphRank = Math.max(subgraphRank, s.subgraphRank + 1);
+			if (prod.contains(this)) {
 				prodsGen.addAll(prod);
 				prodsGen.remove(this);
 				recursive = true;
@@ -64,25 +73,27 @@ public class Nonterminal extends Symbol {
 		}
 	}
 
-	public ArrayList<Symbol> getProductsGenerated(){
+	public ArrayList<Symbol> getProductsGenerated() {
 		return prodsGen;
 	}
-	public boolean getIsRecursive(){
+
+	public boolean getIsRecursive() {
 		return recursive;
 	}
 
 	public boolean getIsSelective() {
 		return selective;
 	}
+
 	/**
-	 * Returns the set of right-hand sides of the productions associated with
-	 * this nonterminal.
+	 * Returns the set of right-hand sides of the productions associated with this
+	 * nonterminal.
 	 */
 	public List<SententialForm> getProductions() {
 		return productions;
 	}
 
-	//! @NOTE only loooks at product #0
+	// ! @NOTE only loooks at product #0
 	public SententialForm expand() { // doesnt work well with recursion -
 										// unused
 		SententialForm out = new SententialForm();
@@ -100,15 +111,15 @@ public class Nonterminal extends Symbol {
 		}
 		return out;
 	}
-	
+
 	public int match(List<? extends Letter> scope, boolean force) {
-		if(matchDepth++ > 100) {
-			//some kind of overflow. check it out.
+		if (matchDepth++ > 100) {
+			// some kind of overflow. check it out.
 			System.out.println("stuck matching");
 			System.out.println(this.toString());
 			System.out.println(scope.toString());
 			System.out.println(force);
-			
+
 		}
 		Sort(); // starts with the longest sequence, should catch recursive nt's
 				// first.
@@ -117,7 +128,8 @@ public class Nonterminal extends Symbol {
 		for (int i = 0; i < productions.size(); ++i) {
 			matchedAll = true;
 			SententialForm sent = productions.get(i);
-			if(sent.size() == 0 && !force) continue;
+			if (sent.size() == 0 && !force)
+				continue;
 			matchlen = 0;
 			for (Symbol symb : sent) {
 				if (matchlen >= scope.size()) {
@@ -148,23 +160,16 @@ public class Nonterminal extends Symbol {
 				return matchlen;
 		}
 		matchDepth--;
-		return  -1;
+		return -1;
 	}
 
 	/*
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((name == null) ? 0 : name.hashCode());
-		ArrayList<SententialForm> tempProds = new ArrayList<>(productions);
-		for(SententialForm sent : tempProds){
-			sent.remove(this);
-		}
-		result = prime * result + ((productions == null) ? 0 : tempProds.hashCode());
-		return result;
-	}
-*/
+	 * @Override public int hashCode() { final int prime = 31; int result = 1;
+	 * result = prime * result + ((name == null) ? 0 : name.hashCode());
+	 * ArrayList<SententialForm> tempProds = new ArrayList<>(productions);
+	 * for(SententialForm sent : tempProds){ sent.remove(this); } result = prime *
+	 * result + ((productions == null) ? 0 : tempProds.hashCode()); return result; }
+	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -174,27 +179,29 @@ public class Nonterminal extends Symbol {
 		if (getClass() != obj.getClass())
 			return false;
 		Nonterminal other = (Nonterminal) obj;
-		if(!name.equals(other.name)) return false;
-		if (productions == null) 
+		if (!name.equals(other.name))
+			return false;
+		if (productions == null)
 			return (other.productions == null);
-		if(productions.size() != other.productions.size()) return false;
-		for(int i=0; i< productions.size(); ++i){
+		if (productions.size() != other.productions.size())
+			return false;
+		for (int i = 0; i < productions.size(); ++i) {
 			SententialForm mySent = productions.get(i);
 			SententialForm oSent = other.productions.get(i);
-			if(mySent.size() != oSent.size()) return false;
-			for(int j=0; j< mySent.size(); ++j){
-				if(mySent.get(j) == this){
-					if(oSent.get(j) != other)
+			if (mySent.size() != oSent.size())
+				return false;
+			for (int j = 0; j < mySent.size(); ++j) {
+				if (mySent.get(j) == this) {
+					if (oSent.get(j) != other)
 						return false;
 					else
 						continue;
 				}
-				if(!mySent.get(j).equals(oSent.get(j))) return false;
+				if (!mySent.get(j).equals(oSent.get(j)))
+					return false;
 			}
 		}
 		return true;
 	}
-
-
 
 }
