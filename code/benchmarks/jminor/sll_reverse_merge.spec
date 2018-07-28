@@ -90,11 +90,36 @@ merge(mut first:SLL, mut second:SLL) -> (result:SLL) {
     -> result.n=t;
   }
 
-  test example {
+  example {
     [first==a0 && a0.n==a1 && a1.n==null &&
      a0.d==1 && a1.d==3 &&
      second==b0 && b0.n==b1 && b1.n==null &&
      b0.d==2 && b1.d==4
     ] -> ...
   }
+  example {
+    [first==a0 &&
+	a0.n==a1 && a0.d==1 &&
+	a1.n==a2 && a1.d==2 &&
+	a2.n==null && a2.d==3 && 
+     second==b0 && 
+	b0.n==b1 && b0.d==2 &&
+	b1.n==b2 && b1.d==3 &&
+	b2.n==null && b2.d==4
+    ] -> ...
+  }
+  example {
+    [first==a0 &&
+	a0.n==a1 && a0.d==1 &&
+	a1.n==a2 && a1.d==2 &&
+	a2.n==a3 && a2.d==3 &&
+	a3.n==a4 && a3.d==3 && 
+	a4.n==null && a4.d==4 && 
+     second==b0 && 
+	b0.n==b1 && b0.d==2 &&
+	b1.n==b2 && b1.d==3 &&
+	b2.n==null && b2.d==4
+    ] -> ...
+  }
+
 }

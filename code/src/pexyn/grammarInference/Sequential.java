@@ -22,14 +22,14 @@ public class Sequential extends Generalizer {
 		super();
 		ntsCounter = 0;
 		// Adding order is important here - from most benefit to least.
-		externalTranformers.add(Sequential::appendNonterminal);
-		externalTranformers.add(Sequential::appendTerminal);
+		externalTranformers.add(Sequential::extAppendNonterminal);
+		externalTranformers.add(Sequential::extAppendTerminal);
 
-		internalTranformers.add(Sequential::compressRecursion);
-		internalTranformers.add(Sequential::mergeLastSymbol);
-		internalTranformers.add(Sequential::findLoops);
-		internalTranformers.add(Sequential::findBlocks);
-		internalTranformers.add(Sequential::findConds);
+		internalTranformers.add(Sequential::intCompressRecursion);
+		internalTranformers.add(Sequential::intMergeLastSymbol);
+		internalTranformers.add(Sequential::intFindLoops);
+		internalTranformers.add(Sequential::intFindBlocks);
+		internalTranformers.add(Sequential::intFindConds);
 	}
 
 	private class InputParseState {
@@ -79,13 +79,13 @@ public class Sequential extends Generalizer {
 		}
 	}
 
-	private static boolean appendTerminal(InputParseState input, Grammar grammar) {
+	private static boolean extAppendTerminal(InputParseState input, Grammar grammar) {
 		grammar.getCurrStartProduct().add(new Terminal(input.getCurr()));
 		input.index = input.index + 1;
 		return true;
 	}
 
-	private static boolean appendNonterminal(InputParseState input, Grammar grammar) {
+	private static boolean extAppendNonterminal(InputParseState input, Grammar grammar) {
 		int matchLen = -1;
 		for (Nonterminal nt : grammar.getNonterminals()) {
 			List<? extends Letter> scope = input.getScope();
@@ -111,7 +111,7 @@ public class Sequential extends Generalizer {
 		} while (changed);
 	}
 
-	private static boolean compressRecursion(Grammar grammar) {
+	private static boolean intCompressRecursion(Grammar grammar) {
 		var currStart = grammar.getCurrStartProduct();
 		int size = currStart.size();
 		//grammar.Sort();
@@ -132,7 +132,7 @@ public class Sequential extends Generalizer {
 		return false;
 	}
 	
-	private static boolean mergeLastSymbol(Grammar grammar) {
+	private static boolean intMergeLastSymbol(Grammar grammar) {
 		SententialForm startProd = grammar.getCurrStartProduct();
 		int size = startProd.size();
 		if (size < 2)
@@ -185,7 +185,7 @@ public class Sequential extends Generalizer {
 	 * 
 	 * @return
 	 */
-	private static boolean findLoops(Grammar grammar) {
+	private static boolean intFindLoops(Grammar grammar) {
 		SententialForm startProd = grammar.getCurrStartProduct();
 		int size = startProd.size();
 		if (size < 2)
@@ -235,7 +235,18 @@ public class Sequential extends Generalizer {
 		Nonterminal newnt = new Nonterminal("R" + ntsCounter++);
 		ReplaceAppearances(grammar, newnt, symb1, false); // replace any appearance of the symbol with its rec representation
 		SententialForm opt1 = new SententialForm();
-		opt1.add(symb1);
+		Nonterminal symbnt = null;
+		if(symb1.getClass() == Nonterminal.class) {
+			symbnt = (Nonterminal) symb1;
+		}
+		if(symbnt != null && symbnt.ifNt) {
+			removeUnusedNt(grammar,symbnt);
+			var body = symbnt.getProductions().get(0);
+			assert(body.size() > 0);
+			opt1.addAll(body);
+		} else {
+			opt1.add(symb1);
+		}
 		// ! @TODO Merge contexts with symb2 too if they're terminals
 		SententialForm opt2 = new SententialForm(opt1);
 		opt2.add(newnt);
@@ -244,6 +255,18 @@ public class Sequential extends Generalizer {
 		newnt.add(new SententialForm()); // and an empty option
 		grammar.getNonterminals().add(newnt);
 		return newnt;
+	}
+
+	private static void removeUnusedNt(Grammar grammar, Nonterminal symbnt) {
+		int count = 0;
+		if(grammar.getCurrStartProduct().contains(symbnt)) count++;
+		for(Nonterminal nt: grammar.getNonterminals())
+			for(SententialForm sent: nt.getProductions())
+				if(sent.contains(symbnt)) count++;
+		if(count == 0) {
+			grammar.getNonterminals().remove(symbnt);
+		}
+		
 	}
 
 	private static void removeUnusedNts(Nonterminal newnt, Grammar grammar) {
@@ -340,7 +363,7 @@ public class Sequential extends Generalizer {
 		return replacedNt;
 	}
 
-	private static boolean findBlocks(Grammar grammar) {
+	private static boolean intFindBlocks(Grammar grammar) {
 		SententialForm startProd = grammar.getCurrStartProduct();
 		int size = startProd.size();
 		if (size < 2)
@@ -365,11 +388,11 @@ public class Sequential extends Generalizer {
 	}
 
 
-	/** Replaces 3 spot blocks with an if statement
+	/** internal transformer Replacing 3 spot blocks with an if or if/else statement
 	 * @param grammar
 	 * @return
 	 */
-	private static boolean findConds(Grammar grammar) {
+	private static boolean intFindConds(Grammar grammar) {
 		SententialForm startProd = grammar.getCurrStartProduct();
 		int size = startProd.size();
 		if (size < 4)
@@ -409,7 +432,7 @@ public class Sequential extends Generalizer {
 				if(midSubNt != null && (midSubNt.ifNt || midSubNt.getIsRecursive())) {
 					newnt = midSubNt;
 				} else {
-					newnt = new Nonterminal("IA" + ntsCounter++);
+					newnt = new Nonterminal("ISA" + ntsCounter++);
 					newnt.ifNt = true;
 					newnt.add(new SententialForm(sub.subList(1, 2)));
 					newnt.add(new SententialForm());
@@ -431,7 +454,7 @@ public class Sequential extends Generalizer {
 				if(midSubNt != null && (midSubNt.ifNt || midSubNt.getIsRecursive())) {
 					newnt = midSubNt;
 				} else {
-					newnt = new Nonterminal("IB" + ntsCounter++);
+					newnt = new Nonterminal("ISB" + ntsCounter++);
 					newnt.ifNt = true;
 					newnt.add(new SententialForm(startProd.subList(i+1, i+2)));
 					newnt.add(new SententialForm());
@@ -446,7 +469,7 @@ public class Sequential extends Generalizer {
 		for (int i = 0; i < size - 5; ++i) {
 			if (startProd.get(i).equals(sub.get(0)) && startProd.get(i+2).equals(sub.get(2))){
 				if(startProd.get(i+1).equals(sub.get(1))) continue; //nothing to do here
-				newnt = new Nonterminal("IE" + ntsCounter++);
+				newnt = new Nonterminal("ISE" + ntsCounter++);
 				newnt.ifElseNt = true;
 				newnt.add(new SententialForm(startProd.subList(i+1, i+2)));
 				newnt.add(new SententialForm(sub.subList(1, 2)));
@@ -479,7 +502,7 @@ public class Sequential extends Generalizer {
 						if(midSubNt != null && (midSubNt.ifNt || midSubNt.getIsRecursive())) {
 							newnt = midSubNt;
 						} else {
-							newnt = new Nonterminal("IC" + ntsCounter++);
+							newnt = new Nonterminal("INA" + ntsCounter++);
 							newnt.ifNt = true;
 							newnt.add(new SententialForm(sub.subList(1, 2)));
 							newnt.add(new SententialForm());
@@ -505,7 +528,7 @@ public class Sequential extends Generalizer {
 						if(midSubNt != null && (midSubNt.ifNt || midSubNt.getIsRecursive())) {
 							newnt = midSubNt;
 						} else {
-							newnt = new Nonterminal("ID" + ntsCounter++);
+							newnt = new Nonterminal("INB" + ntsCounter++);
 							newnt.ifNt = true;
 							newnt.add(new SententialForm(prod.subList(j+1, j+2)));
 							newnt.add(new SententialForm());
@@ -539,7 +562,7 @@ public class Sequential extends Generalizer {
 							if(ns != null && ns.ifElseNt) {
 								newnt = ns;
 							} else {
-								newnt = new Nonterminal("ID" + ntsCounter++);
+								newnt = new Nonterminal("INE" + ntsCounter++);
 								newnt.ifElseNt = true;
 								newnt.add(new SententialForm(prod.subList(j+1, j+2)));
 								prod.set(j+1, newnt);
@@ -557,8 +580,9 @@ public class Sequential extends Generalizer {
 		return false;
 	}
 
-	// TODO optimize by only calling this with new nonterminals
-	private static boolean tryMergeInput(Grammar grammar) {
+	// Final transformer: finding if/else cases between different start products.
+	//TODO optimize by only calling this with new nonterminals
+	private static boolean finalMergeInput(Grammar grammar) {
 		for(SententialForm prod1 : grammar.getStartProduct()) {
 			for(SententialForm prod2 : grammar.getStartProduct()) {
 				if(prod1 == prod2) continue;
@@ -617,28 +641,9 @@ public class Sequential extends Generalizer {
 		boolean eqLen = prod2.size() == prod1.size();
 		//handle at least one selective nonterminal in prod2
 		if(prod1.get(mismatchIndex).getClass() == Nonterminal.class) {
-			Nonterminal nt =  (Nonterminal) prod1.get(mismatchIndex);
-			if(nt.getIsSelective()) { // if its selective - add the prod2 to it
-				if(eqLen) {
-					nt.add(prod2.subList(mismatchIndex, mismatchIndex+1));
-					prod2.set(mismatchIndex, nt);
-				} else { //gotta check for epsilon
-					nt.add(new SententialForm());
-					if(prod2.size() == mismatchIndex) {
-						prod2.add(nt);
-					} else {
-						prod2.add(mismatchIndex, nt);
-					}
-				}
-				return;
-			} else if (nt.getIsRecursive() && !eqLen) { //if its recursive - insert it in the mismatch place.
-				if(prod2.size() == mismatchIndex) {
-					prod2.add(nt);
-				} else {
-					prod2.add(mismatchIndex, nt);
-				}
-				return;
-			}
+			if(mergeSelective(prod1, prod2, mismatchIndex)) return;
+		} else if (eqLen && prod2.get(mismatchIndex).getClass() == Nonterminal.class) {
+			if(mergeSelective(prod2, prod1, mismatchIndex)) return;
 		}
 		//handle two distinct interchangable blocks
 		Nonterminal newnt = new Nonterminal("C" + ntsCounter++);
@@ -646,9 +651,11 @@ public class Sequential extends Generalizer {
 		newnt.add(new SententialForm(prod1.subList(mismatchIndex, mismatchIndex+1)));
 		prod1.set(mismatchIndex, newnt);
 		if(eqLen) {
+			newnt.ifElseNt = true;
 			newnt.add(new SententialForm(prod2.subList(mismatchIndex, mismatchIndex+1)));
 			prod2.set(mismatchIndex, newnt);
 		} else { //means prod2 is longer, gotta add into prod1
+			newnt.ifNt = true;
 			newnt.add(new SententialForm());
 			if(prod2.size() == mismatchIndex) {
 				prod2.add(newnt);
@@ -658,6 +665,40 @@ public class Sequential extends Generalizer {
 		}
 
 		grammar.getNonterminals().add(newnt);
+	}
+
+	private static boolean mergeSelective(SententialForm prod1, SententialForm prod2, int mismatchIndex) {
+		boolean eqLen = prod2.size() == prod1.size();
+		Nonterminal nt =  (Nonterminal) prod1.get(mismatchIndex);
+		if(nt.getIsSelective()) { // if its selective - add the prod2 to it
+			if(eqLen) {
+				nt.add(prod2.subList(mismatchIndex, mismatchIndex+1));
+				prod2.set(mismatchIndex, nt);
+			} else { //gotta check for epsilon
+				nt.add(new SententialForm());
+				if(prod2.size() == mismatchIndex) {
+					prod2.add(nt);
+				} else {
+					prod2.add(mismatchIndex, nt);
+				}
+			}
+			return true;
+		} else if (nt.getIsRecursive() && !eqLen) { //if its recursive - insert it in the mismatch place.
+			if(prod2.size() == mismatchIndex) {
+				prod2.add(nt);
+			} else {
+				prod2.add(mismatchIndex, nt);
+			}
+			return true;
+		} else if (nt.getIsRecursive() && eqLen) { //if its recursive - check for unidentified body.
+			for(SententialForm sent: nt.RecBody()) {
+				if(sent.equals(prod2.subList(mismatchIndex, mismatchIndex + 1))) {
+					prod2.set(mismatchIndex, nt);
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -722,7 +763,7 @@ public class Sequential extends Generalizer {
 	public void endWord() {
 		/**/boolean ret;
 		do{
-			ret = tryMergeInput(grammar);
+			ret = finalMergeInput(grammar);
 		} while(ret);
 		List<SententialForm> prods = grammar.getStart().getProductions();
 		List<SententialForm> sub = prods.subList(0, prods.size() - 1);

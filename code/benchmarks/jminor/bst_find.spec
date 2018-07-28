@@ -61,4 +61,14 @@ find(root:Node, val:int) -> (res:Node) {
     -> t = t.right;
     -> res = t;
   }
+  
+  example {
+    [root==o1 && o1.left==o2 && o2.left==o3 &&
+     o1.d==4 && o2.d==3 && o3.d==2 && 
+     val==2] 
+	-> t = root;
+    -> t = t.left;
+    -> t = t.left;
+    -> res = t;
+  }
 }

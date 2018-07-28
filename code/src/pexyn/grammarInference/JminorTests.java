@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.commons.configuration2.Configuration;
@@ -72,17 +73,11 @@ class JminorTrace extends ArrayList<OperatorString>{
 public class JminorTests {
 		protected final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
-	private static final String OUTPUT_DIR_KEY = "pexyn.outputDir";
 	private static final String PROPERTIES_FILE_NAME = "pexyn.properties";
 
 	private String outputDirPath = null;
 
 	private Timer inferrenceTime = new Timer();
-	private Timer planningTime = new Timer();
-
-	private File logFile = null;
-	private String logFilePath = null;
-
 	private JminorDebugger debugger = null;
 
 	private Configuration config = null;
@@ -115,6 +110,7 @@ public class JminorTests {
 	 * Starts the ball rolling.
 	 */
 	public void run() {
+		logger.setLevel(Level.OFF);
 		var configs = new Configurations();
 		try {
 			config = configs.properties(new File(PROPERTIES_FILE_NAME));
@@ -122,13 +118,26 @@ public class JminorTests {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		//var files = Arrays.asList("factorial.spec", "fibonacci.spec");
-		var files = Arrays.asList("bst_find.spec", "factorial.spec", "fibonacci.spec",
+		var allFiles = Arrays.asList("bst_find.spec", "factorial.spec", "fibonacci.spec",
 				"gcd.spec", "sll_bubble_sort.spec", "sll_fill.spec", "sll_find.spec",
 				"sll_find_cycle.spec", "sll_max.spec","sll_reverse.spec",
 				"sll_reverse_merge.spec", "sqrt_fast.spec", "sqrt_slow.spec",
-				"tm_flip_bits.spec", "zune_bug.spec");/**/
-		for(String file: files) {
+				 "zune_bug.spec");/**/
+		
+		//these work perfect, should include them once in a while to check regression:
+		var otherFiles = Arrays.asList("factorial.spec", "fibonacci.spec",
+				"sll_fill.spec",
+				"sll_find_cycle.spec", "sll_max.spec","sll_reverse.spec",
+				"sqrt_slow.spec");
+		
+		var files1 = Arrays.asList("bst_find.spec",
+				"gcd.spec", "sll_bubble_sort.spec", "sll_find.spec",
+				"sll_reverse_merge.spec", "sqrt_fast.spec", 
+				 "zune_bug.spec");/**/
+		var files22 = Arrays.asList("zune_bug.spec");
+		var files12 = Arrays.asList("gcd.spec");
+		var files = Arrays.asList("sll_find.spec");
+		for(String file: allFiles) {
 			this.filename = file;
 			debugger = new JminorDebugger(config, logger, filename, outputDirPath);
 			logger.info("Synthesizer: started");
@@ -162,7 +171,7 @@ public class JminorTests {
 			for(Stmt step: example.getValue().actions()) {
 				actionTrace.add(new OperatorString(step.toString()));
 			}
-			Grammar currGrammar = x.addExample(actionTrace);
+ 			Grammar currGrammar = x.addExample(actionTrace);
 			if (!currGrammar.equals(stableGrammar)) {
 				stableGrammar = new Grammar(currGrammar);
 				stableExample = example.getKey().toString();
