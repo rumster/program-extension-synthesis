@@ -90,7 +90,7 @@ public class PETISynthesizer<StoreType extends Store, CmdType extends Cmd, Guard
 	/**
 	 * Converts examples to plans.
 	 */
-	protected Map<Example<StoreType, CmdType>, Trace<StoreType, CmdType>> genPlans(
+	public Map<Example<StoreType, CmdType>, Trace<StoreType, CmdType>> genPlans(
 			SynthesisProblem<StoreType, CmdType, GuardType> problem) {
 		var exampleToPlan = new LinkedHashMap<Example<StoreType, CmdType>, Trace<StoreType, CmdType>>();
 		for (Example<StoreType, CmdType> example : problem.examples) {
