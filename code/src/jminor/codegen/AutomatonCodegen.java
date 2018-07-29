@@ -101,8 +101,13 @@ public class AutomatonCodegen {
 		FileUtils.stringToFile(text, config.getString("pexyn.implementationDir", ".") + File.separator + classFileName);
 	}
 
+	/**
+	 * Checks whether the automaton consists of a single transition (meaning that
+	 * automaton compression successfully compressed the entire transition relation
+	 * into a single compound statement).
+	 */
 	private boolean isDegenerateAutomaton() {
-		return automaton.degree(automaton.getInitial()) == 1;
+		return automaton.getNodes().size() == 2 && automaton.degree(automaton.getInitial()) == 1;
 	}
 
 	private void renderTransitions(ST classFileST) {
