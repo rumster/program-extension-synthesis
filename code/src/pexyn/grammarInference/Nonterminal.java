@@ -35,12 +35,37 @@ public class Nonterminal extends Symbol {
 		subgraphRank = o.subgraphRank;
 	}
 
+	public void SetIfElse(SententialForm s1, SententialForm s2){
+		assert(productions.isEmpty());
+		productions.add(s1);
+		productions.add(s2);
+		selective = true;
+		ifElseNt = true;
+	}
+	public void SetIf(SententialForm s1){
+		assert(productions.isEmpty());
+		productions.add(s1);
+		productions.add(new SententialForm());
+		selective = true;
+		ifNt = true;
+	}
+	
+	public void SetRec(List<Symbol> sent){
+		productions.clear();
+		recursive = true;
+		SententialForm s2 = new SententialForm(sent);
+		s2.add(this);
+		add(sent);
+		add(s2);
+		add(new SententialForm()); 
+	}
+	
 	public String getName() {
 		// TODO Auto-generated method stub
 		return name;
 	}
 
-	public List<SententialForm> RecBody() {
+	public List<? extends List<Symbol>> RecBody() {
 		assert (recursive);
 		var body = productions.get(1).get(0);
 		if (body.getClass() == Nonterminal.class) {
@@ -56,7 +81,8 @@ public class Nonterminal extends Symbol {
 	}
 
 	public void Sort() {
-		productions.sort(productions.get(0).longestProd); // ! TODO fix this to
+		if(productions.isEmpty()) return;
+ 		productions.sort(productions.get(0).longestProd); // ! TODO fix this to
 															// be static
 	}
 
@@ -97,6 +123,7 @@ public class Nonterminal extends Symbol {
 	public SententialForm expand() { // doesnt work well with recursion -
 										// unused
 		SententialForm out = new SententialForm();
+		if(productions.isEmpty()) return out;
 		SententialForm sent = productions.get(0);
 		for (Symbol op : sent) { // for each symbol in the first product
 									// alternative
@@ -112,13 +139,16 @@ public class Nonterminal extends Symbol {
 		return out;
 	}
 
-	public int match(List<? extends Letter> scope, boolean force) {
+	public int match(List<?> scope, boolean force) {
+		//TODO continuew here, match's behavious isnt good for all cases. figure out how to change it.
+		//the recursion is fucking it up, maybe just check that seperately.
 		if (matchDepth++ > 100) {
 			// some kind of overflow. check it out.
 			System.out.println("stuck matching");
 			System.out.println(this.toString());
 			System.out.println(scope.toString());
 			System.out.println(force);
+			return -1;
 
 		}
 		Sort(); // starts with the longest sequence, should catch recursive nt's
@@ -132,22 +162,35 @@ public class Nonterminal extends Symbol {
 				continue;
 			matchlen = 0;
 			for (Symbol symb : sent) {
-				if (matchlen >= scope.size()) {
-					// this means we havent finished the nt, better choose a
-					// different prod
-					matchedAll = false;
-					break;
-				}
-				;
 				if (symb.getClass() == Nonterminal.class) {
 					Nonterminal nt = (Nonterminal) symb;
-					int subNtMatchLen = nt.match(scope.subList(matchlen, scope.size()), matchlen > 0);
+					if(nt == this && matchlen == 0 ) break; //no support for head recursion
+					int subNtMatchLen = nt.match(scope.subList(matchlen, scope.size()), matchlen > 0 || force);
 					matchedAll = subNtMatchLen != -1;
+					if(!matchedAll) {
+						if (matchlen >= scope.size()) {
+							matchedAll = false;
+							break;
+						}
+						matchedAll = scope.get(matchlen).equals(nt);
+						if(matchedAll) {
+							subNtMatchLen = 1;
+						}
+					}
 					matchlen += subNtMatchLen;
 				} else {
+					if (matchlen >= scope.size()) {
+						matchedAll = false;
+						break;
+					}
 					assert (symb.getClass() == Terminal.class);
 					Terminal t = (Terminal) symb;
-					matchedAll = scope.get(matchlen).equals(t.id);
+					var matchedObj = scope.get(matchlen);
+					if(matchedObj instanceof Letter) {
+						matchedAll = matchedObj.equals(t.id);
+					} else if (matchedObj instanceof Symbol) {
+						matchedAll = matchedObj.equals(t);
+					} else assert(false);
 					matchlen++;
 				}
 				if (!matchedAll) {
@@ -155,9 +198,10 @@ public class Nonterminal extends Symbol {
 				}
 			}
 
-			matchDepth--;
-			if (matchedAll)
+			if (matchedAll) {
+				matchDepth--;				
 				return matchlen;
+			}
 		}
 		matchDepth--;
 		return -1;

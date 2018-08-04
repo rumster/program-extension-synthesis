@@ -213,14 +213,14 @@ public class BasicTests {
 		testConvergence(BasicTests::getTwoMixedLoopsTrace);
 		System.out.println("Generating If trace");
 		testConvergence(BasicTests::getIfTrace);
-		System.out.println("Generating If Loop trace");
-		testConvergence(BasicTests::getIfLoopTrace);
 		System.out.println("Generating If/Else trace");
 		testConvergence(BasicTests::getIfElseTrace);
-		System.out.println("Generating If/Else Loop trace");
-		testConvergence(BasicTests::getIfElseLoopTrace);
 		System.out.println("Generating Switch trace");
 		testConvergence(BasicTests::getSwitchTrace);
+		System.out.println("Generating If Loop trace");
+		testConvergence(BasicTests::getIfLoopTrace);
+		System.out.println("Generating If/Else Loop trace");
+		testConvergence(BasicTests::getIfElseLoopTrace);
 		System.out.println("Generating Switch Loop trace");
 		testConvergence(BasicTests::getSwitchLoopTrace);
 		/**/

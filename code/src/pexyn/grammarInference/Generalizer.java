@@ -57,4 +57,9 @@ public abstract class Generalizer {
 	 */
 	public abstract void endWord();
 
+	@Override
+	public String toString() {
+		return grammar.toString();
+	}
+
 }

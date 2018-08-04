@@ -130,19 +130,20 @@ public class JminorTests {
 				"sll_find_cycle.spec", "sll_max.spec","sll_reverse.spec",
 				"sqrt_slow.spec");
 		
-		var files1 = Arrays.asList("bst_find.spec",
-				"gcd.spec", "sll_bubble_sort.spec", "sll_find.spec",
-				"sll_reverse_merge.spec", "sqrt_fast.spec", 
-				 "zune_bug.spec");/**/
-		var files22 = Arrays.asList("zune_bug.spec");
-		var files12 = Arrays.asList("gcd.spec");
-		var files = Arrays.asList("sll_find.spec");
-		for(String file: allFiles) {
+
+		var files = Arrays.asList("sll_reverse_merge.spec");
+		var nonstuck = Arrays.asList("bst_find.spec", "factorial.spec", "fibonacci.spec",
+				"gcd.spec", "sll_fill.spec", "sll_find.spec",
+				"sll_find_cycle.spec", "sll_max.spec","sll_reverse.spec",
+				 "zune_bug.spec", "sqrt_slow.spec", "sqrt_fast.spec"); /**/
+		
+		var stuck  = Arrays.asList("sll_bubble_sort.spec", "sll_reverse_merge.spec");/**/
+		
+		for(String file: nonstuck) {
 			this.filename = file;
 			debugger = new JminorDebugger(config, logger, filename, outputDirPath);
 			logger.info("Synthesizer: started");
 			inferrenceTime.reset();
-			//planningTime.reset();
 			try {
 				JminorProblem problem = genProblem();
 				var planner = new AStar<JmStore, Stmt>(new BasicJminorTR(problem.semantics));

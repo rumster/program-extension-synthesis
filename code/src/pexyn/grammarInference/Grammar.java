@@ -18,27 +18,8 @@ public class Grammar {
 
 	private final Comparator<Nonterminal> longestProd = new Comparator<Nonterminal>() {
 		//! @note only works on level1 recursion.
-		public int compare(Nonterminal nt1, Nonterminal nt2) {/*
-			for (SententialForm op : nt1.getProductions()) {
-				for (Symbol s : op) {
-					if (s.equals(nt2))
-						return -1000;
-				}
-			}
-			for (SententialForm op : nt2.getProductions()) {
-				for (Symbol s : op) {
-					if (s.equals(nt1))
-						return 1000;
-				}
-			}
-
-			int size1 = nt1.expand().size(), size2 = nt2.expand().size();
-			return size2 - size1;*/
+		public int compare(Nonterminal nt1, Nonterminal nt2) {
 			int diff = nt2.subgraphRank - nt1.subgraphRank;
-			if(diff == 0) {
-				int size1 = nt1.expand().size(), size2 = nt2.expand().size();
-				return size2 - size1;
-			}
 			return diff;
 		}
 		
@@ -80,6 +61,39 @@ public class Grammar {
 	public void add(Nonterminal n) {
 		assert !nonterminals.contains(n);
 		nonterminals.add(n);
+		compressRecursion(n);
+	}
+
+	public void compressRecursion() {
+		for(Nonterminal nt: getNonterminals()) {
+			compressRecursion(nt);
+		}
+		
+	}
+	public void compressRecursion(Nonterminal n) {
+		if(n.getIsRecursive()) {
+			while(ReplaceRecBody(n)) {};
+		}
+	}
+
+	private boolean ReplaceRecBody(Nonterminal nt) {
+		for(SententialForm currStart : this.getStartProduct()) {
+			int size = currStart.size();
+			for(var prod : nt.RecBody()){
+				if(prod.size() < 1 || prod.size() > size) continue;
+				for(int i= 0; i<= size-prod.size(); ++i) {
+					if(prod.equals(currStart.subList(i, i+prod.size()))) {
+						System.out.println("ReplaceRecBody: Replacing" + currStart.subList(i, i+prod.size()).toString() + "with" + nt.toString());
+						for(int j=0; j<prod.size(); ++j) {
+							currStart.remove(i);
+						}
+						currStart.add(i, nt);
+						return true;
+					}
+				}
+			}
+		}
+		return false;		
 	}
 
 	public Nonterminal getStart() {
@@ -159,4 +173,5 @@ public class Grammar {
 			return false;
 		return true;
 	}
+
 }

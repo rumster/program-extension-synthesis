@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+class CommonSentDesc{
+	int Myindx, Oindx, length;
+}
 /**
  * A sequence of symbols in a given grammar.
  * 
@@ -56,8 +59,32 @@ public class SententialForm extends ArrayList<Symbol> {
 		return super.toString();
 	}
 
-	@Override
-	public SententialForm subList(int fromIndex, int toIndex) {
-		return new SententialForm(super.subList(fromIndex, toIndex));
+	public static CommonSentDesc getLongestCommonSubstring(List<Symbol> me, List<Symbol> oth){
+		int n = me.size();
+		int m = oth.size();
+		CommonSentDesc ret = new CommonSentDesc();
+		int[][] dp = new int[m][n];
+	 
+		for(int i=0; i<m; i++){
+			for(int j=0; j<n; j++){
+				if(oth.get(i).equals(me.get(j))){
+					if(i==0 || j==0){
+						dp[i][j]=1;
+					}else{
+						dp[i][j] = dp[i-1][j-1]+1;
+					}
+	 
+					if(ret.length < dp[i][j]) {
+						ret.length= dp[i][j];
+						ret.Myindx = j;
+						ret.Oindx = i;
+					}
+					
+				}
+	 
+			}
+		}
+	 
+		return ret;
 	}
 }

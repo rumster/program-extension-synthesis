@@ -1,6 +1,7 @@
 package pexyn.grammarInference;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.function.BiPredicate;
@@ -25,7 +26,6 @@ public class Sequential extends Generalizer {
 		externalTranformers.add(Sequential::extAppendNonterminal);
 		externalTranformers.add(Sequential::extAppendTerminal);
 
-		internalTranformers.add(Sequential::intCompressRecursion);
 		internalTranformers.add(Sequential::intMergeLastSymbol);
 		internalTranformers.add(Sequential::intFindLoops);
 		internalTranformers.add(Sequential::intFindBlocks);
@@ -72,7 +72,6 @@ public class Sequential extends Generalizer {
 					transformed = true;
 					break;
 				}
-				;
 			}
 			assert (transformed);
 			checkReps();
@@ -89,12 +88,12 @@ public class Sequential extends Generalizer {
 		int matchLen = -1;
 		for (Nonterminal nt : grammar.getNonterminals()) {
 			List<? extends Letter> scope = input.getScope();
-			matchLen = nt.match(scope, false);
-			if (matchLen >= 0) {
+			matchLen = nt.match(scope, true);
+			if (matchLen > 0) {
 				grammar.getCurrStartProduct().add(nt);
 				input.index += matchLen;
 				return true;
-			}
+			} 
 		}
 		return false;
 	}
@@ -111,27 +110,6 @@ public class Sequential extends Generalizer {
 		} while (changed);
 	}
 
-	private static boolean intCompressRecursion(Grammar grammar) {
-		var currStart = grammar.getCurrStartProduct();
-		int size = currStart.size();
-		//grammar.Sort();
-		for(Nonterminal nt: grammar.getNonterminals()) {
-			if(!nt.getIsRecursive()) continue;
-			for(SententialForm prod : nt.RecBody()){
-				if(prod.size() < 1 || prod.size() > size) continue;
-				if(prod.equals(currStart.subList(size-prod.size(), size))) {
-					System.out.println("Replacing" + currStart.subList(size-prod.size(), size).toString() + "with" + nt.toString());
-					for(int i=0; i<prod.size(); ++i) {
-						currStart.remove(size-prod.size());
-					}
-					currStart.add(nt);
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-	
 	private static boolean intMergeLastSymbol(Grammar grammar) {
 		SententialForm startProd = grammar.getCurrStartProduct();
 		int size = startProd.size();
@@ -165,15 +143,6 @@ public class Sequential extends Generalizer {
 				}
 			}
 		}
-		/*
-		 * for (SententialForm sent : nt.getProductions()) { Symbol lastSymbol =
-		 * sent.get(sent.size() - 1); if (lastSymbol.equals(symb)) return true; if
-		 * (lastSymbol instanceof Nonterminal) { Nonterminal lastNt = (Nonterminal)
-		 * lastSymbol; if (lastNt == nt) { // not going to slip into stackoverflow here
-		 * continue; } if (ntGeneratesSymbol(symb, lastNt)) return true;
-		 * 
-		 * } }
-		 */
 		return false;
 	}
 
@@ -233,6 +202,7 @@ public class Sequential extends Generalizer {
 
 	private static Nonterminal makeRecNt(Grammar grammar, Symbol symb1) {
 		Nonterminal newnt = new Nonterminal("R" + ntsCounter++);
+		newnt.recursive = true;
 		ReplaceAppearances(grammar, newnt, symb1, false); // replace any appearance of the symbol with its rec representation
 		SententialForm opt1 = new SententialForm();
 		Nonterminal symbnt = null;
@@ -248,12 +218,8 @@ public class Sequential extends Generalizer {
 			opt1.add(symb1);
 		}
 		// ! @TODO Merge contexts with symb2 too if they're terminals
-		SententialForm opt2 = new SententialForm(opt1);
-		opt2.add(newnt);
-		newnt.add(opt1);
-		newnt.add(opt2);
-		newnt.add(new SententialForm()); // and an empty option
-		grammar.getNonterminals().add(newnt);
+		newnt.SetRec(opt1);
+		grammar.add(newnt);
 		return newnt;
 	}
 
@@ -397,25 +363,16 @@ public class Sequential extends Generalizer {
 		int size = startProd.size();
 		if (size < 4)
 			return false;
-		ArrayList<Symbol> sub = new ArrayList<>(startProd.subList(size - 3, size));
+		List<Symbol> sub = startProd.subList(size - 3, size);
 
 		boolean ret = false;
-		ret |= findCondsInStart(sub, grammar);
-		ret |= findCondsInNts(sub, grammar);
-		if (ret) {
-			/*size = startProd.size();
-			startProd.remove(--size);
-			startProd.remove(--size);
-			startProd.add(newnt);
-			grammar.getNonterminals().add(newnt);
-			ntsCounter++;
-			removeUnusedNts(newnt, grammar); */
-		}
+		ret |= intFindCondsInStart(sub, grammar);
+		ret |= intFindCondsInNts(sub, grammar);
 		return ret;
 	}
 
 	//sub is top 3 symbols. gonna look for if cases.
-	private static boolean findCondsInStart(ArrayList<Symbol> sub, Grammar grammar) {
+	private static boolean intFindCondsInStart(List<Symbol> sub, Grammar grammar) {
 		SententialForm startProd = grammar.getCurrStartProduct();
 		int size = startProd.size();
 		if (size < 4)
@@ -433,7 +390,7 @@ public class Sequential extends Generalizer {
 					newnt = midSubNt;
 				} else {
 					newnt = new Nonterminal("ISA" + ntsCounter++);
-					newnt.ifNt = true;
+					newnt.ifNt = newnt.selective = true;
 					newnt.add(new SententialForm(sub.subList(1, 2)));
 					newnt.add(new SententialForm());
 					startProd.set(size - 2, newnt);
@@ -455,7 +412,7 @@ public class Sequential extends Generalizer {
 					newnt = midSubNt;
 				} else {
 					newnt = new Nonterminal("ISB" + ntsCounter++);
-					newnt.ifNt = true;
+					newnt.ifNt = newnt.selective = true;
 					newnt.add(new SententialForm(startProd.subList(i+1, i+2)));
 					newnt.add(new SententialForm());
 					startProd.set(i+1, newnt);
@@ -470,7 +427,7 @@ public class Sequential extends Generalizer {
 			if (startProd.get(i).equals(sub.get(0)) && startProd.get(i+2).equals(sub.get(2))){
 				if(startProd.get(i+1).equals(sub.get(1))) continue; //nothing to do here
 				newnt = new Nonterminal("ISE" + ntsCounter++);
-				newnt.ifElseNt = true;
+				newnt.ifElseNt = newnt.selective = true;
 				newnt.add(new SententialForm(startProd.subList(i+1, i+2)));
 				newnt.add(new SententialForm(sub.subList(1, 2)));
 				startProd.set(size - 2, newnt);
@@ -484,13 +441,14 @@ public class Sequential extends Generalizer {
 		return false;
 	}
 
-	private static boolean findCondsInNts(ArrayList<Symbol> sub, Grammar grammar) {
+	private static boolean intFindCondsInNts(List<Symbol> sub, Grammar grammar) {
 		SententialForm startProd = grammar.getCurrStartProduct();
 		int size = startProd.size();
 		if (size < 4)
 			return false;
 		Nonterminal newnt = null;
 		Nonterminal midSubNt = null;
+		grammar.Sort();
 		//first look: case where sub contains block A inside the "if":
 		for (int i = 0; i < grammar.getNonterminals().size(); ++i) {
 			Nonterminal nt = grammar.getNonterminals().get(i);
@@ -507,9 +465,9 @@ public class Sequential extends Generalizer {
 							newnt.add(new SententialForm(sub.subList(1, 2)));
 							newnt.add(new SententialForm());
 							startProd.set(size - 2, newnt);
+							grammar.add(newnt);
 						}
 						prod.add(j+1, newnt);
-						grammar.add(newnt);
 						return true;
 					}
 				}
@@ -563,58 +521,23 @@ public class Sequential extends Generalizer {
 								newnt = ns;
 							} else {
 								newnt = new Nonterminal("INE" + ntsCounter++);
-								newnt.ifElseNt = true;
+								newnt.ifElseNt = newnt.selective = true;
 								newnt.add(new SententialForm(prod.subList(j+1, j+2)));
 								prod.set(j+1, newnt);
 								grammar.add(newnt);
 							}
 						}
 						newnt.add(new SententialForm(sub.subList(1,2)));
-						startProd.set(size - 2, newnt);
+						startProd.set(size - 2, newnt); //im looking at the latest 3 symbols, found a match , might as well replace them.
+						//sub.clear();
+						//sub.add(nt);
+						grammar.compressRecursion();
 						return true;
 					}
 				}
 			}
 		}
 
-		return false;
-	}
-
-	// Final transformer: finding if/else cases between different start products.
-	//TODO optimize by only calling this with new nonterminals
-	private static boolean finalMergeInput(Grammar grammar) {
-		for(SententialForm prod1 : grammar.getStartProduct()) {
-			for(SententialForm prod2 : grammar.getStartProduct()) {
-				if(prod1 == prod2) continue;
-				int diff = prod2.size() - prod1.size(); 
-				if(Math.abs(diff) > 1) continue;
-				int mismatchIndex = -1;
-				int k=0;
-				for(; k< prod1.size(); k++) {
-					if(prod2.size() == k && mismatchIndex == -1) {
-						mismatchIndex = k;
-						break;
-					}
-					if(prod1.get(k).equals(prod2.get(k + (mismatchIndex!=-1 ? diff : 0) ))) continue;
-					else {
-						if(mismatchIndex != -1) {
-							mismatchIndex = -1;
-							break; //this has two many mismatches, gonna stop trying.
-						}
-						mismatchIndex = k;
-						if(diff > 0) k--;
-					}
-				}
-				if(mismatchIndex == -1) continue;
-				if(diff > 0) {
-					ReplaceIfElse(grammar, prod2 ,prod1, mismatchIndex);					
-				}else {
-					ReplaceIfElse(grammar, prod1, prod2, mismatchIndex);
-				}
-				//ReplaceAppearances(grammar, nt1, nt2, true);
-				return true;
-			}
-		}
 		return false;
 	}
 
@@ -636,64 +559,53 @@ public class Sequential extends Generalizer {
 		if(s1.equals(s2)) grammar.getNonterminals().remove(s2);
 	}
 
-	//prod1.size >= prod2.size()
-	private static void ReplaceIfElse(Grammar grammar, SententialForm prod1, SententialForm prod2, int mismatchIndex) {
-		boolean eqLen = prod2.size() == prod1.size();
-		//handle at least one selective nonterminal in prod2
-		if(prod1.get(mismatchIndex).getClass() == Nonterminal.class) {
-			if(mergeSelective(prod1, prod2, mismatchIndex)) return;
-		} else if (eqLen && prod2.get(mismatchIndex).getClass() == Nonterminal.class) {
-			if(mergeSelective(prod2, prod1, mismatchIndex)) return;
-		}
-		//handle two distinct interchangable blocks
-		Nonterminal newnt = new Nonterminal("C" + ntsCounter++);
-		newnt.selective = true;
-		newnt.add(new SententialForm(prod1.subList(mismatchIndex, mismatchIndex+1)));
-		prod1.set(mismatchIndex, newnt);
-		if(eqLen) {
-			newnt.ifElseNt = true;
-			newnt.add(new SententialForm(prod2.subList(mismatchIndex, mismatchIndex+1)));
-			prod2.set(mismatchIndex, newnt);
-		} else { //means prod2 is longer, gotta add into prod1
-			newnt.ifNt = true;
-			newnt.add(new SententialForm());
-			if(prod2.size() == mismatchIndex) {
-				prod2.add(newnt);
-			} else {
-				prod2.add(mismatchIndex, newnt);
-			}
-		}
 
-		grammar.getNonterminals().add(newnt);
-	}
-
-	private static boolean mergeSelective(SententialForm prod1, SententialForm prod2, int mismatchIndex) {
-		boolean eqLen = prod2.size() == prod1.size();
-		Nonterminal nt =  (Nonterminal) prod1.get(mismatchIndex);
+	private static boolean finalHandleNtMismatch(Grammar grammar, List<Symbol> list, List<Symbol> list2) {
+		boolean eqLen = list2.size() == list.size();
+		Nonterminal nt =  (Nonterminal) list.get(0);
 		if(nt.getIsSelective()) { // if its selective - add the prod2 to it
 			if(eqLen) {
-				nt.add(prod2.subList(mismatchIndex, mismatchIndex+1));
-				prod2.set(mismatchIndex, nt);
+				nt.add(list2.subList(0, 1));
+				list2.set(0, nt);
 			} else { //gotta check for epsilon
 				nt.add(new SententialForm());
-				if(prod2.size() == mismatchIndex) {
-					prod2.add(nt);
+				if(list2.size() == 0) {
+					list2.add(nt);
 				} else {
-					prod2.add(mismatchIndex, nt);
+					list2.add(0, nt);
 				}
 			}
 			return true;
 		} else if (nt.getIsRecursive() && !eqLen) { //if its recursive - insert it in the mismatch place.
-			if(prod2.size() == mismatchIndex) {
-				prod2.add(nt);
+			if(list2.size() == 0) {
+				list2.add(nt);
+				grammar.compressRecursion(nt);
 			} else {
-				prod2.add(mismatchIndex, nt);
+				for(var sent: nt.RecBody()) {
+					if(nt == list2.get(0) && nt == list2.get(list2.size()-1)) {
+						if(finalListsMergeWrapper(grammar, sent, list2.subList(1, list2.size()-1))) {
+							nt.SetRec(sent);
+							list2.clear();
+							list2.add(nt);
+							grammar.compressRecursion(nt);
+							return true;
+						}
+					}
+					if(finalListsMergeWrapper(grammar, sent, list2)) {
+						list2.clear();
+						list2.add(nt);
+						grammar.compressRecursion(nt);
+						return true;
+					}
+				}
+				return false;
 			}
 			return true;
 		} else if (nt.getIsRecursive() && eqLen) { //if its recursive - check for unidentified body.
-			for(SententialForm sent: nt.RecBody()) {
-				if(sent.equals(prod2.subList(mismatchIndex, mismatchIndex + 1))) {
-					prod2.set(mismatchIndex, nt);
+			for(var sent: nt.RecBody()) {
+				if(sent.equals(list2.subList(0, 1))) {
+					list2.set(0, nt);
+					grammar.compressRecursion(nt);
 					return true;
 				}
 			}
@@ -761,14 +673,236 @@ public class Sequential extends Generalizer {
 
 	@Override
 	public void endWord() {
-		/**/boolean ret;
+		List<SententialForm> prods = grammar.getStart().getProductions();
+		boolean ret;
 		do{
+			List<SententialForm> sub = prods.subList(0, prods.size() - 1);
+			sub.remove(startProd); //a sublist isnt a copy. when removing startProd from sub we remove duplicates.
+			//ret = finalMergeSymbol(grammar);
 			ret = finalMergeInput(grammar);
 		} while(ret);
-		List<SententialForm> prods = grammar.getStart().getProductions();
-		List<SententialForm> sub = prods.subList(0, prods.size() - 1);
-		sub.remove(startProd);
 		startProd = null;
+	}
+
+	// Final transformer: finding if/else cases between different start products.
+	//TODO optimize by only calling this with new nonterminals
+	/*private static boolean finalMergeSymbol(Grammar grammar) {
+		for(SententialForm prod1 : grammar.getStartProduct()) {
+			for(SententialForm prod2 : grammar.getStartProduct()) {
+				if(prod1 == prod2) continue;
+				int diff = prod2.size() - prod1.size(); 
+				if(Math.abs(diff) > 1) continue;
+				int mismatchIndex = -1;
+				int k=0;
+				for(; k< prod1.size(); k++) {
+					if(prod2.size() == k && mismatchIndex == -1) {
+						mismatchIndex = k;
+						break;
+					}
+					if(prod1.get(k).equals(prod2.get(k + (mismatchIndex!=-1 ? diff : 0) ))) continue;
+					else {
+						if(mismatchIndex != -1) {
+							mismatchIndex = -1;
+							break; //this has two many mismatches, gonna stop trying.
+						}
+						mismatchIndex = k;
+						if(diff > 0) k--;
+					}
+				}
+				if(mismatchIndex == -1) continue;
+				if(diff > 0) {
+					handleNtMismatch(grammar, prod2.subList(mismatchIndex, mismatchIndex + 1) ,prod1.subList(mismatchIndex, mismatchIndex - diff + 1));					
+				}else {
+					handleNtMismatch(grammar, prod1.subList(mismatchIndex, mismatchIndex + 1) ,prod2.subList(mismatchIndex, mismatchIndex - diff + 1));					
+				}
+				//ReplaceAppearances(grammar, nt1, nt2, true);
+				return true;
+			}
+		}
+		return false;
+	}*/
+
+	private static boolean finalMergeInput(Grammar grammar) {
+		var startprods = grammar.getStartProduct();
+		if (startprods.size() < 2) return false;
+		if(startprods.size() > 2) {
+			System.out.println("Got more than two unconvergable inputs. gonna try merging the latter two");
+		};
+		var oldProd = startprods.get(startprods.size()-2);
+		var newProd = startprods.get(startprods.size()-1);
+		if(oldProd.equals(newProd)) return false;
+		return finalListsMergeWrapper(grammar, newProd, oldProd);
+	}
+	
+	private static boolean finalListsMergeWrapper(Grammar grammar, 
+			List<Symbol> newProd, List<Symbol>  oldProd) {
+		int start =0, end =0, minsize = Math.min(oldProd.size(), newProd.size());
+		while(start < minsize && newProd.get(start).equals(oldProd.get(start))) {
+			start++;
+		}
+		while(end < minsize && newProd.get(newProd.size() - 1 - end).equals(oldProd.get(oldProd.size() - 1 - end))) {
+			end++;
+		}
+		if(start == minsize || end == minsize) return true;
+		if(start + end > minsize) { //this is the case of an "if" inside the already inferred loop.
+			start--;
+			end--;
+			assert(start+end < minsize);
+		}
+		return finalMergeProds(grammar, newProd.subList(start, newProd.size() - end), oldProd.subList(start, oldProd.size() - end));
+	}
+
+	private static boolean finalMergeProds(Grammar grammar, List<Symbol> list, List<Symbol> list2) {
+		if(list.isEmpty() && list2.isEmpty()) return false;
+		CommonSentDesc res = SententialForm.getLongestCommonSubstring(list, list2);
+
+		if(list.containsAll(list2) && list2.containsAll(list)){ //ifelse variation here
+			return finalMakeIfElseLoop(grammar, list, list2);
+		}
+		if(list.size() <= 2 || list2.size() <= 2 || res.length == 0) { // call on transformers like if/else loop finders
+			if(list.size() == 1 && list.get(0).getClass() == Nonterminal.class) {
+				if(finalCheckIfElseLoop(grammar, list, list2)) return true;
+				if(finalCheckGeneration(grammar, list,list2)) return true;
+				if(finalHandleNtMismatch(grammar, list,list2)) return true;
+			}
+			if(list2.size() == 1 && list2.get(0).getClass() == Nonterminal.class) {
+				if(finalCheckIfElseLoop(grammar, list2, list)) return true;		
+				if(finalCheckGeneration(grammar, list2,list)) return true;	
+				if(finalHandleNtMismatch(grammar, list2,list)) return true;	
+			}
+			if(list.size() == 1 && list2.size() <= 1) {
+				if(handleSymbMismatch(grammar, list,list2)) return true;
+			}
+			if(list.size() == 0 && list2.size() == 1) {
+				if(handleSymbMismatch(grammar, list2,list)) return true;
+			}
+			if(list.size() == 2 && list2.size() == 2) {
+				//check for if/else loop
+				if(list.get(0).equals(list2.get(1)) && list.get(1).equals(list2.get(0))) {
+					// TODO gcd is stuck endless loop, theres r2 blocking this call from happening. change rec to ifelse loop.
+					finalCreateIfElseLoop(grammar, list,list2);
+				}
+			}
+			if(list.size() == 0 || list2.size() == 0) {
+				Nonterminal newnt = new Nonterminal("E" + ntsCounter++);
+				if(list.size() > 0) {
+					newnt.SetIf(new SententialForm(list));
+					list.clear();
+				} else if(list2.size() > 0){
+					newnt.SetIf(new SententialForm(list2));
+					list2.clear();
+				} else {
+					return false; //base case: both empty, nothing to merge.
+				}
+				list.add(newnt);
+				list2.add(newnt);
+				grammar.add(newnt);
+				return true;
+				
+			}
+
+			System.out.println("Couldnt find how to merge two start products.");
+			if(res.length == 0) return false;
+		}
+		boolean ret = false;
+		ret |= finalMergeProds(grammar, list.subList(res.Myindx+1, list.size()), list2.subList(res.Oindx+1, list2.size()));
+		ret |= finalMergeProds(grammar, list.subList(0, res.Myindx - res.length + 1), list2.subList(0, res.Oindx - res.length + 1));
+		return ret;
+	}
+
+
+	//list.size() ==1, list2.size()<=1
+	private static boolean handleSymbMismatch(Grammar grammar, List<Symbol> list, List<Symbol> list2) {
+		boolean eqLen = list.size() == list2.size();
+		Nonterminal newnt = new Nonterminal("C" + ntsCounter++);
+		var sent1 = new SententialForm(list);
+		if(eqLen) {
+			var sent2 = new SententialForm(list2);
+			newnt.SetIfElse(sent1, sent2);
+			list2.set(0, newnt);
+		} else { //means prod2 is longer, gotta add into prod1
+			newnt.SetIf(sent1);
+			list2.add(newnt);
+		}
+		list.set(0, newnt);
+
+		grammar.getNonterminals().add(newnt);
+		return true;
+	}
+
+	//list.size() is 1
+	private static boolean finalCheckGeneration(Grammar grammar, List<Symbol> list, List<Symbol> list2) {
+			var nt = (Nonterminal)list.get(0) ;
+			if(nt.match(list2, true) == list2.size()){
+				list2.clear();
+				list2.add(nt);		
+				return true;
+			}
+		return false;
+	}
+
+	//we already know list and list2 contain the same symbols. 
+	//Gonna check for existence of recursive nonterminal and add to it.
+	//otherwise put all of it in a new nonterminal.
+	private static boolean finalMakeIfElseLoop(Grammar grammar, List<Symbol> list, List<Symbol> list2) {
+		//checking for nt, gonna assume only first or last can be nonterminals.:
+		Nonterminal nt = null;
+		if(list.get(0).getClass() == Nonterminal.class) {
+			nt = (Nonterminal) list.get(0);
+		} else if (list.get(list.size()-1).getClass() == Nonterminal.class) {
+			nt = (Nonterminal) list.get(list.size()-1);
+		} else {
+			assert(false);
+		}
+		assert(nt.getIsRecursive());
+		list2.remove(nt);
+		for(var sent: nt.RecBody()) {
+			if(finalListsMergeWrapper(grammar, sent, list2)) {
+				if(nt.getProductions().get(0).get(0) != nt.getProductions().get(1).get(0)) {
+					nt.SetRec(sent);
+				}
+				list2.clear();
+				list.clear();
+				list2.add(nt);
+				list.add(nt);
+				grammar.compressRecursion(nt);
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
+	//list.size() is 1
+	private static boolean finalCheckIfElseLoop(Grammar grammar, List<Symbol> list, List<Symbol> list2) {
+			var nt = (Nonterminal)list.get(0) ;
+			if(nt.ifNt) {
+				SententialForm prod = new SententialForm(nt.getProductions().get(0));
+				if(prod.containsAll(list2) && list2.containsAll(prod)) { //if list1 is (a,b|eps) and list2 is (b,a), this creates (a|b)*
+					finalCreateIfElseLoop(grammar, list, list2);
+					grammar.getNonterminals().remove(nt);
+					return true;
+				}
+			}
+		
+		return false;
+	}
+
+	private static void finalCreateIfElseLoop(Grammar grammar, List<Symbol> list, List<Symbol> list2) {
+		//create ifelse nt in a loop - everything in prod
+		Nonterminal newnt = new Nonterminal("F" + ntsCounter++);
+		newnt.ifElseNt = newnt.selective = true;
+		for(int i=0; i< list2.size(); ++i) {
+			newnt.add(list2.subList(i, i+1));
+		}
+		grammar.add(newnt);
+		Nonterminal newnt2 = new Nonterminal("FR" + ntsCounter++);
+		newnt2.SetRec(new SententialForm(Arrays.asList(newnt)));
+		list.clear();
+		list2.clear();
+		list.add(newnt2);
+		list2.add(newnt2);
+		grammar.add(newnt2);
 	}
 
 	private void newStartProd() {
