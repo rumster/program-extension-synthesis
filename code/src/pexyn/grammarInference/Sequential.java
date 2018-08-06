@@ -674,59 +674,29 @@ public class Sequential extends Generalizer {
 	@Override
 	public void endWord() {
 		List<SententialForm> prods = grammar.getStart().getProductions();
+		List<SententialForm> sub = prods.subList(0, prods.size() - 1);
+		sub.remove(startProd); //a sublist isnt a copy. when removing startProd from sub we remove duplicates.
+		startProd = null;
+	}
+	
+	//returns whether convergence successful or not.
+	public boolean endInput() {
 		boolean ret;
+		var startprods = grammar.getStartProduct();
 		do{
-			List<SententialForm> sub = prods.subList(0, prods.size() - 1);
-			sub.remove(startProd); //a sublist isnt a copy. when removing startProd from sub we remove duplicates.
+			if(startprods.size()<2) break;
+			List<SententialForm> sub = startprods.subList(0, startprods.size() - 1);
+			sub.remove(startprods.get(startprods.size()-1)); //a sublist isnt a copy. when removing startProd from sub we remove duplicates.
 			//ret = finalMergeSymbol(grammar);
 			ret = finalMergeInput(grammar);
 		} while(ret);
-		startProd = null;
+		return startprods.size() == 1;
 	}
-
-	// Final transformer: finding if/else cases between different start products.
-	//TODO optimize by only calling this with new nonterminals
-	/*private static boolean finalMergeSymbol(Grammar grammar) {
-		for(SententialForm prod1 : grammar.getStartProduct()) {
-			for(SententialForm prod2 : grammar.getStartProduct()) {
-				if(prod1 == prod2) continue;
-				int diff = prod2.size() - prod1.size(); 
-				if(Math.abs(diff) > 1) continue;
-				int mismatchIndex = -1;
-				int k=0;
-				for(; k< prod1.size(); k++) {
-					if(prod2.size() == k && mismatchIndex == -1) {
-						mismatchIndex = k;
-						break;
-					}
-					if(prod1.get(k).equals(prod2.get(k + (mismatchIndex!=-1 ? diff : 0) ))) continue;
-					else {
-						if(mismatchIndex != -1) {
-							mismatchIndex = -1;
-							break; //this has two many mismatches, gonna stop trying.
-						}
-						mismatchIndex = k;
-						if(diff > 0) k--;
-					}
-				}
-				if(mismatchIndex == -1) continue;
-				if(diff > 0) {
-					handleNtMismatch(grammar, prod2.subList(mismatchIndex, mismatchIndex + 1) ,prod1.subList(mismatchIndex, mismatchIndex - diff + 1));					
-				}else {
-					handleNtMismatch(grammar, prod1.subList(mismatchIndex, mismatchIndex + 1) ,prod2.subList(mismatchIndex, mismatchIndex - diff + 1));					
-				}
-				//ReplaceAppearances(grammar, nt1, nt2, true);
-				return true;
-			}
-		}
-		return false;
-	}*/
-
 	private static boolean finalMergeInput(Grammar grammar) {
 		var startprods = grammar.getStartProduct();
 		if (startprods.size() < 2) return false;
 		if(startprods.size() > 2) {
-			System.out.println("Got more than two unconvergable inputs. gonna try merging the latter two");
+			//System.out.println("Got more than two unconvergable inputs. gonna try merging the latter two");
 		};
 		var oldProd = startprods.get(startprods.size()-2);
 		var newProd = startprods.get(startprods.size()-1);

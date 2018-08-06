@@ -204,7 +204,8 @@ public class BasicTests {
 
 	//@SuppressWarnings("unused")
 	public static void main(String[] args) {
-		/**/
+		/*
+		 */
 		System.out.println("Generating Loop trace");
 		testConvergence(BasicTests::getLoopTrace);
 		System.out.println("Generating Two Loops trace");
@@ -223,7 +224,8 @@ public class BasicTests {
 		testConvergence(BasicTests::getIfElseLoopTrace);
 		System.out.println("Generating Switch Loop trace");
 		testConvergence(BasicTests::getSwitchLoopTrace);
-		/**/
+		/*
+		*/
 	}
 
 	private static void testConvergence(Function<Integer, Trace> traceGen) {
@@ -243,7 +245,11 @@ public class BasicTests {
 		}
 		System.out.println("Converging trace with len=" + String.valueOf(stableLen) + " out of " + maxLen +" :");
 		System.out.println(traceGen.apply(stableLen));
+		boolean converged = x.endInput();
+		if(!converged)
+			System.err.print("CONVERGENCE FAILED");
 		System.out.print("Final grammar:");
+		stableGrammar = x.grammar;
 		System.out.println(stableGrammar.toString());
 		System.out.println("-------------------------------------------------------------\n\n");
 	}

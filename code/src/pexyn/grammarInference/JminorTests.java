@@ -131,7 +131,7 @@ public class JminorTests {
 				"sqrt_slow.spec");
 		
 
-		var files = Arrays.asList("sll_reverse_merge.spec");
+		var files = Arrays.asList("sqrt_fast.spec");
 		var nonstuck = Arrays.asList("bst_find.spec", "factorial.spec", "fibonacci.spec",
 				"gcd.spec", "sll_fill.spec", "sll_find.spec",
 				"sll_find_cycle.spec", "sll_max.spec","sll_reverse.spec",
@@ -139,7 +139,7 @@ public class JminorTests {
 		
 		var stuck  = Arrays.asList("sll_bubble_sort.spec", "sll_reverse_merge.spec");/**/
 		
-		for(String file: nonstuck) {
+		for(String file: allFiles) {
 			this.filename = file;
 			debugger = new JminorDebugger(config, logger, filename, outputDirPath);
 			logger.info("Synthesizer: started");
@@ -180,7 +180,11 @@ public class JminorTests {
 		}
 		System.out.println("Converging trace with " + stableExample + " out of " + map.size() +" :");
 		//System.out.println(traceGen.apply(stableLen));
+		boolean converged = x.endInput();
+		if(!converged)
+			System.err.print("CONVERGENCE FAILED");
 		System.out.print("Final grammar:");
+		stableGrammar = x.grammar;
 		System.out.println(stableGrammar.toString());
 		System.out.println("-------------------------------------------------------------\n\n");
 	}

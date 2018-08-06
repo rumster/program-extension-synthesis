@@ -14,7 +14,7 @@ clock(mut days:int) -> (year:int) {
   }
 
   example {
-    [days==10220] -> ...
+    [days==20220] -> ...
   }
 
   example {
