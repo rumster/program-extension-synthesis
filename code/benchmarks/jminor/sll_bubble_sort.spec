@@ -14,9 +14,6 @@ sort(mut head:SLL) -> () {
   var t:SLL
   var change:boolean
   
-//if (head == null) { 
-//  return;
-//}
 change = true;
 while (change) {
   p = null;
@@ -47,7 +44,7 @@ while (change) {
 }
 //return head;
 
-  example {
+  test example {
     [head==o0 && o0.n==o1 && o1.n==null &&
      o0.d==1 && o1.d==2] -> ...
   }
@@ -57,17 +54,17 @@ while (change) {
      o0.d==1 && o1.d==0] -> ...
   }
 
-  example {
+  test example {
     [head==o0 && o0.n==o1 && o1.n==null &&
      o0.d==0 && o1.d==1] -> ...
   }
 
-  example {
+  test example {
     [head==o0 && o0.n==o1 && o1.n==null &&
      o0.d==1 && o1.d==2] -> ...
   }
 
-  example {
+  test example {
     [head==o0 && o0.n==o1 && o1.n==o2 && o2.n==null &&
      o0.d==1 && o1.d==3 && o2.d==4] -> ...
   }
@@ -78,31 +75,31 @@ while (change) {
   }
 */  
 
-  example {
+  test example {
     [head==o0 && o0.n==null && o0.d==5] -> ...
   }
 
-  example {
+  test example {
     [head==o0 && o0.n==o1 && o1.n==o2 && o2.n==null &&
      o0.d==1 && o1.d==-2 && o2.d==3] -> ...
   }
 
-  example {
+  test example {
     [head==o0 && o0.n==o1 && o1.n==o2 && o2.n==null &&
      o0.d==1 && o1.d==2 && o2.d==3] -> ...
   }
 
-  example {
+  test example {
     [head==o0 && o0.n==o1 && o1.n==o2 && o2.n==null &&
      o0.d==3 && o1.d==2 && o2.d==1] -> ...
   }
 
-  example {
+  test example {
     [head==o0 && o0.n==o1 && o1.n==o2 && o2.n==null &&
      o0.d==3 && o1.d==1 && o2.d==2] -> ...
   }
  
-  example {
+  test example {
     [head==o0 && o0.n==o1 && o1.n==o2 && o2.n==null &&
      o0.d==1 && o1.d==3 && o2.d==2] -> ...
   }
@@ -112,12 +109,12 @@ while (change) {
      o0.d==-1 && o1.d==-3 && o2.d==-2] -> ...
   }
 
-  example {
+  test example {
     [head==o0 && o0.n==o1 && o1.n==o2 && o2.n==null &&
      o0.d==1 && o1.d==-3 && o2.d==-2] -> ...
   }
   
-  example {
+  test example {
     [head==o0 && o0.n==o1 && o1.n==o2 && o2.n==o3 && o3.n==null &&
      o0.d==1 && o1.d==2 && o2.d==3 && o3.d==4] -> ...
   }    
@@ -132,7 +129,7 @@ while (change) {
      o0.d==1 && o1.d==2 && o2.d==4 && o3.d==4] -> ...
   }    
 
-  example {
+  test example {
     [head==o0 && o0.n==o1 && o1.n==o2 && o2.n==o3 && o3.n==null &&
      o0.d==5 && o1.d==4 && o2.d==2 && o3.d==2] -> ...
   }    
