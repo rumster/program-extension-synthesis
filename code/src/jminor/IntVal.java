@@ -61,4 +61,9 @@ public class IntVal extends Val implements PrimitiveVal {
 		JminorVisitor whileVisitor = (JminorVisitor) v;
 		whileVisitor.visit(this);
 	}
+
+	@Override
+	public Type type() {
+		return IntType.v;
+	}
 }

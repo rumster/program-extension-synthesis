@@ -44,13 +44,11 @@ public class StoreUtils {
 	}
 
 	public static boolean typecheck(Var var, Val v) {
-		return (var instanceof PrimitiveVar && v instanceof PrimitiveVal)
-				|| (var instanceof RefVar && (v == null || v instanceof Obj));
+		return var instanceof RefVar && v == Obj.NULL || var.getType().equals(v.type());
 	}
 
 	public static boolean typecheck(Field field, Val v) {
-		return (field instanceof PrimitiveField && v instanceof IntVal)
-				|| (field instanceof RefField && (v == null || v instanceof Obj));
+		return field instanceof RefField && v == Obj.NULL || field.dstType.equals(v.type());
 	}
 
 	public static boolean typecheck(Field field, Obj o) {

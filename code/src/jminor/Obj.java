@@ -70,4 +70,9 @@ public class Obj extends Val {
 		}
 		return true;
 	}
+
+	@Override
+	public Type type() {
+		return type;
+	}
 }

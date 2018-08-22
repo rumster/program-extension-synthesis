@@ -97,9 +97,16 @@ public class AutomatonCodegen {
 		}
 
 		var text = classFileST.render();
+		setOutputDirectory();
 		debugger.addCodeFile(fileSuffix + "-implementation.txt", text, "A " + languageName + " implementation");
 		FileUtils.stringToFile(text, config.getString("pexyn.implementationDir", ".") + File.separator + classFileName);
 	}
+	
+	private void setOutputDirectory() {
+		var outputDirProp = config.getString("pexyn.implementationDir", "output");
+		var outputDirFile = new File(outputDirProp);
+		outputDirFile.mkdir();
+	}	
 
 	/**
 	 * Checks whether the automaton consists of a single transition (meaning that

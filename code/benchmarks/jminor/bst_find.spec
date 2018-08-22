@@ -9,7 +9,7 @@ type Node {
 /** Finds a key in a binary search tree.
  */ 
 find(root:Node, val:int) -> (res:Node) {
-  var t:Node
+  var t:Node  
 
   example {
     [root==o1 &&

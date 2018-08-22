@@ -50,28 +50,41 @@ public class Main {
 	}
 
 	public static void main(String[] args) {
-		if (args.length != 1) {
-			throw new Error("Expected a file name!");
+		if (!(1 <= args.length && args.length <= 2)) {
+			System.err.format("Error: expected between one and two arguments, got %d!\n", args.length);
+			printUsage();
+			return;
 		}
 		String filename = args[0];
+		for (int i = 1; i < args.length; ++i) {
+			String arg = args[i];
+			if (arg.equals("-quiet")) {
+				
+			}
+		}
 		Main main = new Main(filename);
 		main.run();
+	}
+	
+	public static void printUsage() {
+		System.err.println("Usage: <file> [options]");
+		System.err.println("-quiet");
 	}
 
 	public JminorProblem genProblem() {
 		JminorParser parser = new JminorParser();
 		ASTProblem root = null;
 		try {
-			System.out.print("Parsing " + filename + "... ");
+			logger.info("Parsing " + filename + "... ");
 			root = parser.parseFile(filename);
-			System.out.println("done");
+			logger.info("done");
 		} catch (Exception e) {
 			throw new Error(e.getMessage());
 		}
-		System.out.print("Compiling... ");
+		logger.info("Semantic analysis... ");
 		ProblemCompiler compiler = new ProblemCompiler(root);
 		JminorProblem problem = compiler.compile();
-		System.out.println("done");
+		logger.info("done");
 		return problem;
 	}
 
@@ -107,9 +120,10 @@ public class Main {
 			var synthesisResult = synthesizer.synthesize(problem);
 			if (synthesisResult.success()) {
 				debugger.info("PETI: found program automaton!");
-				// We have to structure _after_ testing against the test examples,
-				// since currently a command sequence is counted as an atomic
-				// command, which fails the tests.
+				// We have to structure _after_ testing against the validation examples,
+				// since restructuring would label transitions with compound statements,
+				// which would count as atomic commands, thus failing the tests,
+				// which compare traces.
 				var automaton = synthesisResult.get();
 				if (config.getBoolean("pexyn.structureResultAutomaton", false)) {
 					new AutomatonToStructuredCmd<JmStore, Stmt, BoolExpr>(

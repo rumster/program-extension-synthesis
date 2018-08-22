@@ -60,6 +60,7 @@ public class PETISynthesizer<StoreType extends Store, CmdType extends Cmd, Guard
 		exampleToPlan.forEach((example, plan) -> {
 			if (!example.isTest) {
 				trainingPlans.add(plan);
+				debugger.info("Example " + example.name + ". Plan length = " + plan.size());
 			}
 		});
 
@@ -120,7 +121,7 @@ public class PETISynthesizer<StoreType extends Store, CmdType extends Cmd, Guard
 					debugger.info("Found a plan for example " + example.name);
 				}
 			} else {
-				debugger.info("No plan for example " + example.name);
+				debugger.info("No plan for example " + example.name + " (plan exceeded maximal number of steps or infinite loop detected)!");
 				continue;
 			}
 		}

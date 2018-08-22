@@ -62,4 +62,9 @@ public class BooleanVal extends Val implements PrimitiveVal {
 		JminorVisitor whileVisitor = (JminorVisitor) v;
 		whileVisitor.visit(this);
 	}
+
+	@Override
+	public Type type() {
+		return BooleanType.v;
+	}
 }

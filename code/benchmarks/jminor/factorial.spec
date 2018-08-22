@@ -9,11 +9,6 @@ factorial(mut x:int) -> (y:int) {
   }
 
   example {
-    [x==0]
-    -> y = 1;
-  }
-  
-  example {
     [x==3]
     ->  y = 1;
     ->  y = y * x;
@@ -22,6 +17,13 @@ factorial(mut x:int) -> (y:int) {
     ->  x = x - 1;
   }
   
+  // There is no trace for the following example, but the
+  // inferred program happens to handle it correctly.
+  test example {
+    [x==0]
+    -> ...
+  }
+
   test example {
     [x==1] -> ...
   }

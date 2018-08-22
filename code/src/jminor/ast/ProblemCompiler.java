@@ -388,7 +388,7 @@ public class ProblemCompiler {
 			RefType lhsRefType = (RefType) lhsType;
 			Optional<Field> optionField = lhsRefType.findField(n.fieldName);
 			if (!optionField.isPresent()) {
-				throw new SemanticError("Attempt to dereference an unknown field!", n);
+				throw new SemanticError("Attempt to dereference an unknown field: " + n.fieldName, n);
 			}
 			Field field = optionField.get();
 			n.setType(field.dstType);
