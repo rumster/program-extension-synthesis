@@ -16,7 +16,6 @@ class OperatorLetter extends Letter {
 
 	@Override
 	public String toString() {
-		// TODO Auto-generated method stub
 		return Character.toString(letter);
 	}
 

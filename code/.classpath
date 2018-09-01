@@ -18,6 +18,6 @@
 	<classpathentry kind="lib" path="lib/smtinterpol-2.1-335-g4c543a5.jar"/>
 	<classpathentry kind="lib" path="lib/ST-4.0.8.jar"/>
 	<classpathentry kind="lib" path="lib/commons-logging-1.2.jar"/>
-	<classpathentry kind="lib" path="lib/weka.jar"/>
+	<classpathentryNOT kind="lib" path="lib/weka.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
