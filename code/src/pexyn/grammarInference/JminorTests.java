@@ -109,6 +109,7 @@ public class JminorTests {
 	/**
 	 * Starts the ball rolling.
 	 */
+	@SuppressWarnings("unused")
 	public void run() {
 		logger.setLevel(Level.OFF);
 		var configs = new Configurations();
