@@ -37,7 +37,6 @@ class OperatorString extends Letter {
 
 	@Override
 	public String toString() {
-		// TODO Auto-generated method stub
 		return str;
 	}
 
@@ -116,20 +115,20 @@ public class JminorTests {
 		try {
 			config = configs.properties(new File(PROPERTIES_FILE_NAME));
 		} catch (ConfigurationException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		var allFiles = Arrays.asList("bst_find.spec", "factorial.spec", "fibonacci.spec",
 				"gcd.spec", "sll_bubble_sort.spec", "sll_fill.spec", "sll_find.spec",
 				"sll_find_cycle.spec", "sll_max.spec","sll_reverse.spec",
 				"sll_reverse_merge.spec", "sqrt_fast.spec", "sqrt_slow.spec",
-				 "zune_bug.spec");/**/
+				 "zune_bug.spec", "bfs.spec");/**/
 		
 		//these work perfect, should include them once in a while to check regression:
-		var otherFiles = Arrays.asList("factorial.spec", "fibonacci.spec",
-				"sll_fill.spec",
+		var otherFiles = Arrays.asList("bst_find.spec", "factorial.spec", "fibonacci.spec",
+				"gcd.spec", "sll_fill.spec", "sll_find.spec",
 				"sll_find_cycle.spec", "sll_max.spec","sll_reverse.spec",
-				"sqrt_slow.spec");
+				"sll_reverse_merge.spec", "sqrt_fast.spec", "sqrt_slow.spec",
+				 "zune_bug.spec", "bfs.spec");
 		
 
 		var files = Arrays.asList("sqrt_fast.spec");
@@ -138,9 +137,9 @@ public class JminorTests {
 				"sll_find_cycle.spec", "sll_max.spec","sll_reverse.spec",
 				 "zune_bug.spec", "sqrt_slow.spec", "sqrt_fast.spec"); /**/
 		
-		var stuck  = Arrays.asList("sll_bubble_sort.spec", "sll_reverse_merge.spec");/**/
+		var stuck  = Arrays.asList("sll_reverse_merge.spec");/**/
 		
-		for(String file: allFiles) {
+		for(String file: otherFiles) {
 			this.filename = file;
 			debugger = new JminorDebugger(config, logger, filename, outputDirPath);
 			logger.info("Synthesizer: started");
@@ -183,8 +182,8 @@ public class JminorTests {
 		//System.out.println(traceGen.apply(stableLen));
 		boolean converged = x.endInput();
 		if(!converged)
-			System.err.print("CONVERGENCE FAILED");
-		System.out.print("Final grammar:");
+			System.out.println("CONVERGENCE FAILED");
+		System.out.println("Final grammar:");
 		stableGrammar = x.grammar;
 		System.out.println(stableGrammar.toString());
 		System.out.println("-------------------------------------------------------------\n\n");
