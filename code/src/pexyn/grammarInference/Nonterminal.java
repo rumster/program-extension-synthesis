@@ -61,6 +61,7 @@ public class Nonterminal extends Symbol {
 	}
 	
 	public String getName() {
+		// TODO Auto-generated method stub
 		return name;
 	}
 
@@ -81,7 +82,8 @@ public class Nonterminal extends Symbol {
 
 	public void Sort() {
 		if(productions.isEmpty()) return;
- 		productions.sort(productions.get(0).longestProd);
+ 		productions.sort(productions.get(0).longestProd); // ! TODO fix this to
+															// be static
 	}
 
 	public void add(List<Symbol> prod) {
@@ -138,6 +140,8 @@ public class Nonterminal extends Symbol {
 	}
 
 	public int match(List<?> scope, boolean force) {
+		//TODO continuew here, match's behavious isnt good for all cases. figure out how to change it.
+		//the recursion is fucking it up, maybe just check that seperately.
 		if (matchDepth++ > 100) {
 			// some kind of overflow. check it out.
 			System.out.println("stuck matching");
@@ -145,6 +149,7 @@ public class Nonterminal extends Symbol {
 			System.out.println(scope.toString());
 			System.out.println(force);
 			return -1;
+
 		}
 		Sort(); // starts with the longest sequence, should catch recursive nt's
 				// first.

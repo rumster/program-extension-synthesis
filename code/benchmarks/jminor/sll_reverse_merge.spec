@@ -29,26 +29,6 @@ merge(mut first:SLL, mut second:SLL) -> (result:SLL) {
 
   example {
     [first==a0 && a0.n==null &&
-     a0.d==2 &&
-     second==b0 && b0.n==null &&
-     b0.d==1
-    ]
-    
-    -> result=null;
-    
-    -> t=result;
-    -> result=second;
-    -> second=second.n;
-    -> result.n=t;
-    
-    -> t=result;
-    -> result=first;
-    -> first=first.n;
-    -> result.n=t;    
-  }
-  
-  example {
-    [first==a0 && a0.n==null &&
      a0.d==1 &&
      second==b0 && b0.n==null &&
      b0.d==2
@@ -67,6 +47,25 @@ merge(mut first:SLL, mut second:SLL) -> (result:SLL) {
     -> result.n=t;
   }
 
+  example {
+    [first==a0 && a0.n==null &&
+     a0.d==2 &&
+     second==b0 && b0.n==null &&
+     b0.d==1
+    ]
+    
+    -> result=null;
+    
+    -> t=result;
+    -> result=second;
+    -> second=second.n;
+    -> result.n=t;
+    
+    -> t=result;
+    -> result=first;
+    -> first=first.n;
+    -> result.n=t;    
+  }
 
   test example {
     [first==a0 && a0.n==a1 && a1.n==null &&

@@ -83,6 +83,7 @@ public class Grammar {
 				if(prod.size() < 1 || prod.size() > size) continue;
 				for(int i= 0; i<= size-prod.size(); ++i) {
 					if(prod.equals(currStart.subList(i, i+prod.size()))) {
+						System.out.println("ReplaceRecBody: Replacing" + currStart.subList(i, i+prod.size()).toString() + "with" + nt.toString());
 						for(int j=0; j<prod.size(); ++j) {
 							currStart.remove(i);
 						}
