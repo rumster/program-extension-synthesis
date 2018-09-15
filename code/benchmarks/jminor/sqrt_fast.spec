@@ -1,7 +1,7 @@
 /* Computes the integer square root of x (the square root rounded down)
  * via binary search.
  */ 
-sqrt(n:int) -> (res:int) {
+sqrtFast(n:int) -> (res:int) {
   var low:int
   var high:int
   var middle:int

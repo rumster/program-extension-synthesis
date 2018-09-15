@@ -1,7 +1,7 @@
 /* Computes the integer square root of x (the square root rounded down)
  * by linear iteration.
  */ 
-sqrt(x:int) -> (res:int) {
+sqrtSlow(x:int) -> (res:int) {
   // We need this variable to help the condition inferencer.
   var resNext:int
    

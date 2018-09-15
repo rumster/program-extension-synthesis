@@ -203,7 +203,7 @@ public class StoreUtils {
 		Set<Obj> closed = new HashSet<>();
 		while (!open.isEmpty()) {
 			Obj o = open.removeFirst();
-			if (closed.contains(o) || o == Obj.NULL)
+			if (closed.contains(o) || o == Obj.NULL || o == null)
 				continue;
 			closed.add(o);
 			result.add(o);

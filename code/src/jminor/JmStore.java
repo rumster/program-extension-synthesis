@@ -79,6 +79,13 @@ public class JmStore implements Store {
 		this.heap = heap;
 	}
 
+	public JmStore(JmStore o) {
+		this.objects = new HashSet<>(o.objects);
+		this.freeObjects = new HashSet<>(o.freeObjects);
+		this.env = new HashMap<>(o.env);
+		this.heap = new HashMap<>(o.heap);
+	}
+
 	public Map<Var, Val> getEnvMap() {
 		return env;
 	}

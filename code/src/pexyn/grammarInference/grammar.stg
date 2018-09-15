@@ -7,7 +7,7 @@ $name$ -> $productions; separator=" | "$
 >>
 
 SententialForm(productions) ::= <<
-$if(productions)$$productions; separator=" "$$else$$\u0949$$endif$
+$if(productions)$$productions; separator=" "$$else$$endif$
 >>
 
 Grammar(nonterminals) ::= <<

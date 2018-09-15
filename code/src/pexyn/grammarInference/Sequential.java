@@ -2,10 +2,23 @@ package pexyn.grammarInference;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
+
+import bgu.cs.util.rel.HashRel2;
+import jminor.BoolExpr;
+import jminor.JmStore;
+import jminor.Stmt;
+import pexyn.Semantics.Cmd;
+import pexyn.Semantics.Guard;
+import pexyn.Semantics.Store;
+import pexyn.guardInference.ConditionInferencer;
 
 /**
  * @author User
@@ -18,6 +31,7 @@ public class Sequential extends Generalizer {
 
 	ArrayList<BiPredicate<InputParseState, Grammar>> externalTranformers = new ArrayList<>();
 	ArrayList<Predicate<Grammar>> internalTranformers = new ArrayList<>();
+	private ConditionInferencer<JmStore, Stmt, BoolExpr> separator;
 
 	public Sequential() {
 		super();
@@ -780,8 +794,48 @@ public class Sequential extends Generalizer {
 			sub.remove(startprods.get(startprods.size()-1)); //a sublist isnt a copy. when removing startProd from sub we remove duplicates.
 			ret = finalMergeInput(grammar);
 		} while(ret);
+		ReshapeRec();
 		return startprods.size() == 1;
 	}
+	private void ReshapeRec() {
+		boolean again;
+		do {
+			again = false;
+			var start = grammar.getCurrStartProduct();
+			int i=0;
+			for(; i< start.size() - 1; i++) {
+				Symbol sym = start.get(i);
+				if(sym instanceof Nonterminal) {
+					Nonterminal nt= (Nonterminal) sym;
+					if(nt.getIsRecursive()) {
+						Symbol next = start.get(i+1);
+						var intSym = nt.getProductions().get(0).get(0);
+						if(intSym.equals(next)) {
+							again = true;
+							break;
+						}
+						if(intSym instanceof Nonterminal) {
+							Nonterminal intNt= (Nonterminal) intSym;
+							var intBody = intNt.getProductions().get(0);
+							if(intBody.get(0).equals(next)) {
+								intBody.remove(0);
+								intBody.add(next);
+								again = true;
+								break;
+							}
+						}
+					}
+				}
+			}
+			if(again) {
+				var temp = start.get(i);
+				start.set(i, start.get(i+1));
+				start.set(i+1, temp);
+			}
+		}while(again);
+		
+	}
+
 	private static boolean finalMergeInput(Grammar grammar) {
 		var startprods = grammar.getStartProduct();
 		if (startprods.size() < 2) return false;
@@ -875,7 +929,7 @@ public class Sequential extends Generalizer {
 		list2.remove(nt);
 		for(var sent: nt.RecBody()) {
 			if(finalListsMergeWrapper(grammar, sent, list2)) {
-				if(nt.getProductions().get(0).get(0) != nt.getProductions().get(1).get(0)) {
+				if(nt.getProductions().get(0).get(0) != nt.getProductions().get(0).get(0)) {
 					nt.SetRec(sent);
 				}
 				list2.clear();
@@ -919,7 +973,7 @@ public class Sequential extends Generalizer {
 					finalCreateIfElseLoop(grammar, list, list2);
 					if(pullOut) {
 						Nonterminal n = (Nonterminal) list.get(0);
-						n.SetRec(Arrays.asList(preTerm, n.getProductions().get(1).get(0)));
+						n.SetRec(Arrays.asList(preTerm, n.getProductions().get(0).get(0)));
 					}
 					grammar.getNonterminals().remove(nt);
 					return true;
@@ -950,5 +1004,111 @@ public class Sequential extends Generalizer {
 		grammar.getStartProduct().add(new SententialForm());
 		startProd = grammar.getCurrStartProduct();
 	}
+
+	public boolean assignGuards() {
+		assert(separator != null);
+		Map<Nonterminal, Map<Cmd, ? extends Guard>> res = new HashMap<>();
+		Set<SententialForm> set = new HashSet<>();
+		set.add(grammar.getCurrStartProduct());
+		for(Nonterminal nt: grammar.getNonterminals()) set.addAll(nt.getProductions());
+		for(Nonterminal nt: grammar.getNonterminals()) {
+			if(!(nt.recursive || nt.ifNt || nt.ifElseNt)) continue;
+			var updateToValue = new HashRel2<Cmd, Store>();
+			Map<Stmt, Set<Store>> myMap = nt.FirstStmts();
+			Map<Stmt, Set<Store>> oMap = new HashMap<Stmt, Set<Store>>();
+			for(SententialForm sent : set) {
+				for(int i=0; i<sent.size(); ++i) {
+					if(sent.get(i).equals(nt)) {
+						//look at i+1 for inference.
+						if(i<sent.size()-1) {
+							var next = sent.get(i+1);
+							if (!nt.ifElseNt) {
+								oMap.putAll(next.FirstStmts());
+								if(next instanceof Nonterminal) {
+									var nextnt = ((Nonterminal)next);
+									if((nextnt.getIsRecursive() || nextnt.ifNt) && i< sent.size()-2) {
+										oMap.putAll(sent.get(i+2).FirstStmts());
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			Stmt myStmt, oStmt = null;
+			if(nt.ifElseNt) {
+				for(Entry<Stmt, Set<Store>> pair : myMap.entrySet()) {
+					for(var store : pair.getValue()) {
+						updateToValue.add(pair.getKey(), store); //currently add all actions into the map for some reason, not by node state.
+					}
+					pair.getValue().toString();
+				}
+			} else {
+				myStmt = (Stmt)myMap.keySet().iterator().next();
+				for(Entry<Stmt, Set<Store>> pair : myMap.entrySet()) {
+					for(var store : pair.getValue()) {
+						updateToValue.add(myStmt, store); //currently add all actions into the map for some reason, not by node state.
+					}
+				}
+				oStmt = (Stmt)oMap.keySet().iterator().next();
+				for(Entry<Stmt, Set<Store>> pair : oMap.entrySet()) {
+					for(var store : pair.getValue()) {
+						updateToValue.add(oStmt, store); //currently add all actions into the map for some reason, not by node state.
+					}
+				}
+			}
+			if(updateToValue.isEmpty()) return false;
+			var optUpdateToGuard = separator.infer(updateToValue);
+			//System.out.println(nt);
+			if (!optUpdateToGuard.isPresent()) {
+				return false;
+			}
+			Map<Cmd, ? extends Guard> updateToGuard = optUpdateToGuard.get();
+			var ntGuards = nt.getGuards();
+			ntGuards.clear();
+			for(Stmt key : myMap.keySet()) {
+				for(int i=0; i<nt.getProductions().size(); i++) {
+					SententialForm prod = nt.getProductions().get(i);
+					assert(prod.size()>0);
+					var prodStmts = prod.get(0).FirstStmts();
+					if (prodStmts.keySet().contains(key)) {
+						var guard = updateToGuard.get(key);
+						if(guard!= null) ntGuards.add(i, guard);
+						break;
+					}
+				}
+			}
+
+			System.out.println(nt);
+			System.out.println(nt.getGuards().toString());
+			res.put(nt, updateToGuard);
+			//System.out.println(updateToGuard.toString());
+			
+			
+		}
+		return true;
+	}
+	
+	public Grammar addExampleStates(JminorTrace actionTrace) {
+		InputParseState input = new InputParseState(actionTrace);
+		grammar.getStart().match(input.getScope(), true);
+		return grammar;
+	}
+
+	public void setSeperator(ConditionInferencer<JmStore, Stmt, BoolExpr> separator) {
+		this.separator = separator;
+	}
+
+	public void clearStates() {
+		Set<SententialForm> set = new HashSet<>();
+		set.add(grammar.getCurrStartProduct());
+		for(Nonterminal nt: grammar.getNonterminals()) set.addAll(nt.getProductions());
+		for(SententialForm sent : set) {
+			for(int i=0; i<sent.size(); ++i) {
+				sent.get(i).states.clear();
+			}
+		}
+	}
+
 
 }

@@ -2,7 +2,14 @@ package pexyn.grammarInference;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import jminor.Stmt;
+import pexyn.Semantics.Guard;
+import pexyn.Semantics.Store;
 
 /**
  * A nonterminal symbol.
@@ -14,6 +21,7 @@ public class Nonterminal extends Symbol {
 	 * The set of right-hand sides for this nonterminal.
 	 */
 	private ArrayList<SententialForm> productions = new ArrayList<>();
+	private ArrayList<Guard> guards = new ArrayList<>();
 	private final String name;
 	boolean recursive = false;
 	boolean selective = false;
@@ -55,7 +63,7 @@ public class Nonterminal extends Symbol {
 		recursive = true;
 		SententialForm s2 = new SententialForm(sent);
 		s2.add(this);
-		add(sent);
+		//add(sent);
 		add(s2);
 		add(new SententialForm()); 
 	}
@@ -66,11 +74,12 @@ public class Nonterminal extends Symbol {
 
 	public List<? extends List<Symbol>> RecBody() {
 		assert (recursive);
-		var body = productions.get(1).get(0);
+		Sort();
+		var body = productions.get(0).get(0);
 		if (body.getClass() == Nonterminal.class) {
 			return ((Nonterminal) body).getProductions();
 		}
-		return Arrays.asList(productions.get(1).subList(0, 1));
+		return Arrays.asList(productions.get(0).subList(0, 1));
 
 	}
 
@@ -137,6 +146,7 @@ public class Nonterminal extends Symbol {
 		return out;
 	}
 
+	// TODO CONTINUE WORKING ON MATCH: STATE-CAPTURING DOESNT WORK WELL
 	public int match(List<?> scope, boolean force) {
 		if (matchDepth++ > 100) {
 			// some kind of overflow. check it out.
@@ -172,6 +182,12 @@ public class Nonterminal extends Symbol {
 							subNtMatchLen = 1;
 						}
 					}
+					/*if(matchedAll && matchlen < scope.size()) {
+						var matchedObj = scope.get(matchlen);
+						if(matchedObj instanceof Letter) {
+							nt.states.add(((Letter)matchedObj).state);
+						}
+					}*/
 					matchlen += subNtMatchLen;
 				} else {
 					if (matchlen >= scope.size()) {
@@ -183,8 +199,12 @@ public class Nonterminal extends Symbol {
 					var matchedObj = scope.get(matchlen);
 					if(matchedObj instanceof Letter) {
 						matchedAll = matchedObj.equals(t.id);
+						if(matchedAll)
+							t.states.add(((Letter)matchedObj).state);
 					} else if (matchedObj instanceof Symbol) {
 						matchedAll = matchedObj.equals(t);
+						if(matchedAll) 
+							t.states.addAll(((Symbol)matchedObj).states);
 					} else assert(false);
 					matchlen++;
 				}
@@ -241,6 +261,35 @@ public class Nonterminal extends Symbol {
 			}
 		}
 		return true;
+	}
+
+	@Override
+	public Set<Store> states() {
+		if(getIsRecursive()) {
+		}
+		return null;
+	}
+
+	@Override
+	Map<Stmt, Set<Store>> FirstStmts() {
+		var map = new HashMap<Stmt, Set<Store>>();
+		for(SententialForm prod: getProductions()) {
+			if(prod.size()>0) {
+				Symbol first = prod.get(0);
+				map.putAll(first.FirstStmts());
+				/*if(first instanceof Nonterminal) {
+					Nonterminal ntf = (Nonterminal) first;
+					if(ntf.recursive && prod.size()>1) {
+						map.putAll(prod.get(1).FirstStmts());
+					}
+				}*/
+			}
+		}
+		return map;
+	}
+
+	public ArrayList<Guard> getGuards() {
+		return guards;
 	}
 
 }
