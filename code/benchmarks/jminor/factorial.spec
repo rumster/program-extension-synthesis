@@ -3,7 +3,7 @@
  */
 factorial(mut x:int) -> (y:int) {
   y = 1;
-  while (x != 1) {
+  while (x != 0 && x != 1) {
     y = y * x;
     x = x - 1;
   }
@@ -17,8 +17,6 @@ factorial(mut x:int) -> (y:int) {
     ->  x = x - 1;
   }
   
-  // There is no trace for the following example, but the
-  // inferred program happens to handle it correctly.
   test example {
     [x==0]
     -> ...
