@@ -20,7 +20,7 @@ merge(mut first:SLL, mut second:SLL) -> (result:SLL) {
     result.n = t; 
   }
 
-  test example {
+  example {
     [first==a0 && a0.n==null &&
      a0.d==1 &&
      second==a0

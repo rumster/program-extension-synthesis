@@ -2,7 +2,6 @@ package pexyn.grammarInference;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -33,34 +32,21 @@ import pexyn.guardInference.DTreeInferencer;
 import pexyn.planning.AStar;
 
 
-class JminorTrace extends ArrayList<StmtLetter>{
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-
-}
-
 /**
  * Synthesizes programs from a heap-format specification file.
  * 
  * @author romanm
  */
-public class JminorTests {
-		protected final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
-
+public class Main {
+	protected final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
 	private static final String OUTPUT_DIR_KEY = "pexyn.outputDir";
 	private static final String PROPERTIES_FILE_NAME = "pexyn.properties";
 
 	private String outputDirPath = null;
 
-
-
 	private File logFile = null;
 	private String logFilePath = null;
-	
 	
 	private Timer inferrenceTime = new Timer();
 	private JminorDebugger debugger = null;
@@ -68,9 +54,23 @@ public class JminorTests {
 	private Configuration config = null;
 
 	private String filename;
+	public String[] filenames;
+	
+	public Main(String[] args) {
+		this.filenames = args;
+	}
 
+	public static void printUsage() {
+		System.err.println("Usage: <files>");
+	}
+	
 	public static void main(String[] args) {
-		JminorTests main = new JminorTests();
+		if (args.length < 1) {
+			System.err.format("Error: expected at least one arguement, got 0");
+			printUsage();
+			return;
+		}
+		Main main = new Main(args);
 		main.run();
 	}
 
@@ -78,23 +78,22 @@ public class JminorTests {
 		JminorParser parser = new JminorParser();
 		ASTProblem root = null;
 		try {
-			System.out.print("Parsing " + filename + "... ");
+			logger.info("Parsing " + filename + "... ");
 			root = parser.parseFile(filename);
-			System.out.println("done");
+			logger.info("done");
 		} catch (Exception e) {
 			throw new Error(e.getMessage());
 		}
-		System.out.print("Compiling... ");
+		logger.info("Compiling... ");
 		ProblemCompiler compiler = new ProblemCompiler(root);
 		JminorProblem problem = compiler.compile();
-		System.out.println("done");
+		logger.info("done");
 		return problem;
 	}
 
 	/**
 	 * Starts the ball rolling.
 	 */
-	@SuppressWarnings("unused")
 	public void run() {
 		//logger.setLevel(Level.OFF);
 		var configs = new Configurations();
@@ -108,39 +107,15 @@ public class JminorTests {
 			logger.severe("Initialization failed: unable to load " + PROPERTIES_FILE_NAME + "!");
 			return;
 		}
-		var allFiles = Arrays.asList("bst_find.spec", "factorial.spec", "fibonacci.spec",
-				"gcd.spec", "sll_bubble_sort.spec", "sll_fill.spec", "sll_find.spec",
-				"sll_find_cycle.spec", "sll_max.spec","sll_reverse.spec",
-				"sll_reverse_merge.spec", "sqrt_fast.spec", "sqrt_slow.spec",
-				 "zune_bug.spec", "bfs.spec");/**/
-		
-		//these work perfect, should include them once in a while to check regression:
-		var otherFiles = Arrays.asList("bst_find.spec", "factorial.spec", "fibonacci.spec",
-				"gcd.spec", "sll_fill.spec", "sll_find.spec",
-				"sll_find_cycle.spec", "sll_max.spec","sll_reverse.spec",
-				"sll_reverse_merge.spec", "sqrt_fast.spec", "sqrt_slow.spec",
-				 "zune_bug.spec", "bfs.spec");
-		
-
-		var files = Arrays.asList("sqrt_fast.spec");
-		var problemFiles = Arrays.asList("bst_find.spec",
-				"sll_max.spec","sll_reverse.spec",
-				"sll_reverse_merge.spec", "sqrt_fast.spec", "sqrt_slow.spec",
-				 "zune_bug.spec", "bfs.spec"); /**/
-		
-		var stuck  = Arrays.asList("sll_max.spec");/**/
-		
-
 		setOutputDirectory();
 		debugger = new JminorDebugger(config, logger, filename, outputDirPath);
-		for(String file: otherFiles) {
+		for(String file: filenames) {
 			this.filename = file;
-			logger.info("Synthesizer: started");
 			inferrenceTime.reset();
-			
 			try {
 				JminorProblem problem = genProblem();
 				setOutLogFile(problem.name);
+				logger.info("Synthesizer: started");
 				debugger.addLink(problem.name + "Events.txt", problem.name + " Events log");
 				debugger.addCodeFile(problem.name + "Problem.txt", problem.toString(), problem.name + " Specification");
 				debugger.printExamples(problem.examples);
@@ -165,19 +140,17 @@ public class JminorTests {
 				
 				inferrenceTime.start();
 				var optCFG = synthesizeGrammar(trainingPlans, separator);
-				if(optCFG.isPresent()) {
+				if(!optCFG.isPresent()) {
+					debugger.warning("SeqVer: failed to find program CFG!");	
+				} else {
 					var CFG = optCFG.get();
-
 					debugger.addCodeFile(problem.name + "CFG", CFG.toString(), problem.name + " Synthesis CFG");
 					validateExamples(CFG, plans, problem);
 					if (config.getBoolean("jminor.generateJavaImplementation", true)) {
 						GrammarCodegen backend = GrammarCodegen.forJava(CFG, problem, config, debugger, logger);
 						backend.generate();
 					}
-					
-				} else {
-					debugger.warning("SeqVer: failed to find program CFG!");
-				};
+				}
 
 
 			} catch (Throwable t) {
@@ -185,9 +158,9 @@ public class JminorTests {
 				t.printStackTrace();
 			} finally {
 				inferrenceTime.stop();
-				//logger.info("Planning time: " + planningTime.toSeconds());
-				logger.info("Synthesizer: done! (" + inferrenceTime.toSeconds() + ")");
-				System.out.println("-------------------------------------------------------------\n\n");
+				logger.info("Synthesizer: done! (" + inferrenceTime.toSeconds() + ")" +
+						"\r\n-------------------------------------------------------------\n\n");
+				clearOutLogFile();
 			}
 		}
 	}
@@ -201,7 +174,7 @@ public class JminorTests {
 
 		var entries = trainingPlans;
 		for(Trace<JmStore, Stmt> val: entries) {
-			JminorTrace actionTrace = new JminorTrace();
+			ArrayList<StmtLetter> actionTrace = new ArrayList<StmtLetter>();
 			for(int i=0; i<val.size() -1; i++) {
 				var letter = new StmtLetter(val.actionAt(i));
 				letter.state = val.stateAt(i);
@@ -213,19 +186,17 @@ public class JminorTests {
 				stableExample = val;
 			}
 		}
-
-		System.out.println("Converging trace with " + entries.indexOf(stableExample) + " out of " + entries.size() +" :");
+		logger.info("Converging trace with " + entries.indexOf(stableExample) + " out of " + entries.size() +" :");
 		x.clearStates();
 		boolean converged = x.endInput();
 		if(!converged) {
-			System.out.println("CFG STRUCTURE CONVERGENCE FAILED");
+			logger.info("CFG STRUCTURE CONVERGENCE FAILED");
 			return Optional.empty();
 		}
 		stableGrammar = x.grammar;
-		boolean gotGuards = false;
 		for(int i=0; i<entries.size(); i++) {
 			Trace<JmStore, Stmt> val = entries.get(i);
-			JminorTrace actionTrace = new JminorTrace();
+			ArrayList<StmtLetter> actionTrace = new ArrayList<StmtLetter>();
 			for(int j=0; j<val.size() -1; j++) {
 				var letter = new StmtLetter(val.actionAt(j));
 				letter.state = val.stateAt(j);
@@ -235,17 +206,10 @@ public class JminorTests {
  			assert( currGrammar.equals(stableGrammar));
  			stableGrammar = currGrammar;
 		}
-		gotGuards = x.assignGuards();
-
-		if(!gotGuards) {
-			System.out.println("Condition inference failed.");
-		} else {
-			System.out.println("Condition inference succeeded.");
-		}
-		System.out.println("Final grammar:");
+		x.assignGuards();
 		stableGrammar = x.grammar;
-		System.out.println(stableGrammar.toString());
-		return gotGuards? Optional.of(stableGrammar) : Optional.empty();
+		logger.info("Final grammar:\n" + stableGrammar.toString());
+		return Optional.of(stableGrammar);
 	}
 
 	private boolean validateExamples(Grammar cfg, Map<Example<JmStore, Stmt>, Trace<JmStore, Stmt>> exampleToPlan, JminorProblem problem) {
@@ -265,14 +229,8 @@ public class JminorTests {
 			Optional<Trace<JmStore, Stmt>> optAutomatonTrace = interpreter.genTrace(example.input(), 500);
 			if (!optAutomatonTrace.isPresent() || !optAutomatonTrace.get().eqDeterministic(plan)) {
 				{
-					if (!optAutomatonTrace.isPresent()) {
-						debugger.addCodeFile("diff_" + example.name + " .txt", "No trace",
-								"Difference on example " + example.name);
-					} else {
-						//var diffAutomaton = PETI.prefixAutomaton(List.of(optAutomatonTrace.get(), plan),
-						//		problem.semantics(), debugger);
-						debugger.info(/*diffAutomaton.get(),*/ "Difference on example " + example.name);
-						System.out.println(optAutomatonTrace.get());
+					if (optAutomatonTrace.isPresent()){
+						debugger.info("Difference in synthesized result on example " + example.name);
 					}
 				}
 				exampleToCompareResult.put(example, Boolean.FALSE);
@@ -287,7 +245,6 @@ public class JminorTests {
 		message.append("Succeeded on " + numOfTestsSucceeded + " out of " + numOfTests + " test examples.");
 		debugger.addCodeFile(problem.name + "Validation", message.toString(), problem.name + " Synthesis test results");
 		debugger.info("Succeeded on " + numOfTestsSucceeded + " out of " + numOfTests + " test examples.");
-		System.out.println("Succeeded on " + numOfTestsSucceeded + " out of " + numOfTests + " test examples.");
 		return result;
 
 		
@@ -312,6 +269,11 @@ public class JminorTests {
 		}
 	}
 
+	private void clearOutLogFile() {
+		for(var h: logger.getHandlers()) {
+			logger.removeHandler(h);
+		}
+	}
 	private void setOutLogFile(String name) {
 		try {
 			logFile = new File(outputDirPath + File.separator + name + "Events.txt" );

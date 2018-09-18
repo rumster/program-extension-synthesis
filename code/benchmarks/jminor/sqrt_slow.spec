@@ -7,7 +7,7 @@ sqrtSlow(x:int) -> (res:int) {
    
   res = 1;
   resNext = res + 1;
-  while ((res + 1) * (res + 1) < x) {
+  while ((res + 1) * (res + 1) <= x) {
     res = res + 1;
     resNext = res + 1;
   }
@@ -17,7 +17,7 @@ sqrtSlow(x:int) -> (res:int) {
   }
 
   example {
-    [x==5] -> ...
+    [x==7] -> ...
   }
 
   example {

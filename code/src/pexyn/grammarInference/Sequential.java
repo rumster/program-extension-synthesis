@@ -10,6 +10,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
+import java.util.logging.Logger;
 
 import bgu.cs.util.rel.HashRel2;
 import jminor.BoolExpr;
@@ -25,6 +26,7 @@ import pexyn.guardInference.ConditionInferencer;
  *
  */
 public class Sequential extends Generalizer {
+	protected final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 	ArrayList<Nonterminal> nts = grammar.getNonterminals();
 	SententialForm startProd = null;
 	static int ntsCounter = 0;
@@ -839,9 +841,6 @@ public class Sequential extends Generalizer {
 	private static boolean finalMergeInput(Grammar grammar) {
 		var startprods = grammar.getStartProduct();
 		if (startprods.size() < 2) return false;
-		if(startprods.size() > 2) {
-			//System.out.println("Got more than two unconvergable inputs. gonna try merging the latter two");
-		};
 		var oldProd = startprods.get(startprods.size()-2);
 		var newProd = startprods.get(startprods.size()-1);
 		if(oldProd.equals(newProd)) return false;
@@ -871,8 +870,7 @@ public class Sequential extends Generalizer {
 		CommonSentDesc res = SententialForm.getLongestCommonSubstring(list, list2);
 
 		if(wordTransExec(grammar,list,list2)) return true;
-		if(res.length == 0) {				
-			System.out.println("Couldnt find how to merge two start products.");
+		if(res.length == 0) {
 			return false;
 		}
 		boolean ret = false;
@@ -1057,11 +1055,16 @@ public class Sequential extends Generalizer {
 					}
 				}
 			}
-			if(updateToValue.isEmpty()) return false;
+			if(updateToValue.isEmpty()) {
+				logger.info("Condition inference failed for " + nt.getName() +
+						": No runtime code coverage.");
+				continue;
+			}
 			var optUpdateToGuard = separator.infer(updateToValue);
-			//System.out.println(nt);
 			if (!optUpdateToGuard.isPresent()) {
-				return false;
+				logger.info("Condition inference failed for " + nt.getName() +
+						": No distinct deterministic guard found.");
+				continue;
 			}
 			Map<Cmd, ? extends Guard> updateToGuard = optUpdateToGuard.get();
 			var ntGuards = nt.getGuards();
@@ -1078,18 +1081,14 @@ public class Sequential extends Generalizer {
 					}
 				}
 			}
-
-			System.out.println(nt);
-			System.out.println(nt.getGuards().toString());
+			logger.info("Found guards for Nonterminal " + nt.toString() + ":" + nt.getGuards().toString());
 			res.put(nt, updateToGuard);
-			//System.out.println(updateToGuard.toString());
-			
-			
+			logger.fine(updateToGuard.toString());
 		}
 		return true;
 	}
 	
-	public Grammar addExampleStates(JminorTrace actionTrace) {
+	public Grammar addExampleStates(ArrayList<StmtLetter> actionTrace) {
 		InputParseState input = new InputParseState(actionTrace);
 		grammar.getStart().match(input.getScope(), true);
 		return grammar;

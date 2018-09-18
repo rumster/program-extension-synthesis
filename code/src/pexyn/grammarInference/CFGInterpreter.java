@@ -52,11 +52,6 @@ public class CFGInterpreter {
 		return Optional.empty();
 	}
 	
-	private Optional<JmStore> run(Symbol sym){
-		assert(false);
-		return Optional.empty();
-	}
-	
 	private Optional<JmStore> run(SententialForm Prod) {
 		for (int i=0; i< Prod.size(); i++) {
 			Symbol sym = Prod.get(i);

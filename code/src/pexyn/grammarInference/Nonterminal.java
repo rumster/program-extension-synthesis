@@ -156,11 +156,7 @@ public class Nonterminal extends Symbol {
 	// TODO CONTINUE WORKING ON MATCH: STATE-CAPTURING DOESNT WORK WELL
 	public int match(List<?> scope, boolean force) {
 		if (matchDepth++ > 100) {
-			// some kind of overflow. check it out.
-			System.out.println("stuck matching");
-			System.out.println(this.toString());
-			System.out.println(scope.toString());
-			System.out.println(force);
+			// some kind of overflow. seems fixed.
 			return -1;
 		}
 		Sort(); // starts with the longest sequence, should catch recursive nt's

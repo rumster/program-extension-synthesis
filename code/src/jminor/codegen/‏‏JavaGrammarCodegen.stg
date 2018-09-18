@@ -10,39 +10,18 @@ public class $className$ {
   /** Synthesized method.
    */
 	public $if(returnArg)$$returnArg.type$$else$void$endif$ main($args:{it|$it.type$ $it.name$}; separator=", "$){
+		$if(locals)$init();$endif$
 		$args:{it|this.$it.name$ = $it.name$;}; separator="\n"$
 		FuncStart();
 		$if(returnArg)$return $returnArg.name$;$endif$
 	}
+	$if(locals)$
+	private void init(){
+		$locals:{it|$it.name$ = $it.defaultVal$;}; separator="\n"$
+	}
+	$endif$
+	
 	$functions:{it|$it$}; separator="\n"$
 }
 >>
-
-
-IfTransition(succ, guard, update) ::= <<
-if ($guard$) {
-  $update$
-  _state = State.$succ$;
-}
->>
-
-ElseIfTransition(succ, guard, update) ::= <<
-else if ($guard$) {
-  $update$
-  _state = State.$succ$;
-}
->>
-
-WhileTransition(succ, update) ::= <<
-else {
-  $update$
-  _state = State.$succ$;
-}
->>
-
-UpdateTransition(succ, update) ::= <<
-$update$
-_state = State.$succ$;
->>
-
 NonNullType(type) ::= <<$type$>>

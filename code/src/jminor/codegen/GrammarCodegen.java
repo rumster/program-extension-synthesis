@@ -1,6 +1,8 @@
 package jminor.codegen;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 
 import org.apache.commons.configuration2.Configuration;
@@ -31,22 +33,21 @@ public class GrammarCodegen {
 	private final STGLoader templates;
 	private final String languageName;
 	private final String fileSuffix;
-	private final SemanticsRenderer semRenderer;
 
 	public static GrammarCodegen forJava(Grammar cfg, JminorProblem problem, Configuration config,
 			JminorDebugger debugger, Logger logger) {
 		return new GrammarCodegen(cfg, problem, config, debugger, logger, "Java", "java",
-				new STGLoader(GrammarCodegen.class, "þþJavaGrammarCodegen.stg"), new JavaSemanticsRenderer());
+				new STGLoader(GrammarCodegen.class, "þþJavaGrammarCodegen.stg"));
 	}
 
 	public static GrammarCodegen forDafny(Grammar cfg, JminorProblem problem, Configuration config,
 			JminorDebugger debugger, Logger logger) {
 		return new GrammarCodegen(cfg, problem, config, debugger, logger, "Dafny", "dfy",
-				new STGLoader(GrammarCodegen.class, "DafnyGrammarCodegen.stg"), new DafnySemanticsRenderer());
+				new STGLoader(GrammarCodegen.class, "DafnyGrammarCodegen.stg"));
 	}
 
 	public GrammarCodegen(Grammar cfg, JminorProblem problem, Configuration config, JminorDebugger debugger,
-			Logger logger, String languageName, String fileSuffix, STGLoader templates, SemanticsRenderer semRenderer) {
+			Logger logger, String languageName, String fileSuffix, STGLoader templates) {
 		this.cfg = cfg;
 		;
 		this.problem = problem;
@@ -56,7 +57,6 @@ public class GrammarCodegen {
 		this.templates = templates;
 		this.languageName = languageName;
 		this.fileSuffix = fileSuffix;
-		this.semRenderer = semRenderer;
 	}
 
 	public void generate() {
@@ -84,28 +84,28 @@ public class GrammarCodegen {
 		for (var nt : cfg.getNonterminals()) {
 			classFileST.add("functions", render(nt));
 		}
-		renderTransitions(classFileST);
 
 		var text = classFileST.render();
-		debugger.info(text);
 		setOutputDirectory();
-		debugger.addCodeFile(problem.name + "-" + fileSuffix + "-implementation.txt", text, "A " + languageName + " implementation");
+		debugger.addCodeFile(problem.name + "-" + fileSuffix + "-implementation.txt", text, problem.name  + " " + languageName + " implementation");
 		FileUtils.stringToFile(text, config.getString("pexyn.implementationDir", ".") + File.separator + classFileName);
 	}
 	
 	private String render(Nonterminal nt) {
 		var message = new StringBuilder();
 		var wholefunc = new StringBuilder();
+		List<String> guards = new ArrayList<String>();
+		for(int i=0; i<10; i++) guards.add(nt.getGuards().size() > i ? nt.getGuards().get(i).toString() : "?");
 		wholefunc.append("private void Func" + nt.getName() + "(){\n");
 		if(nt.getIsRecursive()) {
-			message.append("\twhile(" + nt.getGuards().get(0).toString() + "){\n");
+			message.append("\twhile(" + guards.get(0).toString() + "){\n");
 			SententialForm body = nt.getProductions().get(0);
 			body.remove(body.size() -1);
 			String renderedBody = render(body);
 			String indented = renderedBody.replaceAll("(?m)^", "\t\t");
 			message.append( indented + "\n\t}\n");
 		} else if (nt.isIfNt()|| nt.isIfElseNt()){
-			message.append("\tif(" + nt.getGuards().get(0).toString() + "){\n");
+			message.append("\tif(" + guards.get(0).toString() + "){\n");
 			var body = render(nt.getProductions().get(0));
 			String indented = body.replaceAll("(?m)^", "\t\t");
 			message.append(indented + "\n\t}");
@@ -147,55 +147,7 @@ public class GrammarCodegen {
 		var outputDirFile = new File(outputDirProp);
 		outputDirFile.mkdir();
 	}	
-
-	private void renderTransitions(ST classFileST) {/*
-		for (var state : cfg.getNodes()) {
-			if (state == cfg.getFinal()) {
-				continue;
-			}
-
-			var stateCodeST = templates.load("StateCode");
-			stateCodeST.add("name", stateName(state.toString()));
-			var trans = new ArrayList<Transition>();
-			for (var edge : cfg.succEdges(state)) {
-				trans.add(new Transition(edge));
-			}
-			if (trans.size() == 1) {
-				trans.get(0).type = TransitionType.UPDATE;
-			} else {
-				trans.get(0).type = TransitionType.FIRST;
-				for (int i = 1; i < trans.size() - 1; ++i) {
-					trans.get(i).type = TransitionType.MIDDLE;
-				}
-				trans.get(trans.size() - 1).type = TransitionType.LAST;
-			}
-			for (var transition : trans) {
-				ST transST = null;
-				switch (transition.type) {
-				case UPDATE:
-					transST = templates.load("UpdateTransition");
-					break;
-				case FIRST:
-					transST = templates.load("IfTransition");
-					transST.add("guard", transition.guard);
-					break;
-				case MIDDLE:
-					transST = templates.load("ElseIfTransition");
-					transST.add("guard", transition.guard);
-					break;
-				case LAST:
-					transST = templates.load("ElseTransition");
-					break;
-				}
-				transST.add("update", transition.command);
-				transST.add("succ", transition.succ);
-				stateCodeST.add("transitions", transST.render());
-			}
-			classFileST.add("stateCodes", stateCodeST.render());
-		}*/
-	} 
-
-
+	
 	public final class JavaVar {
 		public final String name;
 		public final String defaultVal;
