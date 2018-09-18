@@ -4,11 +4,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.logging.FileHandler;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
@@ -26,44 +24,15 @@ import jminor.Stmt;
 import jminor.ast.ASTProblem;
 import jminor.ast.JminorParser;
 import jminor.ast.ProblemCompiler;
+import jminor.codegen.GrammarCodegen;
 import pexyn.Example;
 import pexyn.PETISynthesizer;
 import pexyn.Trace;
-import pexyn.generalization.AutomatonInterpreter;
-import pexyn.generalization.PETI;
 import pexyn.guardInference.ConditionInferencer;
 import pexyn.guardInference.DTreeInferencer;
 import pexyn.planning.AStar;
 
 
-class StmtLetter extends Letter {
-	final Stmt cmd;
-
-	public StmtLetter(Stmt cmd) {
-		super();
-		this.cmd = cmd;
-	}
-
-	@Override
-	public String toString() {
-		return cmd.toString();
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		StmtLetter other = (StmtLetter) obj;
-		return (cmd.equals(other.cmd));
-	}
-
-
-
-}
 class JminorTrace extends ArrayList<StmtLetter>{
 
 	/**
@@ -159,7 +128,7 @@ public class JminorTests {
 				"sll_reverse_merge.spec", "sqrt_fast.spec", "sqrt_slow.spec",
 				 "zune_bug.spec", "bfs.spec"); /**/
 		
-		var stuck  = Arrays.asList("sll_reverse_merge.spec");/**/
+		var stuck  = Arrays.asList("sll_max.spec");/**/
 		
 
 		setOutputDirectory();
@@ -195,10 +164,19 @@ public class JminorTests {
 						shortCiruitEvaluationSemantics);
 				
 				inferrenceTime.start();
-				var optCFG = testConvergence(trainingPlans, separator);
+				var optCFG = synthesizeGrammar(trainingPlans, separator);
 				if(optCFG.isPresent()) {
 					var CFG = optCFG.get();
+
+					debugger.addCodeFile(problem.name + "CFG", CFG.toString(), problem.name + " Synthesis CFG");
 					validateExamples(CFG, plans, problem);
+					if (config.getBoolean("jminor.generateJavaImplementation", true)) {
+						GrammarCodegen backend = GrammarCodegen.forJava(CFG, problem, config, debugger, logger);
+						backend.generate();
+					}
+					
+				} else {
+					debugger.warning("SeqVer: failed to find program CFG!");
 				};
 
 
@@ -214,7 +192,7 @@ public class JminorTests {
 		}
 	}
 
-	private Optional<Grammar> testConvergence(ArrayList<Trace<JmStore, Stmt>> trainingPlans,
+	private Optional<Grammar> synthesizeGrammar(ArrayList<Trace<JmStore, Stmt>> trainingPlans,
 			ConditionInferencer<JmStore, Stmt, BoolExpr> separator) {
 		Sequential x = new Sequential();
 		x.setSeperator(separator);
@@ -318,7 +296,7 @@ public class JminorTests {
 	@SuppressWarnings("unused")
 	private void testConvergence(Map<Example<JmStore, Stmt>, Trace<JmStore, Stmt>> map,
 			ConditionInferencer<JmStore, Stmt, BoolExpr> separator) {
-		testConvergence(new ArrayList<>(map.values()), separator);
+		synthesizeGrammar(new ArrayList<>(map.values()), separator);
 	}
 	private void setOutputDirectory() {
 		var outputDirProp = config.getString("pexyn.outputDir", "output");

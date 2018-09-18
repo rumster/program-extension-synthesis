@@ -118,6 +118,13 @@ public class Nonterminal extends Symbol {
 		return selective;
 	}
 
+	public boolean isIfNt() {
+		return ifNt;
+	}
+
+	public boolean isIfElseNt() {
+		return ifElseNt;
+	}
 	/**
 	 * Returns the set of right-hand sides of the productions associated with this
 	 * nonterminal.
@@ -291,5 +298,6 @@ public class Nonterminal extends Symbol {
 	public ArrayList<Guard> getGuards() {
 		return guards;
 	}
+
 
 }

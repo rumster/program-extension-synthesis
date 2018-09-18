@@ -1,0 +1,48 @@
+ClassFile(className, methodName, returnArg, args, locals, functions) ::= <<
+/** Automatically-generated code.
+ */
+public class $className$ {
+    // Initialize local variables to their default values.
+    $args:{it|$it.type$ $it.name$ = $it.defaultVal$;}; separator="\n"$
+    $locals:{it|$it.type$ $it.name$ = $it.defaultVal$;}; separator="\n"$
+    $if(returnArg)$$returnArg.type$ $returnArg.name$  = $returnArg.defaultVal$;$else$$endif$
+	
+  /** Synthesized method.
+   */
+	public $if(returnArg)$$returnArg.type$$else$void$endif$ main($args:{it|$it.type$ $it.name$}; separator=", "$){
+		$args:{it|this.$it.name$ = $it.name$;}; separator="\n"$
+		FuncStart();
+		$if(returnArg)$return $returnArg.name$;$endif$
+	}
+	$functions:{it|$it$}; separator="\n"$
+}
+>>
+
+
+IfTransition(succ, guard, update) ::= <<
+if ($guard$) {
+  $update$
+  _state = State.$succ$;
+}
+>>
+
+ElseIfTransition(succ, guard, update) ::= <<
+else if ($guard$) {
+  $update$
+  _state = State.$succ$;
+}
+>>
+
+WhileTransition(succ, update) ::= <<
+else {
+  $update$
+  _state = State.$succ$;
+}
+>>
+
+UpdateTransition(succ, update) ::= <<
+$update$
+_state = State.$succ$;
+>>
+
+NonNullType(type) ::= <<$type$>>
