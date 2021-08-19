@@ -1,0 +1,93 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN"
+   "http://www.w3.org/TR/html4/frameset.dtd">
+<HTML>
+<HEAD>
+<TITLE>A Dafny implementation</TITLE>
+</HEAD>
+<BODY><PRE><CODE>/** Automatically-generated code.
+ */
+datatype State = ENTRY | EXIT | N6 | N29 | N71
+
+/** Synthesized method.
+ */
+method sort(head : SLL?) void {
+  // Initialize local variables to their default values.
+  var y : SLL? := null;
+  var yn : SLL? := null;
+  var p : SLL? := null;
+  var t : SLL? := null;
+  var change : boolean? := false;
+
+  var automatonState : State := ENTRY;
+  while (automatonState != State.EXIT) {
+    if (automatonState == ENTRY) {
+      assert ;
+      if (!(yn == null) && !(y.d &lt; yn.d) && !(y.d == yn.d)) {
+        assert true;
+        change := true;
+        automatonState := N6;
+      }
+      else if (!(yn == null) && (y.d &lt; yn.d || y.d == yn.d)) {
+        assert true;
+        p := y;
+        assert true;
+        y := yn;
+        automatonState := N29;
+      }
+      else if (yn == null && change == true) {
+        assert true;
+        p := null;
+        automatonState := N71;
+      }
+      else {
+        return;
+        automatonState := EXIT;
+      }
+    }
+    if (automatonState == N6) {
+      assert ;
+      if (!(y.n == yn)) {
+        assert true;
+        p := null;
+        automatonState := N71;
+      }
+      else {
+        assert true;
+        t := yn.n;
+        assert true;
+        y.n := t;
+        assert true;
+        yn.n := y;
+        assert true;
+        if (head == y) {
+          assert true;
+          head := yn;
+        }
+        else {
+          assert true;
+          p.n := yn;
+        }
+        assert true;
+        p := yn;
+        assert true;
+        yn := t;
+        automatonState := ENTRY;
+      }
+    }
+    if (automatonState == N29) {
+      assert ;
+      assert true;
+      yn := y.n;
+      automatonState := ENTRY;
+    }
+    if (automatonState == N71) {
+      assert ;
+      assert true;
+      change := false;
+      assert true;
+      y := head;
+      automatonState := N29;
+    }
+  }
+}</CODE></PRE></BODY>
+</HTML>

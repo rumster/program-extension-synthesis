@@ -1,0 +1,150 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN"
+   "http://www.w3.org/TR/html4/frameset.dtd">
+<HTML>
+<HEAD>
+<TITLE>Specification</TITLE>
+</HEAD>
+<BODY><PRE><CODE>change = true;
+while (change) {
+  p = null;
+  change = false;
+  y = head;
+  yn = y.n;
+  while (!(yn == null)) {
+    if ((y.d &gt; yn.d)) {
+      change = true;
+      t = yn.n;
+      y.n = t;
+      yn.n = y;
+      if (p == null) {
+        head = yn;
+      }
+      else {
+        p.n = yn;
+      }
+      p = yn;
+      yn = t;
+    }
+    else {
+      p = y;
+      y = yn;
+      yn = y.n;
+    }
+  }
+}
+Types = {
+  int
+}
+
+Variables = {
+  mut head
+  mut y
+  mut yn
+  mut p
+  mut t
+  change:boolean
+}
+
+Commands = {
+  head = p;
+  head = t;
+  head = yn;
+  head = y;
+  y = head;
+  y = p;
+  y = t;
+  y = yn;
+  yn = head;
+  yn = p;
+  yn = t;
+  yn = y;
+  p = head;
+  p = t;
+  p = yn;
+  p = y;
+  t = head;
+  t = p;
+  t = yn;
+  t = y;
+  head = new SLL();
+  head = null;
+  head.n = null;
+  head.n = head;
+  head.n = p;
+  head.n = t;
+  head.n = yn;
+  head.n = y;
+  head = head.n;
+  head = p.n;
+  head = t.n;
+  head = yn.n;
+  head = y.n;
+  y = new SLL();
+  y = null;
+  y.n = null;
+  y.n = head;
+  y.n = p;
+  y.n = t;
+  y.n = yn;
+  y.n = y;
+  y = head.n;
+  y = p.n;
+  y = t.n;
+  y = yn.n;
+  y = y.n;
+  yn = new SLL();
+  yn = null;
+  yn.n = null;
+  yn.n = head;
+  yn.n = p;
+  yn.n = t;
+  yn.n = yn;
+  yn.n = y;
+  yn = head.n;
+  yn = p.n;
+  yn = t.n;
+  yn = yn.n;
+  yn = y.n;
+  p = new SLL();
+  p = null;
+  p.n = null;
+  p.n = head;
+  p.n = p;
+  p.n = t;
+  p.n = yn;
+  p.n = y;
+  p = head.n;
+  p = p.n;
+  p = t.n;
+  p = yn.n;
+  p = y.n;
+  t = new SLL();
+  t = null;
+  t.n = null;
+  t.n = head;
+  t.n = p;
+  t.n = t;
+  t.n = yn;
+  t.n = y;
+  t = head.n;
+  t = p.n;
+  t = t.n;
+  t = yn.n;
+  t = y.n;
+  change = (change + change);
+  change = (change * change);
+  change = (change + 1);
+  change = (change - 1);
+  change = (change / 1);
+  change = 0;
+  change = (0 + change);
+  change = (0 * change);
+  change = (0 - change);
+  change = (0 / change);
+  change = 1;
+  change = (1 + change);
+  change = (1 * change);
+  change = (1 - change);
+  change = (1 / change);
+}</CODE></PRE></BODY>
+</HTML>

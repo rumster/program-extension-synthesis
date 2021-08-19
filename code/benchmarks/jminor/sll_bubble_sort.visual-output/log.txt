@@ -1,0 +1,88 @@
+Feb 14, 2021 2:19:22 AM jminor.Main run
+INFO: Synthesizer: started
+Feb 14, 2021 2:19:22 AM jminor.Main genProblem
+INFO: Parsing sll_bubble_sort.spec... 
+Feb 14, 2021 2:19:23 AM jminor.Main genProblem
+INFO: done
+Feb 14, 2021 2:19:23 AM jminor.Main genProblem
+INFO: Semantic analysis... 
+Feb 14, 2021 2:19:23 AM jminor.Main genProblem
+INFO: done
+Feb 14, 2021 2:19:23 AM bgu.cs.util.HTMLPrinter info
+INFO: Found a plan for example example_0
+Feb 14, 2021 2:19:23 AM bgu.cs.util.HTMLPrinter info
+INFO: Found a plan for example example_1
+Feb 14, 2021 2:19:23 AM bgu.cs.util.HTMLPrinter info
+INFO: Found a plan for example example_2
+Feb 14, 2021 2:19:23 AM bgu.cs.util.HTMLPrinter info
+INFO: Found a plan for example example_3
+Feb 14, 2021 2:19:23 AM bgu.cs.util.HTMLPrinter info
+INFO: Found a plan for example example_4
+Feb 14, 2021 2:19:23 AM bgu.cs.util.HTMLPrinter info
+INFO: Found a plan for example example_5
+Feb 14, 2021 2:19:23 AM bgu.cs.util.HTMLPrinter info
+INFO: Found a plan for example example_6
+Feb 14, 2021 2:19:23 AM bgu.cs.util.HTMLPrinter info
+INFO: Found a plan for example example_7
+Feb 14, 2021 2:19:23 AM bgu.cs.util.HTMLPrinter info
+INFO: Found a plan for example example_8
+Feb 14, 2021 2:19:23 AM bgu.cs.util.HTMLPrinter info
+INFO: Found a plan for example example_9
+Feb 14, 2021 2:19:23 AM bgu.cs.util.HTMLPrinter info
+INFO: Found a plan for example example_10
+Feb 14, 2021 2:19:23 AM bgu.cs.util.HTMLPrinter info
+INFO: Found a plan for example example_11
+Feb 14, 2021 2:19:23 AM bgu.cs.util.HTMLPrinter info
+INFO: Found a plan for example example_12
+Feb 14, 2021 2:19:23 AM bgu.cs.util.HTMLPrinter info
+INFO: Found a plan for example example_13
+Feb 14, 2021 2:19:23 AM bgu.cs.util.HTMLPrinter info
+INFO: Found a plan for example example_14
+Feb 14, 2021 2:19:23 AM bgu.cs.util.HTMLPrinter info
+INFO: Found a plan for example example_15
+Feb 14, 2021 2:19:23 AM bgu.cs.util.HTMLPrinter info
+INFO: Found a plan for example example_16
+Feb 14, 2021 2:19:23 AM bgu.cs.util.HTMLPrinter info
+INFO: Found a plan for example example_17
+Feb 14, 2021 2:19:23 AM bgu.cs.util.HTMLPrinter info
+INFO: Found a plan for example example_18
+Feb 14, 2021 2:19:23 AM bgu.cs.util.HTMLPrinter info
+INFO: Found a plan for example example_19
+Feb 14, 2021 2:19:23 AM bgu.cs.util.HTMLPrinter info
+INFO: Found a plan for example example_20
+Feb 14, 2021 2:19:23 AM bgu.cs.util.HTMLPrinter info
+INFO: Found a plan for example example_21
+Feb 14, 2021 2:19:23 AM bgu.cs.util.HTMLPrinter info
+INFO: Found a plan for example example_22
+Feb 14, 2021 2:19:23 AM bgu.cs.util.HTMLPrinter info
+INFO: Found a plan for example example_23
+Feb 14, 2021 2:19:23 AM bgu.cs.util.HTMLPrinter info
+INFO: Found a plan for example example_24
+Feb 14, 2021 2:19:23 AM bgu.cs.util.HTMLPrinter info
+INFO: Found a plan for example example_25
+Feb 14, 2021 2:19:23 AM bgu.cs.util.HTMLPrinter info
+INFO: Found a plan for example example_26
+Feb 14, 2021 2:19:23 AM bgu.cs.util.HTMLPrinter info
+INFO: Example example_1. Plan length = 21
+Feb 14, 2021 2:19:23 AM bgu.cs.util.HTMLPrinter info
+INFO: Example example_11. Plan length = 31
+Feb 14, 2021 2:19:23 AM bgu.cs.util.HTMLPrinter info
+INFO: Example example_14. Plan length = 54
+Feb 14, 2021 2:19:23 AM bgu.cs.util.HTMLPrinter info
+INFO: Example example_15. Plan length = 16
+Feb 14, 2021 2:19:23 AM bgu.cs.util.HTMLPrinter info
+INFO: Generalizing 4 plans...
+Feb 14, 2021 2:19:28 AM bgu.cs.util.HTMLPrinter info
+INFO: Automaton learning time: 4 sec.
+Feb 14, 2021 2:19:28 AM bgu.cs.util.HTMLPrinter info
+INFO: Automaton learning result = OK
+Feb 14, 2021 2:19:28 AM bgu.cs.util.HTMLPrinter info
+INFO: Succeeded on 23 out of 23 test examples.
+Feb 14, 2021 2:19:28 AM bgu.cs.util.HTMLPrinter info
+INFO: Validation tests: okay
+Feb 14, 2021 2:19:28 AM bgu.cs.util.HTMLPrinter info
+INFO: PETI: found program automaton!
+Feb 14, 2021 2:19:28 AM bgu.cs.util.HTMLPrinter info
+INFO: Planning time: 0 sec.
+Feb 14, 2021 2:19:28 AM bgu.cs.util.HTMLPrinter info
+INFO: Synthesizer: done! (5 sec.)

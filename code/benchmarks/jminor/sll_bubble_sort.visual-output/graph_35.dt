@@ -1,0 +1,32 @@
+digraph anonymous_graph {
+ node [shape=ellipse];
+N0 [label="initial", ];
+N1 [label="final", peripheries=2];
+N2 [label="N6", ];
+N3 [label="N10", ];
+N4 [label="N14", ];
+N5 [label="N23", ];
+N6 [label="N29", ];
+N7 [label="N41", ];
+N8 [label="N42", ];
+N9 [label="N52", ];
+N10 [label="N71", ];
+N11 [label="N84", ];
+N0->N2[label="change = true;"];
+N0->N10[label="p = null;"];
+N0->N1[label="return;"];
+N0->N11[label="!(1 < head.d)/
+p = y;"];
+N2->N10[label="p = null;"];
+N2->N7[label="t = yn.n;"];
+N3->N9[label="p = yn;"];
+N4->N6[label="y = head;"];
+N5->N3[label="head = yn;"];
+N5->N3[label="p.n = yn;"];
+N6->N0[label="yn = y.n;"];
+N7->N8[label="y.n = t;"];
+N8->N5[label="yn.n = y;"];
+N9->N0[label="yn = t;"];
+N10->N4[label="change = false;"];
+N11->N6[label="y = yn;"];
+}

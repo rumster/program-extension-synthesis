@@ -1,0 +1,84 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN"
+   "http://www.w3.org/TR/html4/frameset.dtd">
+<HTML>
+<HEAD>
+<TITLE>A Java implementation</TITLE>
+</HEAD>
+<BODY><PRE><CODE>/** Automatically-generated code.
+ */
+public class Sort {
+  private static enum State {
+    ENTRY,
+    EXIT,
+    N6,
+    N29,
+    N71
+  };
+
+  /** Synthesized method.
+   */
+  public static void run(SLL head) {
+    // Initialize local variables to their default values.
+    SLL y = null;
+    SLL yn = null;
+    SLL p = null;
+    SLL t = null;
+    boolean change = false;
+
+    State _state = State.ENTRY;
+    while (_state != State.EXIT) {
+      switch (_state) {
+        case ENTRY:
+          if (!(yn == null) && !(y.d &lt; yn.d) && !(y.d == yn.d)) {
+            change = true;
+            _state = State.N6;
+          }
+          else if (!(yn == null) && (y.d &lt; yn.d || y.d == yn.d)) {
+            p = y;
+            y = yn;
+            _state = State.N29;
+          }
+          else if (yn == null && change == true) {
+            p = null;
+            _state = State.N71;
+          }
+          else {
+            return;
+            _state = State.EXIT;
+          }
+          break;
+        case N6:
+          if (!(y.n == yn)) {
+            p = null;
+            _state = State.N71;
+          }
+          else {
+            t = yn.n;
+            y.n = t;
+            yn.n = y;
+            if (head == y) {
+              head = yn;
+            }
+            else {
+              p.n = yn;
+            }
+            p = yn;
+            yn = t;
+            _state = State.ENTRY;
+          }
+          break;
+        case N29:
+          yn = y.n;
+          _state = State.ENTRY;
+          break;
+        case N71:
+          change = false;
+          y = head;
+          _state = State.N29;
+          break;
+        case EXIT: // Unreachable.        
+      }
+    }
+  }
+}</CODE></PRE></BODY>
+</HTML>
